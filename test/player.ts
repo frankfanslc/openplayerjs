@@ -1,9 +1,8 @@
 import timers from '@sinonjs/fake-timers';
 import OpenPlayerJS from '../src/js/player';
+import './helper';
 
-describe('player', function () {
-    this.timeout(6000);
-
+describe('player', () => {
     // const assertAfter = async (assertCondition, time = 1000) => {
     //     const setTimeoutPromise = timeout => new Promise(resolve => setTimeout(resolve, timeout));
     //     await setTimeoutPromise(time);
@@ -11,7 +10,7 @@ describe('player', function () {
     // };
 
     const defaultVideo = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4';
-    //     // const defaultAudio = 'https://ccrma.stanford.edu/~jos/mp3/Latin.mp3';
+    // const defaultAudio = 'https://ccrma.stanford.edu/~jos/mp3/Latin.mp3';
     let videoPlayer;
     let audioPlayer;
     let clock;
@@ -32,6 +31,7 @@ describe('player', function () {
         videoPlayer = null;
         audioPlayer = null;
     });
+
     it('creates an instance of a video player by initializing it via configuration', async () => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
@@ -52,6 +52,7 @@ describe('player', function () {
         expect(videoPlayer.getContainer().querySelector('.op-player__play')).to.not.equal(null);
         expect(videoPlayer.getContainer().querySelector('.op-controls__duration').innerText).to.equal('00:00');
     });
+
     it('creates an instance of an audio player by initializing it via configuration', async () => {
         audioPlayer = new OpenPlayerJS('audio');
         await audioPlayer.init();
@@ -70,6 +71,7 @@ describe('player', function () {
         expect(audioPlayer.getContainer().querySelector('.op-player__play')).to.equal(null);
         expect(audioPlayer.getContainer().querySelector('.op-controls__duration').innerText).to.equal('00:00');
     });
+
     it('detects if user is using a mouse (by default) or keyboard', async () => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
@@ -81,6 +83,7 @@ describe('player', function () {
         videoPlayer.getContainer().dispatchEvent(event);
         expect(videoPlayer.getContainer().classList.contains('op-player__keyboard--inactive')).to.equal(false);
     });
+
     it('detects the type of media to be played (i.e., video)', async () => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
@@ -90,6 +93,7 @@ describe('player', function () {
         await audioPlayer.init();
         expect(audioPlayer.getContainer().classList.contains('op-player__audio')).to.equal(true);
     });
+
     it('displays a different UI when changing the mode to `fill` or `fit` (ONLY for video)', async () => {
         videoPlayer = new OpenPlayerJS('video', { mode: 'fill' });
         await videoPlayer.init();
@@ -111,7 +115,8 @@ describe('player', function () {
         expect(audioPlayer.getContainer().classList.contains('op-player__fit')).to.equal(false);
         expect(audioPlayer.getContainer().parentElement.classList.contains('op-player__fit--wrapper')).to.equal(false);
     });
-    it('uses the width and/or height (in px or %) indicated in the configuration', async () => {
+
+    it('uses the width and/or height (in px or %) indicated in the configuration (#184)', async () => {
         videoPlayer = new OpenPlayerJS('video', { width: 100 });
         await videoPlayer.init();
         expect(videoPlayer.getContainer().style.width).to.equal('100px');
@@ -129,6 +134,7 @@ describe('player', function () {
         expect(videoPlayer.getContainer().style.width).to.equal('100%');
         expect(videoPlayer.getContainer().style.height).to.equal('50%');
     });
+
     it('displays the duration of media when player plays media, and `preload` attribute is set to `none`', async () => {
         document.getElementById('video').setAttribute('preload', 'none');
 
@@ -150,7 +156,8 @@ describe('player', function () {
             }
         });
     });
-    it('allows user to add/remove control elements via configuration', async () => {
+
+    it('allows user to add/remove control elements via configuration (#156)', async () => {
         const controls = {
             layers: {
                 left: ['play', 'volume'],
@@ -164,113 +171,88 @@ describe('player', function () {
         expect(audioPlayer.getContainer().querySelector('.op-controls__duration')).to.be(null);
         expect(audioPlayer.getContainer().querySelector('.op-controls__playpause')).to.not.be(null);
     });
-    // it('handles attempts to play an invalid source', async () => {
-    //     videoPlayer = new OpenPlayerJS('video');
-    //     videoPlayer.src = 'https://non-existing.test/test.mp4';
-    //     await videoPlayer.init();
 
-    //     return new Promise<void>(resolve => {
-    //         try {
-    //             videoPlayer.play();
-    //         } catch (err) {
-    //             expect(err instanceof DOMException).to.equal(true);
-    //             videoPlayer.src = defaultVideo;
-    //             resolve();
-    //         }
-    //     });
-    // });
-    // it('allows to set a source or more after it has been initialized (updating sources)', async () => {
-    //     videoPlayer = new OpenPlayerJS('video');
-    //     await videoPlayer.init();
-    //     videoPlayer.src = 'https://player.webvideocore.net/CL1olYogIrDWvwqiIKK7eLBkzvO18gwo9ERMzsyXzwt_t-ya8ygf2kQBZww38JJT/8i4vvznv8408.m3u8';
-    //     videoPlayer.load();
+    it.skip('handles attempts to play an invalid source', async () => {
+        videoPlayer = new OpenPlayerJS('video');
+        await videoPlayer.init();
+        videoPlayer.src = 'https://non-existing.test/test.mp4';
+        videoPlayer.load();
 
-    //     expect(videoPlayer.getMedia().src).to.eql([{
-    //         src: 'https://player.webvideocore.net/CL1olYogIrDWvwqiIKK7eLBkzvO18gwo9ERMzsyXzwt_t-ya8ygf2kQBZww38JJT/8i4vvznv8408.m3u8',
-    //         type: 'application/x-mpegURL',
-    //     }]);
+        try {
+            videoPlayer.play();
+        } catch (err) {
+            expect(err instanceof DOMException).to.equal(true);
+            videoPlayer.src = defaultVideo;
+        }
+    });
 
-    //     return new Promise<void>((resolve, reject) => {
-    //         let assessed = false;
-    //         videoPlayer.getElement().addEventListener('timeupdate', e => {
-    //             if (!assessed && e.target.currentTime > 0) {
-    //                 expect(e.target.currentTime).to.not.equal(0);
-    //                 assessed = true;
-    //                 videoPlayer.src = defaultVideo;
-    //                 resolve();
-    //             }
-    //         });
+    it('allows to set dynamically any sources (media and Ads) when no sources are detected in media (#283)', async () => {
+        const id = 'video';
+        const source = document.getElementById(id).querySelector('source');
+        const media = (document.getElementById(id) as HTMLMediaElement);
+        media.setAttribute('preload', 'none');
+        media.querySelector('source').remove();
 
-    //         try {
-    //             videoPlayer.play();
-    //         } catch (err) {
-    //             reject();
-    //         }
-    //     });
-    // });
-    // it('allows to set a source when no sources are detected in media (dynamically adding sources)', async () => {
-    //     const id = 'video';
-    //     const source = document.getElementById(id).querySelector('source');
-    //     const media = (document.getElementById(id) as HTMLMediaElement);
-    //     media.setAttribute('preload', 'none');
-    //     media.querySelector('source').remove();
+        videoPlayer = new OpenPlayerJS(id);
+        await videoPlayer.init();
 
-    //     audioPlayer = new OpenPlayerJS(id);
-    //     audioPlayer.src = 'https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3';
-    //     await audioPlayer.init();
-    //     await audioPlayer.load();
+        return new Promise<void>(resolve => {
+            let assessed = false;
+            videoPlayer.getElement().addEventListener('play', () => {
+                const target = videoPlayer.activeElement();
+                if (!assessed && target.currentTime > 0) {
+                    expect(target.currentTime).to.not.equal(0);
+                    media.appendChild(source);
+                    assessed = true;
+                    resolve();
+                }
+            });
 
-    //     return new Promise<void>((resolve, reject) => {
-    //         let assessed = false;
-    //         audioPlayer.getElement().addEventListener('timeupdate', e => {
-    //             if (!assessed && e.target.currentTime > 0) {
-    //                 expect(e.target.currentTime).to.not.equal(0);
-    //                 media.appendChild(source);
-    //                 assessed = true;
-    //                 resolve();
-    //             }
-    //         });
+            videoPlayer.src = 'https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3';
+            videoPlayer.load();
+            videoPlayer.loadAd(
+                'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator='
+            );
 
-    //         try {
-    //             audioPlayer.play();
-    //         } catch (err) {
-    //             reject();
-    //         }
-    //     });
-    // });
+            try {
+                videoPlayer.play();
+            } catch (err) {
+                throw new Error('error');
+            }
+        });
+    });
 
-    //     it('should allow listening to custom events and add custom config (i.e., HLS library)', () => {
-    //         const media = document.getElementById('video') as HTMLMediaElement;
-    //         const source = media.querySelector('source');
-    //         media.querySelector('source').remove();
-    //         media.src = 'https://storage.googleapis.com/shaka-demo-assets/angel-one-widevine-hls/hls.m3u8';
+    it('should allow listening to custom events and add custom config (i.e., HLS library) (#279)', async () => {
+        const media = document.getElementById('video') as HTMLMediaElement;
+        const source = media.querySelector('source');
+        media.querySelector('source').remove();
+        media.src = 'https://storage.googleapis.com/shaka-demo-assets/angel-one-widevine-hls/hls.m3u8';
 
-    //         videoPlayer = new OpenPlayerJS('video', {
-    //             hls: {
-    //                 emeEnabled: true,
-    //                 enableWorker: true,
-    //                 startLevel: -1,
-    //                 widevineLicenseUrl: 'https://cwip-shaka-proxy.appspot.com/no_auth',
-    //             },
-    //         });
-    //         return videoPlayer.init().then(async () => {
-    //             const promise: Promise<void> = new Promise((resolve, reject) => {
-    //                 const levelEvent = e => {
-    //                     expect(e).to.not.be(null);
+        videoPlayer = new OpenPlayerJS('video', {
+            hls: {
+                emeEnabled: true,
+                enableWorker: true,
+                startLevel: -1,
+                widevineLicenseUrl: 'https://cwip-shaka-proxy.appspot.com/no_auth',
+            },
+        });
+        await videoPlayer.init();
 
-    //                     videoPlayer.getElement().removeEventListener('hlsLevelLoaded', levelEvent);
-    //                     document.getElementById('video').appendChild(source);
-    //                     resolve();
-    //                 };
-    //                 videoPlayer.getElement().addEventListener('hlsLevelLoaded', levelEvent);
+        return new Promise(resolve => {
+            const manifestEvent = () => {
+                expect(true).to.be(true);
+                videoPlayer.getElement().removeEventListener('hlsLevelLoaded', manifestEvent);
+                media.src = '';
+                document.getElementById('video').appendChild(source);
+                resolve();
+            };
+            videoPlayer.getElement().addEventListener('hlsLevelLoaded', manifestEvent);
 
-//                 try {
-//                     videoPlayer.play();
-//                 } catch (err) {
-//                     reject();
-//                 }
-//             });
-//             await promise;
-//         });
-//     });
+            try {
+                videoPlayer.play();
+            } catch (err) {
+                throw new Error('error');
+            }
+        });
+    });
 });
