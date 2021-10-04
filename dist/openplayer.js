@@ -10325,7 +10325,9 @@ var media_Media = function () {
                 _context.prev = 15;
                 _context.t0 = _context["catch"](7);
 
-                media_classPrivateFieldGet(this, _Media_media, "f").destroy();
+                if (media_classPrivateFieldGet(this, _Media_media, "f")) {
+                  media_classPrivateFieldGet(this, _Media_media, "f").destroy();
+                }
 
                 throw _context.t0;
 
@@ -10408,7 +10410,9 @@ var media_Media = function () {
   }, {
     key: "destroy",
     value: function destroy() {
-      media_classPrivateFieldGet(this, _Media_media, "f").destroy();
+      if (media_classPrivateFieldGet(this, _Media_media, "f")) {
+        media_classPrivateFieldGet(this, _Media_media, "f").destroy();
+      }
     }
   }, {
     key: "src",
@@ -10819,6 +10823,8 @@ var ads_Ads = function () {
     ads_classPrivateFieldSet(this, _Ads_element, player.getElement(), "f");
 
     ads_classPrivateFieldSet(this, _Ads_autoStart, autoStart || false, "f");
+
+    ads_classPrivateFieldSet(this, _Ads_adsMuted, player.getElement().muted, "f");
 
     ads_classPrivateFieldSet(this, _Ads_autoStartMuted, autoStartMuted || false, "f");
 
