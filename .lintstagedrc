@@ -1,11 +1,5 @@
 {
-    "src/js/**/*.{js,ts}": [
-        "prettier --write",
-        "eslint --fix",
-        "npm test",
-        "git add --all"
-    ],
-    "test/**/*.js": [
+    "*.{js,ts}": [
         "prettier --write",
         "eslint --fix",
         "npm test",
