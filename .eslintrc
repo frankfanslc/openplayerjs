@@ -10,6 +10,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
+  "ignorePatterns": ["types/**/*.js", "src/css/*", "dist/**/*.js", "webpack.config.js"],
   "settings": {
     "import/resolver": {
       "node": {

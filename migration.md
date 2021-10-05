@@ -1,5 +1,11 @@
 # Migration
 
+## Starting in v3.x.x
+
+No longer support for IE11.
+
+Bundles will not support IE11 going forward to reduce the footprint of supporting Promises and other ES6 native functions.
+
 ## From v2.6.1 to v2.7.0
 
 After updating Typescript to a newer version, all "private" variables are now truly not accessible at runtime. For more information, check the [Javascript section](./docs/usage.md#javascript).

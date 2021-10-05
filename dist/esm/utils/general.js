@@ -28,9 +28,7 @@ export function loadScript(url) {
         };
         script.onerror = () => {
             removeElement(script);
-            reject({
-                src: url,
-            });
+            reject(new Error(`${url} could not be loaded`));
         };
         if (document.head) {
             document.head.appendChild(script);

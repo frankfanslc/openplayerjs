@@ -69,10 +69,7 @@ export function loadScript(url: string) {
         };
         script.onerror = () => {
             removeElement(script);
-            // eslint-disable-next-line prefer-promise-reject-errors
-            reject({
-                src: url,
-            });
+            reject(new Error(`${url} could not be loaded`));
         };
         if (document.head) {
             document.head.appendChild(script);

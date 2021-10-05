@@ -19,17 +19,10 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _Player_controls, _Player_adsInstance, _Player_uid, _Player_element, _Player_ads, _Player_media, _Player_events, _Player_autoplay, _Player_volume, _Player_canAutoplay, _Player_canAutoplayMuted, _Player_processedAutoplay, _Player_options, _Player_customControlItems, _Player_fullscreen, _Player_defaultOptions;
-import 'core-js/features/array/find';
-import 'core-js/features/array/from';
-import 'core-js/features/object/assign';
-import 'core-js/features/object/keys';
-import 'core-js/features/promise';
-import 'custom-event-polyfill';
 import Controls from './controls';
 import Fullscreen from './controls/fullscreen';
 import Media from './media';
 import Ads from './media/ads';
-import './utils/closest';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from './utils/constants';
 import { addEvent } from './utils/events';
 import { isAudio, isVideo, removeElement } from './utils/general';

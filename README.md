@@ -29,7 +29,7 @@ So, please consider this before upgrading to any of the 3.x.x version going forw
 
 ## Advantages
 
-- Supports **IE11+ (Win8) and all modern browsers**.
+- Supports **all ever-green modern browsers**.
 - **No dependencies**, since it is written in Typescript.
 - Runs a simple but yet powerful algorithm to **check the browser's autoplay capabilities** across browsers.
 - Supports for **local and remote captions** for **both video and audio**, even without including the `crossorigin` attribute.

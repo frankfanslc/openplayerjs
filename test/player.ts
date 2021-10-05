@@ -1,26 +1,13 @@
-import timers from '@sinonjs/fake-timers';
 import OpenPlayerJS from '../src/js/player';
 import './helper';
 
 describe('player', () => {
-    // const assertAfter = async (assertCondition, time = 1000) => {
-    //     const setTimeoutPromise = timeout => new Promise(resolve => setTimeout(resolve, timeout));
-    //     await setTimeoutPromise(time);
-    //     return assertCondition;
-    // };
-
     const defaultVideo = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4';
     // const defaultAudio = 'https://ccrma.stanford.edu/~jos/mp3/Latin.mp3';
     let videoPlayer;
     let audioPlayer;
-    let clock;
 
-    beforeEach(() => {
-        clock = timers.install();
-    });
     afterEach(() => {
-        clock.uninstall();
-
         if (OpenPlayerJS.instances.video) {
             OpenPlayerJS.instances.video.destroy();
         }

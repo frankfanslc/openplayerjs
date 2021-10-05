@@ -1,9 +1,3 @@
-import 'core-js/features/array/find';
-import 'core-js/features/array/from';
-import 'core-js/features/object/assign';
-import 'core-js/features/object/keys';
-import 'core-js/features/promise';
-import 'custom-event-polyfill';
 import Controls from './controls';
 import Fullscreen from './controls/fullscreen';
 import Track from './interfaces/captions/track';
@@ -15,7 +9,6 @@ import PlayerOptions from './interfaces/player-options';
 import Source from './interfaces/source';
 import Media from './media';
 import Ads from './media/ads';
-import './utils/closest';
 import {
     EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE
 } from './utils/constants';
