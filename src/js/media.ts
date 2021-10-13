@@ -158,7 +158,7 @@ class Media {
         }
 
         // Loop until first playable source is found
-        this.#files.some(media => {
+        this.#files.some((media) => {
             try {
                 this.#media = this._invoke(media);
             } catch (e) {
@@ -254,18 +254,19 @@ class Media {
         }
 
         // Remove files without source
-        this.#files = this.#files.filter(file => file.src);
+        this.#files = this.#files.filter((file) => file.src);
 
         if (this.#files.length > 0) {
+            const [file] = this.#files;
             // Save copy of original file to restore it when player is destroyed
             if (this.#element.src) {
                 this.#element.setAttribute('data-op-file', this.#files[0].src);
             }
 
-            this.#element.src = this.#files[0].src;
-            this.#currentSrc = this.#files[0];
+            this.#element.src = file.src;
+            this.#currentSrc = file;
             if (this.#media) {
-                this.#media.src = this.#files[0];
+                this.#media.src = file;
             }
         } else {
             this.#element.src = '';
@@ -485,7 +486,7 @@ class Media {
      *
      * @memberof Media
      */
-    set level(value: number|string|Level) {
+    set level(value: number | string | Level) {
         if (this.#media) {
             this.#media.level = value;
         }
@@ -496,7 +497,7 @@ class Media {
      * @memberof Media
      * @readonly
      */
-    get level(): number|string|Level {
+    get level(): number | string | Level {
         return this.#media ? this.#media.level : -1;
     }
 
@@ -505,7 +506,7 @@ class Media {
      * @memberof Media
      * @readonly
      */
-    get levels() {
+    get levels(): Level[] {
         return this.#media ? this.#media.levels : [];
     }
 
@@ -514,7 +515,7 @@ class Media {
      * @memberof Media
      * @readonly
      */
-    get instance() {
+    get instance(): Media | null {
         return this.#media ? this.#media.instance : null;
     }
 
@@ -543,7 +544,7 @@ class Media {
         // test <source> types to see if they are usable
         for (let i = 0, total = sourceTags.length; i < total; i++) {
             const item = sourceTags[i];
-            const src = item.src;
+            const { src } = item;
             mediaFiles.push({
                 src,
                 type: item.getAttribute('type') || source.predictType(src, this.#element),
@@ -552,7 +553,8 @@ class Media {
             // If tag has the attribute `preload` set as `none`, the current media will
             // be the first one on the list of sources
             if (i === 0) {
-                this.#currentSrc = mediaFiles[0];
+                const [file] = mediaFiles;
+                this.#currentSrc = file;
             }
         }
 
@@ -574,13 +576,13 @@ class Media {
      * @memberof Media
      */
     private _invoke(media: Source): HlsMedia | DashMedia | HTML5Media | any {
-        const playHLSNatively = this.#element.canPlayType('application/vnd.apple.mpegurl')
-            || this.#element.canPlayType('application/x-mpegURL');
+        const playHLSNatively =
+            this.#element.canPlayType('application/vnd.apple.mpegurl') || this.#element.canPlayType('application/x-mpegURL');
 
         this.#currentSrc = media;
 
         let activeLevels = false;
-        Object.keys(this.#options.controls.layers).forEach(layer => {
+        Object.keys(this.#options.controls.layers).forEach((layer) => {
             if (this.#options.controls.layers[layer].indexOf('levels') > -1) {
                 activeLevels = true;
             }
@@ -614,11 +616,14 @@ class Media {
             return new DashMedia(this.#element, media, dashOptions);
         }
         if (source.isFlvSource(media)) {
-            const flvOptions = this.#options && this.#options.flv ? this.#options.flv : {
-                debug: false,
-                type: 'flv',
-                url: media.src,
-            };
+            const flvOptions =
+                this.#options && this.#options.flv
+                    ? this.#options.flv
+                    : {
+                          debug: false,
+                          type: 'flv',
+                          url: media.src,
+                      };
             return new FlvMedia(this.#element, media, flvOptions);
         }
 

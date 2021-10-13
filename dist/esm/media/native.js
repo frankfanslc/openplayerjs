@@ -15,7 +15,7 @@ class Native {
         _Native_customPlayer.set(this, void 0);
         this.element = element;
         this.media = media;
-        this.promise = new Promise(resolve => {
+        this.promise = new Promise((resolve) => {
             resolve({});
         });
     }

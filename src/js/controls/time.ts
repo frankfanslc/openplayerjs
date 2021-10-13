@@ -158,11 +158,11 @@ class Time implements PlayerComponent {
         }
         controls.appendChild(this.#container);
 
-        const setInitialTime = () => {
+        const setInitialTime = (): void => {
             const el = this.#player.activeElement();
             if (el.duration !== Infinity && !this.#player.getElement().getAttribute('op-live__enabled')) {
                 if (!showOnlyCurrent) {
-                    const duration = !isNaN(el.duration) ? el.duration : this.#player.getOptions().progress.duration;
+                    const duration = !Number.isNaN(el.duration) ? el.duration : this.#player.getOptions().progress.duration;
                     this.#duration.innerText = formatTime(duration);
                 }
                 this.#current.innerText = formatTime(el.currentTime);
@@ -177,12 +177,15 @@ class Time implements PlayerComponent {
 
         const { showLabel: showLiveLabel } = this.#player.getOptions().live;
 
-        this.#events.media.timeupdate = () => {
+        this.#events.media.timeupdate = (): void => {
             const el = this.#player.activeElement();
-            if (el.duration !== Infinity && !this.#player.getElement().getAttribute('op-live__enabled')
-                && !this.#player.getElement().getAttribute('op-dvr__enabled')) {
+            if (
+                el.duration !== Infinity &&
+                !this.#player.getElement().getAttribute('op-live__enabled') &&
+                !this.#player.getElement().getAttribute('op-dvr__enabled')
+            ) {
                 const duration = formatTime(el.duration);
-                if (!showOnlyCurrent && !isNaN(el.duration) && duration !== this.#duration.innerText) {
+                if (!showOnlyCurrent && !Number.isNaN(el.duration) && duration !== this.#duration.innerText) {
                     this.#duration.innerText = duration;
                     this.#duration.setAttribute('aria-hidden', 'false');
                     this.#delimiter.setAttribute('aria-hidden', 'false');
@@ -196,8 +199,10 @@ class Time implements PlayerComponent {
                     this.#delimiter.setAttribute('aria-hidden', 'true');
                 }
                 this.#current.innerText = formatTime(el.currentTime);
-            } else if (showOnlyCurrent || (!this.#player.getElement().getAttribute('op-dvr__enabled')
-                && this.#duration.getAttribute('aria-hidden') === 'false')) {
+            } else if (
+                showOnlyCurrent ||
+                (!this.#player.getElement().getAttribute('op-dvr__enabled') && this.#duration.getAttribute('aria-hidden') === 'false')
+            ) {
                 if (!showOnlyCurrent) {
                     this.#duration.setAttribute('aria-hidden', 'true');
                     this.#delimiter.setAttribute('aria-hidden', 'true');
@@ -207,19 +212,22 @@ class Time implements PlayerComponent {
                 this.#current.innerText = showLiveLabel ? this.#labels.live : formatTime(el.currentTime);
             }
         };
-        this.#events.media.ended = () => {
+        this.#events.media.ended = (): void => {
             const el = this.#player.activeElement();
-            const duration = !isNaN(el.duration) ? el.duration : this.#player.getOptions().progress.duration;
+            const duration = !Number.isNaN(el.duration) ? el.duration : this.#player.getOptions().progress.duration;
             if (!showOnlyCurrent && this.#player.isMedia()) {
                 this.#duration.innerText = formatTime(duration);
             }
         };
 
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
-        this.#player.getControls().getContainer().addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
+        this.#player
+            .getControls()
+            .getContainer()
+            .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
     }
 
     /**
@@ -228,11 +236,14 @@ class Time implements PlayerComponent {
      * @memberof Time
      */
     public destroy(): void {
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
 
-        this.#player.getControls().getContainer().removeEventListener('controlschanged', this.#events.controls.controlschanged);
+        this.#player
+            .getControls()
+            .getContainer()
+            .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
         removeElement(this.#current);
         if (!this.#player.getOptions().progress.showCurrentTimeOnly) {

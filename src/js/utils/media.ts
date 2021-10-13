@@ -125,37 +125,43 @@ export function isAutoplaySupported(
     media: HTMLMediaElement,
     defaultVol: number,
     autoplay: (n: any) => any,
-    muted: (n: any) => any, callback: () => any
+    muted: (n: any) => any,
+    callback: () => any
 ): void {
     const playPromise = media.play();
     if (playPromise !== undefined) {
-        playPromise.then(() => {
-            // Unmuted autoplay works.
-            media.pause();
-            autoplay(true);
-            muted(false);
-            return callback();
-        }).catch(() => {
-            // Unmuted autoplay failed. New attempt with muted autoplay.
-            media.volume = 0;
-            media.muted = true;
-            media.play().then(() => {
-                // Muted autoplay works.
+        playPromise
+            .then(() => {
+                // Unmuted autoplay works.
                 media.pause();
                 autoplay(true);
-                muted(true);
-                return callback();
-            }).catch(() => {
-                // Both muted and unmuted autoplay failed. Fallback to click to play.
-                media.volume = defaultVol;
-                media.muted = false;
-                autoplay(false);
                 muted(false);
-                callback();
+                return callback();
+            })
+            .catch(() => {
+                // Unmuted autoplay failed. New attempt with muted autoplay.
+                media.volume = 0;
+                media.muted = true;
+                media
+                    .play()
+                    .then(() => {
+                        // Muted autoplay works.
+                        media.pause();
+                        autoplay(true);
+                        muted(true);
+                        return callback();
+                    })
+                    .catch(() => {
+                        // Both muted and unmuted autoplay failed. Fallback to click to play.
+                        media.volume = defaultVol;
+                        media.muted = false;
+                        autoplay(false);
+                        muted(false);
+                        callback();
+                    });
             });
-        });
     } else {
-        autoplay(!media.paused || ('Promise' in window && playPromise as Promise<any> instanceof Promise));
+        autoplay(!media.paused || ('Promise' in window && (playPromise as Promise<any>) instanceof Promise));
         media.pause();
         muted(false);
         callback();

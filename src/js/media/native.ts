@@ -57,7 +57,7 @@ abstract class Native {
     constructor(element: HTMLMediaElement, media: Source) {
         this.element = element;
         this.media = media;
-        this.promise = new Promise(resolve => {
+        this.promise = new Promise((resolve) => {
             resolve({});
         });
     }
@@ -111,14 +111,14 @@ abstract class Native {
      * @abstract
      * @memberof Media
      */
-    public abstract set level(value: number|string|Record<string, unknown>);
+    public abstract set level(value: number | string | Record<string, unknown>);
 
     /**
      *
      * @abstract
      * @memberof Media
      */
-    public abstract get level(): number|string;
+    public abstract get level(): number | string;
 
     /**
      *

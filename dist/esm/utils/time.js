@@ -3,10 +3,10 @@ export function formatTime(seconds, frameRate) {
     let s = Math.floor(seconds);
     let m = Math.floor(s / 60);
     const h = Math.floor(m / 60);
-    const wrap = (value) => value < 10 ? `0${value}` : value;
-    m = m % 60;
-    s = s % 60;
-    return `${h > 0 ? `${wrap(h)}:` : ''}${wrap(m)}:${wrap(s)}${(f ? `:${wrap(f)}` : '')}`;
+    const wrap = (value) => (value < 10 ? `0${value}` : value.toString());
+    m %= 60;
+    s %= 60;
+    return `${h > 0 ? `${wrap(h)}:` : ''}${wrap(m)}:${wrap(s)}${f ? `:${wrap(f)}` : ''}`;
 }
 export function timeToSeconds(timecode) {
     const time = timecode.replace(/;/g, ':').split(':');

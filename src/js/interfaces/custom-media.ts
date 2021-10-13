@@ -1,3 +1,5 @@
+import Source from './source';
+
 /**
  * Custom media
  *
@@ -10,13 +12,13 @@ export default interface CustomMedia {
      * Store all the native methods to play custom media
      */
     media: {
-        [key: string]: object,
+        [key: string]: Source;
     };
     /**
      * Store name of media to be used as key for configuration options
      */
     optionsKey: {
-        [key: string]: string,
+        [key: string]: string;
     };
     /**
      * Store callbacks to determine MIME type based on URL

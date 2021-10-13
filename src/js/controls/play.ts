@@ -105,10 +105,13 @@ class Play implements PlayerComponent {
         this.#button.setAttribute('aria-controls', this.#player.id);
         this.#button.setAttribute('aria-pressed', 'false');
         this.#button.setAttribute('aria-label', this.#labels.play);
-        this.#button.innerHTML = `<span class="op-sr">${this.#labels.play}/${this.#labels.pause}</span>`;
-        this.#player.getControls().getLayer(this.#layer).appendChild(this.#button);
 
-        this.#events.media.click = (e: any) => {
+        this.#player
+            .getControls()
+            .getLayer(this.#layer)
+            .appendChild(this.#button);
+
+        this.#events.media.click = (e: any): void => {
             this.#button.setAttribute('aria-pressed', 'true');
             const el = this.#player.activeElement();
             if (el.paused || el.ended) {
@@ -128,7 +131,7 @@ class Play implements PlayerComponent {
 
         const isAudioEl = isAudio(this.#player.getElement());
 
-        this.#events.media.play = () => {
+        this.#events.media.play = (): void => {
             if (this.#player.activeElement().ended) {
                 if (this.#player.isMedia()) {
                     this.#button.classList.add('op-controls__playpause--replay');
@@ -145,7 +148,7 @@ class Play implements PlayerComponent {
                 this.#button.setAttribute('aria-label', this.#labels.pause);
 
                 if (this.#player.getOptions().pauseOthers) {
-                    Object.keys(Player.instances).forEach(key => {
+                    Object.keys(Player.instances).forEach((key) => {
                         if (key !== this.#player.id) {
                             const target = Player.instances[key].activeElement();
                             target.pause();
@@ -154,7 +157,7 @@ class Play implements PlayerComponent {
                 }
             }
         };
-        this.#events.media.loadedmetadata = () => {
+        this.#events.media.loadedmetadata = (): void => {
             if (hasClass(this.#button, 'op-controls__playpause--pause')) {
                 this.#button.classList.remove('op-controls__playpause--replay');
                 this.#button.classList.remove('op-controls__playpause--pause');
@@ -162,7 +165,7 @@ class Play implements PlayerComponent {
                 this.#button.setAttribute('aria-label', this.#labels.play);
             }
         };
-        this.#events.media.playing = () => {
+        this.#events.media.playing = (): void => {
             if (!hasClass(this.#button, 'op-controls__playpause--pause')) {
                 this.#button.classList.remove('op-controls__playpause--replay');
                 this.#button.classList.add('op-controls__playpause--pause');
@@ -170,17 +173,19 @@ class Play implements PlayerComponent {
                 this.#button.setAttribute('aria-label', this.#labels.pause);
             }
         };
-        this.#events.media.pause = () => {
+        this.#events.media.pause = (): void => {
             this.#button.classList.remove('op-controls__playpause--pause');
             this.#button.title = this.#labels.play;
             this.#button.setAttribute('aria-label', this.#labels.play);
         };
-        this.#events.media.ended = () => {
+        this.#events.media.ended = (): void => {
             if (this.#player.activeElement().ended && this.#player.isMedia()) {
                 this.#button.classList.add('op-controls__playpause--replay');
                 this.#button.classList.remove('op-controls__playpause--pause');
-            } else if (this.#player.getElement().currentTime >= this.#player.getElement().duration
-                || this.#player.getElement().currentTime <= 0) {
+            } else if (
+                this.#player.getElement().currentTime >= this.#player.getElement().duration ||
+                this.#player.getElement().currentTime <= 0
+            ) {
                 this.#button.classList.add('op-controls__playpause--replay');
                 this.#button.classList.remove('op-controls__playpause--pause');
             } else {
@@ -190,13 +195,13 @@ class Play implements PlayerComponent {
             this.#button.title = this.#labels.play;
             this.#button.setAttribute('aria-label', this.#labels.play);
         };
-        this.#events.media.adsmediaended = () => {
+        this.#events.media.adsmediaended = (): void => {
             this.#button.classList.remove('op-controls__playpause--replay');
             this.#button.classList.add('op-controls__playpause--pause');
             this.#button.title = this.#labels.pause;
             this.#button.setAttribute('aria-label', this.#labels.pause);
         };
-        this.#events.media.playererror = () => {
+        this.#events.media.playererror = (): void => {
             if (isAudioEl) {
                 const el = this.#player.activeElement();
                 el.pause();
@@ -204,18 +209,21 @@ class Play implements PlayerComponent {
         };
 
         const element = this.#player.getElement();
-        this.#events.controls.controlschanged = () => {
+        this.#events.controls.controlschanged = (): void => {
             if (!this.#player.activeElement().paused) {
                 const event = addEvent('playing');
                 element.dispatchEvent(event);
             }
         };
 
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             element.addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
-        this.#player.getControls().getContainer().addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
+        this.#player
+            .getControls()
+            .getContainer()
+            .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
 
         this.#player.getContainer().addEventListener('keydown', this._keydownEvent, EVENT_OPTIONS);
 
@@ -228,11 +236,14 @@ class Play implements PlayerComponent {
      * @memberof Play
      */
     public destroy(): void {
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
 
-        this.#player.getControls().getContainer().removeEventListener('controlschanged', this.#events.controls.controlschanged);
+        this.#player
+            .getControls()
+            .getContainer()
+            .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
         this.#player.getContainer().removeEventListener('keydown', this._keydownEvent);
 
@@ -247,7 +258,7 @@ class Play implements PlayerComponent {
      * @param {KeyboardEvent} e
      * @memberof Play
      */
-    private _keydownEvent(e: KeyboardEvent) {
+    private _keydownEvent(e: KeyboardEvent): void {
         const key = e.which || e.keyCode || 0;
         const playBtnFocused = document?.activeElement?.classList.contains('op-controls__playpause');
         if (playBtnFocused && (key === 13 || key === 32)) {

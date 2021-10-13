@@ -3,11 +3,12 @@ import * as general from '../../src/js/utils/general';
 import '../helper';
 
 describe('utils/general', () => {
-    it('must return the absolute URL of a relative one', done => {
+    it('must return the absolute URL of a relative one', (done) => {
         expect(general.getAbsoluteUrl('example.pdf')).to.equal(`${window.location.origin}/example.pdf`);
         done();
     });
-    it('must detect if media is a video element', done => {
+
+    it('must detect if media is a video element', (done) => {
         const video = document.createElement('video');
         expect(general.isVideo(video)).to.equal(true);
 
@@ -15,7 +16,8 @@ describe('utils/general', () => {
         expect(general.isVideo(audio)).to.equal(false);
         done();
     });
-    it('must detect if media is an audio element', done => {
+
+    it('must detect if media is an audio element', (done) => {
         const video = document.createElement('video');
         expect(general.isAudio(video)).to.equal(false);
 
@@ -23,6 +25,7 @@ describe('utils/general', () => {
         expect(general.isAudio(audio)).to.equal(true);
         done();
     });
+
     it('should load a script and destroy the script tag on the header', async () => {
         try {
             await general.loadScript('https://cdn.jsdelivr.net/npm/openplayerjs@latest/dist/openplayer.min.js');
@@ -37,7 +40,8 @@ describe('utils/general', () => {
         //     expect(err.src).to.equal('https://cdn.jsdelivr.net/npm/openplayerjs@0.0.0/dist/openplayer.min.js');
         // }
     });
-    it('removes a DOM element', done => {
+
+    it('removes a DOM element', (done) => {
         const paragraph = document.createElement('p');
         paragraph.textContent = 'test';
         document.body.appendChild(paragraph);
@@ -45,7 +49,8 @@ describe('utils/general', () => {
         expect(window.document.querySelector('p')).to.equal(null);
         done();
     });
-    it('checks if DOM element has a specific class', done => {
+
+    it('checks if DOM element has a specific class', (done) => {
         const paragraph = document.createElement('p');
         paragraph.textContent = 'test';
         paragraph.className = 'test';
@@ -58,14 +63,36 @@ describe('utils/general', () => {
         general.removeElement(window.document.querySelector('p'));
         done();
     });
-    it('checks if string is a valid XML source', done => {
+
+    it('sanitizes string from XSS attacks', (done) => {
+        const content = '<div onclick="javascript:alert(\'XSS\')">Test<script>alert("Test");</script></div>';
+        expect(general.sanitize(content)).to.equal('Test');
+        expect(general.sanitize(content, false)).to.equal('<div>Test</div>');
+        done();
+    });
+
+    it('checks if string is a valid XML source', (done) => {
         expect(general.isXml('<invalid>')).to.equal(false);
-        expect(general.isXml(`<note>
+        expect(
+            general.isXml(`<note>
             <to>Tove</to>
             <from>Jani</from>
             <heading>Reminder</heading>
             <body>Don't forget me this weekend!</body>
-            </note>`)).to.equal(true);
+            </note>`)
+        ).to.equal(true);
+        done();
+    });
+
+    it('checks if string is a valid JSON source', (done) => {
+        expect(general.isJson('abc123')).to.equal(false);
+        expect(
+            general.isJson(`{
+                "test": true,
+                "id": 12345,
+                "name": "test"
+            }`)
+        ).to.equal(true);
         done();
     });
 });

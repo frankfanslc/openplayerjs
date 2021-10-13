@@ -39,7 +39,8 @@ class Levels {
     }
     create() {
         const initialLevel = __classPrivateFieldGet(this, _Levels_player, "f").getOptions().defaultLevel !== null
-            ? parseInt(__classPrivateFieldGet(this, _Levels_player, "f").getOptions().defaultLevel, 10) : __classPrivateFieldGet(this, _Levels_player, "f").getMedia().level;
+            ? parseInt(__classPrivateFieldGet(this, _Levels_player, "f").getOptions().defaultLevel, 10)
+            : __classPrivateFieldGet(this, _Levels_player, "f").getMedia().level;
         __classPrivateFieldSet(this, _Levels_default, `${initialLevel}`, "f");
         const menuItems = this._formatMenuItems();
         const defaultLevel = menuItems.length ? menuItems.find((items) => items.key === __classPrivateFieldGet(this, _Levels_default, "f")) : null;
@@ -120,7 +121,7 @@ class Levels {
         }
         __classPrivateFieldGet(this, _Levels_events, "f").global.click = (e) => {
             const option = e.target;
-            const currentTime = __classPrivateFieldGet(this, _Levels_player, "f").getMedia().currentTime;
+            const { currentTime } = __classPrivateFieldGet(this, _Levels_player, "f").getMedia();
             const isPaused = __classPrivateFieldGet(this, _Levels_player, "f").getMedia().paused;
             if (option.closest(`#${__classPrivateFieldGet(this, _Levels_player, "f").id}`) && hasClass(option, 'op-levels__option')) {
                 const levelVal = option.getAttribute('data-value');
@@ -130,7 +131,8 @@ class Levels {
                     __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', `${level}`);
                     __classPrivateFieldGet(this, _Levels_button, "f").innerHTML = `<span>${option.innerText}</span>`;
                     const levels = option.parentElement && option.parentElement.parentElement
-                        ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item') : [];
+                        ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item')
+                        : [];
                     for (let i = 0, total = levels.length; i < total; ++i) {
                         levels[i].setAttribute('aria-checked', 'false');
                     }
@@ -160,13 +162,13 @@ class Levels {
             const media = __classPrivateFieldGet(this, _Levels_player, "f").getMedia().current;
             if (!isDashSource(media) && !isHlsSource(media)) {
                 let type = connection.effectiveType;
-                const levels = __classPrivateFieldGet(this, _Levels_levels, "f").map(item => (Object.assign(Object.assign({}, item), { resolution: parseInt(item.label.replace('p', ''), 10) })));
-                let level = levels.find(item => item.resolution < 360);
+                const levels = __classPrivateFieldGet(this, _Levels_levels, "f").map((item) => (Object.assign(Object.assign({}, item), { resolution: parseInt(item.label.replace('p', ''), 10) })));
+                let level = levels.find((item) => item.resolution < 360);
                 if (type === '4g') {
-                    level = levels.find(item => item.resolution >= 720);
+                    level = levels.find((item) => item.resolution >= 720);
                 }
                 else if (type === '3g') {
-                    level = levels.find(item => item.resolution >= 360 && item.resolution < 720);
+                    level = levels.find((item) => item.resolution >= 360 && item.resolution < 720);
                 }
                 if (level) {
                     __classPrivateFieldGet(this, _Levels_player, "f").pause();
@@ -176,7 +178,7 @@ class Levels {
                 type = connection.effectiveType;
             }
         };
-        Object.keys(__classPrivateFieldGet(this, _Levels_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Levels_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Levels_player, "f").getElement().addEventListener(event, __classPrivateFieldGet(this, _Levels_events, "f").media[event], EVENT_OPTIONS);
         });
         document.addEventListener('click', __classPrivateFieldGet(this, _Levels_events, "f").global.click, EVENT_OPTIONS);
@@ -186,7 +188,7 @@ class Levels {
     }
     destroy() {
         const connection = NAV.connection || NAV.mozConnection || NAV.webkitConnection;
-        Object.keys(__classPrivateFieldGet(this, _Levels_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Levels_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Levels_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Levels_events, "f").media[event]);
         });
         document.removeEventListener('click', __classPrivateFieldGet(this, _Levels_events, "f").global.click);
@@ -208,13 +210,15 @@ class Levels {
             return {};
         }
         const subitems = this._formatMenuItems();
-        return subitems.length > 2 ? {
-            className: 'op-levels__option',
-            default: __classPrivateFieldGet(this, _Levels_default, "f") || '-1',
-            key: 'levels',
-            name: __classPrivateFieldGet(this, _Levels_labels, "f").levels,
-            subitems,
-        } : {};
+        return subitems.length > 2
+            ? {
+                className: 'op-levels__option',
+                default: __classPrivateFieldGet(this, _Levels_default, "f") || '-1',
+                key: 'levels',
+                name: __classPrivateFieldGet(this, _Levels_labels, "f").levels,
+                subitems,
+            }
+            : {};
     }
     _formatMenuItems() {
         const levels = this._gatherLevels();
@@ -222,16 +226,18 @@ class Levels {
         let items = total ? [{ key: '-1', label: __classPrivateFieldGet(this, _Levels_labels, "f").auto }] : [];
         for (let i = 0; i < total; i++) {
             const level = levels[i];
-            items = items.filter(el => el.key !== level.id);
+            items = items.filter((el) => el.key !== level.id);
             items.push({ key: level.id, label: level.label });
         }
-        items = items.reduce((acc, current) => {
-            const duplicate = acc.find(item => item.label === current.label);
+        items = items
+            .reduce((acc, current) => {
+            const duplicate = acc.find((item) => item.label === current.label);
             if (!duplicate) {
                 return acc.concat([current]);
             }
             return acc;
-        }, []).sort((a, b) => (parseInt(a.label, 10) > parseInt(b.label, 10) ? 1 : -1));
+        }, [])
+            .sort((a, b) => (parseInt(a.label, 10) > parseInt(b.label, 10) ? 1 : -1));
         return items;
     }
     _getResolutionsLabel(height) {
@@ -281,18 +287,23 @@ class Levels {
             const className = 'op-levels__option';
             const options = this._formatMenuItems();
             const menu = `<div class="op-settings__menu" role="menu" id="menu-item-levels">
-                ${options.map(item => `
+                ${options
+                .map((item) => `
                 <div class="op-settings__submenu-item" tabindex="0" role="menuitemradio"
                     aria-checked="${__classPrivateFieldGet(this, _Levels_default, "f") === item.key ? 'true' : 'false'}">
                     <div class="op-settings__submenu-label ${className || ''}" data-value="levels-${item.key}">${item.label}</div>
-                </div>`).join('')}
+                </div>`)
+                .join('')}
             </div>`;
             __classPrivateFieldGet(this, _Levels_menu, "f").innerHTML = menu;
             const itemContainer = document.createElement('div');
             itemContainer.className = `op-controls__container op-control__${__classPrivateFieldGet(this, _Levels_position, "f")}`;
             itemContainer.appendChild(__classPrivateFieldGet(this, _Levels_button, "f"));
             itemContainer.appendChild(__classPrivateFieldGet(this, _Levels_menu, "f"));
-            __classPrivateFieldGet(this, _Levels_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Levels_layer, "f")).appendChild(itemContainer);
+            __classPrivateFieldGet(this, _Levels_player, "f")
+                .getControls()
+                .getLayer(__classPrivateFieldGet(this, _Levels_layer, "f"))
+                .appendChild(itemContainer);
         }
     }
 }

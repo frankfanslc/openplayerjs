@@ -64,7 +64,7 @@ class Time {
             const el = __classPrivateFieldGet(this, _Time_player, "f").activeElement();
             if (el.duration !== Infinity && !__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-live__enabled')) {
                 if (!showOnlyCurrent) {
-                    const duration = !isNaN(el.duration) ? el.duration : __classPrivateFieldGet(this, _Time_player, "f").getOptions().progress.duration;
+                    const duration = !Number.isNaN(el.duration) ? el.duration : __classPrivateFieldGet(this, _Time_player, "f").getOptions().progress.duration;
                     __classPrivateFieldGet(this, _Time_duration, "f").innerText = formatTime(duration);
                 }
                 __classPrivateFieldGet(this, _Time_current, "f").innerText = formatTime(el.currentTime);
@@ -79,10 +79,11 @@ class Time {
         const { showLabel: showLiveLabel } = __classPrivateFieldGet(this, _Time_player, "f").getOptions().live;
         __classPrivateFieldGet(this, _Time_events, "f").media.timeupdate = () => {
             const el = __classPrivateFieldGet(this, _Time_player, "f").activeElement();
-            if (el.duration !== Infinity && !__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-live__enabled')
-                && !__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled')) {
+            if (el.duration !== Infinity &&
+                !__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-live__enabled') &&
+                !__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled')) {
                 const duration = formatTime(el.duration);
-                if (!showOnlyCurrent && !isNaN(el.duration) && duration !== __classPrivateFieldGet(this, _Time_duration, "f").innerText) {
+                if (!showOnlyCurrent && !Number.isNaN(el.duration) && duration !== __classPrivateFieldGet(this, _Time_duration, "f").innerText) {
                     __classPrivateFieldGet(this, _Time_duration, "f").innerText = duration;
                     __classPrivateFieldGet(this, _Time_duration, "f").setAttribute('aria-hidden', 'false');
                     __classPrivateFieldGet(this, _Time_delimiter, "f").setAttribute('aria-hidden', 'false');
@@ -99,8 +100,8 @@ class Time {
                 }
                 __classPrivateFieldGet(this, _Time_current, "f").innerText = formatTime(el.currentTime);
             }
-            else if (showOnlyCurrent || (!__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled')
-                && __classPrivateFieldGet(this, _Time_duration, "f").getAttribute('aria-hidden') === 'false')) {
+            else if (showOnlyCurrent ||
+                (!__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled') && __classPrivateFieldGet(this, _Time_duration, "f").getAttribute('aria-hidden') === 'false')) {
                 if (!showOnlyCurrent) {
                     __classPrivateFieldGet(this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
                     __classPrivateFieldGet(this, _Time_delimiter, "f").setAttribute('aria-hidden', 'true');
@@ -113,21 +114,27 @@ class Time {
         };
         __classPrivateFieldGet(this, _Time_events, "f").media.ended = () => {
             const el = __classPrivateFieldGet(this, _Time_player, "f").activeElement();
-            const duration = !isNaN(el.duration) ? el.duration : __classPrivateFieldGet(this, _Time_player, "f").getOptions().progress.duration;
+            const duration = !Number.isNaN(el.duration) ? el.duration : __classPrivateFieldGet(this, _Time_player, "f").getOptions().progress.duration;
             if (!showOnlyCurrent && __classPrivateFieldGet(this, _Time_player, "f").isMedia()) {
                 __classPrivateFieldGet(this, _Time_duration, "f").innerText = formatTime(duration);
             }
         };
-        Object.keys(__classPrivateFieldGet(this, _Time_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Time_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Time_player, "f").getElement().addEventListener(event, __classPrivateFieldGet(this, _Time_events, "f").media[event], EVENT_OPTIONS);
         });
-        __classPrivateFieldGet(this, _Time_player, "f").getControls().getContainer().addEventListener('controlschanged', __classPrivateFieldGet(this, _Time_events, "f").controls.controlschanged, EVENT_OPTIONS);
+        __classPrivateFieldGet(this, _Time_player, "f")
+            .getControls()
+            .getContainer()
+            .addEventListener('controlschanged', __classPrivateFieldGet(this, _Time_events, "f").controls.controlschanged, EVENT_OPTIONS);
     }
     destroy() {
-        Object.keys(__classPrivateFieldGet(this, _Time_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Time_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Time_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Time_events, "f").media[event]);
         });
-        __classPrivateFieldGet(this, _Time_player, "f").getControls().getContainer().removeEventListener('controlschanged', __classPrivateFieldGet(this, _Time_events, "f").controls.controlschanged);
+        __classPrivateFieldGet(this, _Time_player, "f")
+            .getControls()
+            .getContainer()
+            .removeEventListener('controlschanged', __classPrivateFieldGet(this, _Time_events, "f").controls.controlschanged);
         removeElement(__classPrivateFieldGet(this, _Time_current, "f"));
         if (!__classPrivateFieldGet(this, _Time_player, "f").getOptions().progress.showCurrentTimeOnly) {
             removeElement(__classPrivateFieldGet(this, _Time_delimiter, "f"));

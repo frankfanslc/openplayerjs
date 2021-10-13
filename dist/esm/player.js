@@ -25,7 +25,7 @@ import Media from './media';
 import Ads from './media/ads';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from './utils/constants';
 import { addEvent } from './utils/events';
-import { isAudio, isVideo, removeElement } from './utils/general';
+import { isAudio, isVideo, removeElement, sanitize } from './utils/general';
 import { isAutoplaySupported, predictType } from './utils/media';
 class Player {
     constructor(element, options) {
@@ -188,7 +188,7 @@ class Player {
         if (__classPrivateFieldGet(this, _Player_media, "f")) {
             __classPrivateFieldGet(this, _Player_media, "f").destroy();
         }
-        Object.keys(__classPrivateFieldGet(this, _Player_events, "f")).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Player_events, "f")).forEach((event) => {
             el.removeEventListener(event, __classPrivateFieldGet(this, _Player_events, "f")[event]);
         });
         this.getContainer().removeEventListener('keydown', this._enableKeyBindings);
@@ -282,7 +282,7 @@ class Player {
     }
     removeControl(controlName) {
         const { layers } = this.getOptions().controls;
-        Object.keys(layers).forEach(layer => {
+        Object.keys(layers).forEach((layer) => {
             layers[layer].forEach((item, idx) => {
                 if (item === controlName) {
                     layers[layer].splice(idx, 1);
@@ -369,7 +369,7 @@ class Player {
             __classPrivateFieldGet(this, _Player_element, "f").src = media;
         }
         else if (Array.isArray(media)) {
-            media.forEach(m => {
+            media.forEach((m) => {
                 const source = document.createElement('source');
                 source.src = m.src;
                 source.type = m.type || predictType(m.src, __classPrivateFieldGet(this, _Player_element, "f"));
@@ -582,7 +582,7 @@ class Player {
                 this.playBtn.setAttribute('aria-hidden', 'true');
             };
         }
-        Object.keys(__classPrivateFieldGet(this, _Player_events, "f")).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Player_events, "f")).forEach((event) => {
             __classPrivateFieldGet(this, _Player_element, "f").addEventListener(event, __classPrivateFieldGet(this, _Player_events, "f")[event], EVENT_OPTIONS);
         });
         this.getContainer().addEventListener('keydown', this._enableKeyBindings, EVENT_OPTIONS);
@@ -591,9 +591,9 @@ class Player {
         if (!__classPrivateFieldGet(this, _Player_processedAutoplay, "f")) {
             __classPrivateFieldSet(this, _Player_processedAutoplay, true, "f");
             __classPrivateFieldGet(this, _Player_element, "f").removeEventListener('canplay', this._autoplay);
-            isAutoplaySupported(__classPrivateFieldGet(this, _Player_element, "f"), __classPrivateFieldGet(this, _Player_volume, "f"), autoplay => {
+            isAutoplaySupported(__classPrivateFieldGet(this, _Player_element, "f"), __classPrivateFieldGet(this, _Player_volume, "f"), (autoplay) => {
                 __classPrivateFieldSet(this, _Player_canAutoplay, autoplay, "f");
-            }, muted => {
+            }, (muted) => {
                 __classPrivateFieldSet(this, _Player_canAutoplayMuted, muted, "f");
             }, () => {
                 if (__classPrivateFieldGet(this, _Player_canAutoplayMuted, "f")) {
@@ -634,9 +634,15 @@ class Player {
         __classPrivateFieldSet(this, _Player_options, Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f")), playerOptions), "f");
         if (playerOptions) {
             const objectElements = ['labels', 'controls'];
-            objectElements.forEach(item => {
-                __classPrivateFieldGet(this, _Player_options, "f")[item] = playerOptions[item] && Object.keys(playerOptions[item]).length
-                    ? Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f")[item]), playerOptions[item]) : __classPrivateFieldGet(this, _Player_defaultOptions, "f")[item];
+            objectElements.forEach((item) => {
+                if (item === 'labels' && playerOptions[item]) {
+                    Object.keys(playerOptions[item]).forEach((key) => {
+                        playerOptions[item][key] = sanitize(playerOptions[item][key]);
+                    });
+                }
+                __classPrivateFieldGet(this, _Player_options, "f")[item] =
+                    playerOptions[item] && Object.keys(playerOptions[item]).length
+                        ? Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f")[item]), playerOptions[item]) : __classPrivateFieldGet(this, _Player_defaultOptions, "f")[item];
             });
         }
     }

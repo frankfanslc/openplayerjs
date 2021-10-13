@@ -64,7 +64,7 @@ class Media {
                     __classPrivateFieldGet(this, _Media_media, "f").destroy();
                 }
             }
-            __classPrivateFieldGet(this, _Media_files, "f").some(media => {
+            __classPrivateFieldGet(this, _Media_files, "f").some((media) => {
                 try {
                     __classPrivateFieldSet(this, _Media_media, this._invoke(media), "f");
                 }
@@ -128,15 +128,16 @@ class Media {
         else if (typeof media === 'object') {
             __classPrivateFieldGet(this, _Media_files, "f").push(media);
         }
-        __classPrivateFieldSet(this, _Media_files, __classPrivateFieldGet(this, _Media_files, "f").filter(file => file.src), "f");
+        __classPrivateFieldSet(this, _Media_files, __classPrivateFieldGet(this, _Media_files, "f").filter((file) => file.src), "f");
         if (__classPrivateFieldGet(this, _Media_files, "f").length > 0) {
+            const [file] = __classPrivateFieldGet(this, _Media_files, "f");
             if (__classPrivateFieldGet(this, _Media_element, "f").src) {
                 __classPrivateFieldGet(this, _Media_element, "f").setAttribute('data-op-file', __classPrivateFieldGet(this, _Media_files, "f")[0].src);
             }
-            __classPrivateFieldGet(this, _Media_element, "f").src = __classPrivateFieldGet(this, _Media_files, "f")[0].src;
-            __classPrivateFieldSet(this, _Media_currentSrc, __classPrivateFieldGet(this, _Media_files, "f")[0], "f");
+            __classPrivateFieldGet(this, _Media_element, "f").src = file.src;
+            __classPrivateFieldSet(this, _Media_currentSrc, file, "f");
             if (__classPrivateFieldGet(this, _Media_media, "f")) {
-                __classPrivateFieldGet(this, _Media_media, "f").src = __classPrivateFieldGet(this, _Media_files, "f")[0];
+                __classPrivateFieldGet(this, _Media_media, "f").src = file;
             }
         }
         else {
@@ -240,13 +241,14 @@ class Media {
         }
         for (let i = 0, total = sourceTags.length; i < total; i++) {
             const item = sourceTags[i];
-            const src = item.src;
+            const { src } = item;
             mediaFiles.push({
                 src,
                 type: item.getAttribute('type') || source.predictType(src, __classPrivateFieldGet(this, _Media_element, "f")),
             });
             if (i === 0) {
-                __classPrivateFieldSet(this, _Media_currentSrc, mediaFiles[0], "f");
+                const [file] = mediaFiles;
+                __classPrivateFieldSet(this, _Media_currentSrc, file, "f");
             }
         }
         if (!mediaFiles.length) {
@@ -258,11 +260,10 @@ class Media {
         return mediaFiles;
     }
     _invoke(media) {
-        const playHLSNatively = __classPrivateFieldGet(this, _Media_element, "f").canPlayType('application/vnd.apple.mpegurl')
-            || __classPrivateFieldGet(this, _Media_element, "f").canPlayType('application/x-mpegURL');
+        const playHLSNatively = __classPrivateFieldGet(this, _Media_element, "f").canPlayType('application/vnd.apple.mpegurl') || __classPrivateFieldGet(this, _Media_element, "f").canPlayType('application/x-mpegURL');
         __classPrivateFieldSet(this, _Media_currentSrc, media, "f");
         let activeLevels = false;
-        Object.keys(__classPrivateFieldGet(this, _Media_options, "f").controls.layers).forEach(layer => {
+        Object.keys(__classPrivateFieldGet(this, _Media_options, "f").controls.layers).forEach((layer) => {
             if (__classPrivateFieldGet(this, _Media_options, "f").controls.layers[layer].indexOf('levels') > -1) {
                 activeLevels = true;
             }
@@ -295,11 +296,13 @@ class Media {
             return new DashMedia(__classPrivateFieldGet(this, _Media_element, "f"), media, dashOptions);
         }
         if (source.isFlvSource(media)) {
-            const flvOptions = __classPrivateFieldGet(this, _Media_options, "f") && __classPrivateFieldGet(this, _Media_options, "f").flv ? __classPrivateFieldGet(this, _Media_options, "f").flv : {
-                debug: false,
-                type: 'flv',
-                url: media.src,
-            };
+            const flvOptions = __classPrivateFieldGet(this, _Media_options, "f") && __classPrivateFieldGet(this, _Media_options, "f").flv
+                ? __classPrivateFieldGet(this, _Media_options, "f").flv
+                : {
+                    debug: false,
+                    type: 'flv',
+                    url: media.src,
+                };
             return new FlvMedia(__classPrivateFieldGet(this, _Media_element, "f"), media, flvOptions);
         }
         return new HTML5Media(__classPrivateFieldGet(this, _Media_element, "f"), media);

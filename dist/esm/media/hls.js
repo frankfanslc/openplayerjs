@@ -28,11 +28,13 @@ class HlsMedia extends Native {
         this.element = element;
         this.media = mediaSource;
         __classPrivateFieldSet(this, _HlsMedia_autoplay, autoplay, "f");
-        this.promise = (typeof Hls === 'undefined')
-            ? loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js')
-            : new Promise(resolve => {
-                resolve({});
-            });
+        this.promise =
+            typeof Hls === 'undefined'
+                ?
+                    loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js')
+                : new Promise((resolve) => {
+                    resolve({});
+                });
         this._create = this._create.bind(this);
         this._revoke = this._revoke.bind(this);
         this._play = this._play.bind(this);
@@ -53,7 +55,7 @@ class HlsMedia extends Native {
         this.element.dispatchEvent(e);
         if (!__classPrivateFieldGet(this, _HlsMedia_events, "f")) {
             __classPrivateFieldSet(this, _HlsMedia_events, Hls.Events, "f");
-            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(event => {
+            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach((event) => {
                 __classPrivateFieldGet(this, _HlsMedia_player, "f").on(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], args));
             });
         }
@@ -68,7 +70,7 @@ class HlsMedia extends Native {
             __classPrivateFieldGet(this, _HlsMedia_player, "f").loadSource(media.src);
             __classPrivateFieldGet(this, _HlsMedia_player, "f").attachMedia(this.element);
             __classPrivateFieldSet(this, _HlsMedia_events, Hls.Events, "f");
-            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(event => {
+            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach((event) => {
                 __classPrivateFieldGet(this, _HlsMedia_player, "f").on(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], args));
             });
         }
@@ -76,7 +78,7 @@ class HlsMedia extends Native {
     get levels() {
         const levels = [];
         if (__classPrivateFieldGet(this, _HlsMedia_player, "f") && __classPrivateFieldGet(this, _HlsMedia_player, "f").levels && __classPrivateFieldGet(this, _HlsMedia_player, "f").levels.length) {
-            Object.keys(__classPrivateFieldGet(this, _HlsMedia_player, "f").levels).forEach(item => {
+            Object.keys(__classPrivateFieldGet(this, _HlsMedia_player, "f").levels).forEach((item) => {
                 const { height, name } = __classPrivateFieldGet(this, _HlsMedia_player, "f").levels[item];
                 const level = {
                     height,
@@ -100,7 +102,7 @@ class HlsMedia extends Native {
         __classPrivateFieldSet(this, _HlsMedia_player, new Hls(__classPrivateFieldGet(this, _HlsMedia_options, "f")), "f");
         this.instance = __classPrivateFieldGet(this, _HlsMedia_player, "f");
         __classPrivateFieldSet(this, _HlsMedia_events, Hls.Events, "f");
-        Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach((event) => {
             __classPrivateFieldGet(this, _HlsMedia_player, "f").on(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], args));
         });
         if (!autoplay) {
@@ -120,17 +122,17 @@ class HlsMedia extends Native {
             const errorEvent = addEvent('playererror', errorDetails);
             this.element.dispatchEvent(errorEvent);
             const type = data[1].type;
-            const fatal = data[1].fatal;
+            const { fatal } = data[1];
             const details = data[1];
             if (fatal) {
                 switch (type) {
                     case 'mediaError':
                         const now = new Date().getTime();
-                        if (!__classPrivateFieldGet(this, _HlsMedia_recoverDecodingErrorDate, "f") || (now - __classPrivateFieldGet(this, _HlsMedia_recoverDecodingErrorDate, "f")) > 3000) {
+                        if (!__classPrivateFieldGet(this, _HlsMedia_recoverDecodingErrorDate, "f") || now - __classPrivateFieldGet(this, _HlsMedia_recoverDecodingErrorDate, "f") > 3000) {
                             __classPrivateFieldSet(this, _HlsMedia_recoverDecodingErrorDate, new Date().getTime(), "f");
                             __classPrivateFieldGet(this, _HlsMedia_player, "f").recoverMediaError();
                         }
-                        else if (!__classPrivateFieldGet(this, _HlsMedia_recoverSwapAudioCodecDate, "f") || (now - __classPrivateFieldGet(this, _HlsMedia_recoverSwapAudioCodecDate, "f")) > 3000) {
+                        else if (!__classPrivateFieldGet(this, _HlsMedia_recoverSwapAudioCodecDate, "f") || now - __classPrivateFieldGet(this, _HlsMedia_recoverSwapAudioCodecDate, "f") > 3000) {
                             __classPrivateFieldSet(this, _HlsMedia_recoverSwapAudioCodecDate, new Date().getTime(), "f");
                             console.warn('Attempting to swap Audio Codec and recover from media error');
                             __classPrivateFieldGet(this, _HlsMedia_player, "f").swapAudioCodec();
@@ -186,7 +188,7 @@ class HlsMedia extends Native {
             __classPrivateFieldGet(this, _HlsMedia_player, "f").stopLoad();
         }
         if (__classPrivateFieldGet(this, _HlsMedia_events, "f")) {
-            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(event => {
+            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach((event) => {
                 __classPrivateFieldGet(this, _HlsMedia_player, "f").off(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], args));
             });
         }

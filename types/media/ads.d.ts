@@ -1,4 +1,4 @@
-import Options from '../interfaces/ads/options';
+import Options from '../interfaces/ads-options';
 import Player from '../player';
 /**
  * Ads Media.

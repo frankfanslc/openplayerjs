@@ -7,7 +7,7 @@ declare const ActiveXObject: any;
  * @param {string} url
  * @returns {string}
  */
-export function getAbsoluteUrl(url: string) {
+export function getAbsoluteUrl(url: string): string {
     const a: HTMLAnchorElement = document.createElement('a');
     a.href = url;
     return a.href;
@@ -20,7 +20,7 @@ export function getAbsoluteUrl(url: string) {
  * @param {Element} element
  * @return {boolean}
  */
-export function isVideo(element: Element) {
+export function isVideo(element: Element): boolean {
     return element.tagName.toLowerCase() === 'video';
 }
 
@@ -31,7 +31,7 @@ export function isVideo(element: Element) {
  * @param {Element} element
  * @return {boolean}
  */
-export function isAudio(element: Element) {
+export function isAudio(element: Element): boolean {
     return element.tagName.toLowerCase() === 'audio';
 }
 
@@ -42,9 +42,9 @@ export function isAudio(element: Element) {
  * @param {Node} node
  * @returns {void}
  */
-export function removeElement(node?: Node) {
+export function removeElement(node?: Node): void {
     if (node) {
-        const parentNode = node.parentNode;
+        const { parentNode } = node;
         if (parentNode) {
             parentNode.removeChild(node);
         }
@@ -58,16 +58,16 @@ export function removeElement(node?: Node) {
  * @param {string} url
  * @returns {Promise}
  */
-export function loadScript(url: string) {
+export function loadScript(url: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = url;
         script.async = true;
-        script.onload = () => {
+        script.onload = (): void => {
             removeElement(script);
-            resolve({});
+            resolve();
         };
-        script.onerror = () => {
+        script.onerror = (): void => {
             removeElement(script);
             reject(new Error(`${url} could not be loaded`));
         };
@@ -86,9 +86,8 @@ export function loadScript(url: string) {
  * @param {function} success
  * @param {function} error
  */
-export function request(url: string, dataType: string, success: (n: any) => any, error?: (n: any) => any) {
-    const xhr = (window as any).XMLHttpRequest ? new XMLHttpRequest()
-        : new ActiveXObject('Microsoft.XMLHTTP');
+export function request(url: string, dataType: string, success: (n: any) => any, error?: (n: any) => any): void {
+    const xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
 
     let type;
     switch (dataType) {
@@ -115,7 +114,7 @@ export function request(url: string, dataType: string, success: (n: any) => any,
     if (xhr) {
         xhr.open('GET', url, true);
         xhr.setRequestHeader('Accept', accept);
-        xhr.onreadystatechange = () => {
+        xhr.onreadystatechange = (): void => {
             // Ignore repeat invocations
             if (completed) {
                 return;
@@ -154,7 +153,7 @@ export function request(url: string, dataType: string, success: (n: any) => any,
  * @param {string} className   The class to search in the `class` attribute.
  * @returns {boolean}
  */
-export function hasClass(target: HTMLElement, className: string) {
+export function hasClass(target: HTMLElement, className: string): boolean {
     return !!(target.className.split(' ').indexOf(className) > -1);
 }
 
@@ -165,12 +164,48 @@ export function hasClass(target: HTMLElement, className: string) {
  * @param {HTMLElement} el  The target element.
  * @returns {object}
  */
-export function offset(el: HTMLElement) {
+export function offset(el: HTMLElement): { left: number; top: number } {
     const rect = el.getBoundingClientRect();
     return {
         left: rect.left + (window.pageXOffset || document.documentElement.scrollLeft),
         top: rect.top + (window.pageYOffset || document.documentElement.scrollTop),
     };
+}
+
+export function sanitize(html: string, justText = true): string {
+    const parser = new DOMParser();
+    const content = parser.parseFromString(html, 'text/html');
+    const formattedContent = content.body || document.createElement('body');
+
+    const scripts = formattedContent.querySelectorAll('script');
+    for (let i = 0, total = scripts.length; i < total; i++) {
+        scripts[i].remove();
+    }
+
+    function clean(element: Element): void {
+        const nodes = element.children;
+        for (let i = 0, total = nodes.length; i < total; i++) {
+            const node = nodes[i];
+            const { attributes } = node;
+            for (let j = 0, t = attributes.length; j < t; j++) {
+                const { name, value } = attributes[j];
+                const val = value.replace(/\s+/g, '').toLowerCase();
+                if (['src', 'href', 'xlink:href'].includes(name)) {
+                    // eslint-disable-next-line no-script-url
+                    if (val.includes('javascript:') || val.includes('data:')) {
+                        node.removeAttribute(name);
+                    }
+                }
+                if (name.startsWith('on')) {
+                    node.removeAttribute(name);
+                }
+            }
+            clean(node);
+        }
+    }
+
+    clean(formattedContent);
+    return justText ? (formattedContent.textContent || '').replace(/\s{2,}/g, '') : formattedContent.innerHTML;
 }
 
 /**
@@ -180,14 +215,14 @@ export function offset(el: HTMLElement) {
  * @param {string} input
  * @returns {boolean}
  */
-export function isXml(input: string) {
+export function isXml(input: string): boolean {
     let parsedXml;
 
-    if (typeof (window as any).DOMParser !== 'undefined') {
-        parsedXml = (text: string) => new (window as any).DOMParser().parseFromString(text, 'text/xml');
-    } else if (typeof (window as any).ActiveXObject !== 'undefined' && new (window as any).ActiveXObject('Microsoft.XMLDOM')) {
-        parsedXml = (text: string) => {
-            const xmlDoc = new (window as any).ActiveXObject('Microsoft.XMLDOM');
+    if (typeof DOMParser !== 'undefined') {
+        parsedXml = (text: string): any => new DOMParser().parseFromString(text, 'text/xml');
+    } else if (typeof ActiveXObject !== 'undefined' && new ActiveXObject('Microsoft.XMLDOM')) {
+        parsedXml = (text: string): any => {
+            const xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
             xmlDoc.async = false;
             xmlDoc.loadXML(text);
             return xmlDoc;
@@ -209,4 +244,19 @@ export function isXml(input: string) {
         return false;
     }
     return true;
+}
+
+export function isJson(item: any): boolean {
+    item = typeof item !== 'string' ? JSON.stringify(item) : item;
+    try {
+        item = JSON.parse(item);
+    } catch (e) {
+        return false;
+    }
+
+    if (typeof item === 'object' && item !== null) {
+        return true;
+    }
+
+    return false;
 }

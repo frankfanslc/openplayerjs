@@ -125,24 +125,24 @@ class Fullscreen implements PlayerComponent {
         this.#layer = layer;
         this.#isFullscreen = document.body.classList.contains('op-fullscreen__on');
 
-        const target = (document as any);
+        const target = document as any;
 
         // Check if fullscreen is supported
-        this.fullScreenEnabled = !!(target.fullscreenEnabled || target.mozFullScreenEnabled || target.msFullscreenEnabled
-            || target.webkitSupportsFullscreen || target.webkitFullscreenEnabled
-            || (document.createElement('video') as any).webkitRequestFullScreen);
+        this.fullScreenEnabled = !!(
+            target.fullscreenEnabled ||
+            target.mozFullScreenEnabled ||
+            target.msFullscreenEnabled ||
+            target.webkitSupportsFullscreen ||
+            target.webkitFullscreenEnabled ||
+            (document.createElement('video') as any).webkitRequestFullScreen
+        );
 
         this._keydownEvent = this._keydownEvent.bind(this);
         this._fullscreenChange = this._fullscreenChange.bind(this);
 
-        this.#fullscreenEvents = [
-            'fullscreenchange',
-            'mozfullscreenchange',
-            'webkitfullscreenchange',
-            'msfullscreenchange',
-        ];
+        this.#fullscreenEvents = ['fullscreenchange', 'mozfullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'];
 
-        this.#fullscreenEvents.forEach(event => {
+        this.#fullscreenEvents.forEach((event) => {
             document.addEventListener(event, this._fullscreenChange, EVENT_OPTIONS);
         });
         this._setFullscreenData(false);
@@ -151,16 +151,24 @@ class Fullscreen implements PlayerComponent {
 
         // Since iPhone still doesn't accept the regular Fullscreen API, use the following events
         if (IS_IPHONE) {
-            this.#player.getElement().addEventListener('webkitbeginfullscreen', () => {
-                this.#isFullscreen = true;
-                this._setFullscreenData(true);
-                document.body.classList.add('op-fullscreen__on');
-            }, EVENT_OPTIONS);
-            this.#player.getElement().addEventListener('webkitendfullscreen', () => {
-                this.#isFullscreen = false;
-                this._setFullscreenData(false);
-                document.body.classList.remove('op-fullscreen__on');
-            }, EVENT_OPTIONS);
+            this.#player.getElement().addEventListener(
+                'webkitbeginfullscreen',
+                (): void => {
+                    this.#isFullscreen = true;
+                    this._setFullscreenData(true);
+                    document.body.classList.add('op-fullscreen__on');
+                },
+                EVENT_OPTIONS
+            );
+            this.#player.getElement().addEventListener(
+                'webkitendfullscreen',
+                (): void => {
+                    this.#isFullscreen = false;
+                    this._setFullscreenData(false);
+                    document.body.classList.remove('op-fullscreen__on');
+                },
+                EVENT_OPTIONS
+            );
         }
         return this;
     }
@@ -180,9 +188,8 @@ class Fullscreen implements PlayerComponent {
         this.#button.setAttribute('aria-controls', this.#player.id);
         this.#button.setAttribute('aria-pressed', 'false');
         this.#button.setAttribute('aria-label', this.#labels.fullscreen);
-        this.#button.innerHTML = `<span class="op-sr">${this.#labels.fullscreen}</span>`;
 
-        this.#clickEvent = () => {
+        this.#clickEvent = (): void => {
             this.#button.setAttribute('aria-pressed', 'true');
             this.toggleFullscreen();
         };
@@ -191,7 +198,10 @@ class Fullscreen implements PlayerComponent {
 
         this.#button.addEventListener('click', this.#clickEvent, EVENT_OPTIONS);
 
-        this.#player.getControls().getLayer(this.#layer).appendChild(this.#button);
+        this.#player
+            .getControls()
+            .getLayer(this.#layer)
+            .appendChild(this.#button);
     }
 
     /**
@@ -202,16 +212,16 @@ class Fullscreen implements PlayerComponent {
     public destroy(): void {
         this.#player.getContainer().removeEventListener('keydown', this._keydownEvent);
 
-        this.#fullscreenEvents.forEach(event => {
+        this.#fullscreenEvents.forEach((event) => {
             document.removeEventListener(event, this._fullscreenChange);
         });
         if (IS_IPHONE) {
-            this.#player.getElement().removeEventListener('webkitbeginfullscreen', () => {
+            this.#player.getElement().removeEventListener('webkitbeginfullscreen', (): void => {
                 this.#isFullscreen = true;
                 this._setFullscreenData(false);
                 document.body.classList.add('op-fullscreen__on');
             });
-            this.#player.getElement().removeEventListener('webkitendfullscreen', () => {
+            this.#player.getElement().removeEventListener('webkitendfullscreen', (): void => {
                 this.#isFullscreen = false;
                 this._setFullscreenData(true);
                 document.body.classList.remove('op-fullscreen__on');
@@ -231,7 +241,7 @@ class Fullscreen implements PlayerComponent {
     public toggleFullscreen(): void {
         // The video is currently in fullscreen mode
         if (this.#isFullscreen) {
-            const target = (document as any);
+            const target = document as any;
             if (target.exitFullscreen) {
                 target.exitFullscreen();
             } else if (target.mozCancelFullScreen) {
@@ -245,7 +255,7 @@ class Fullscreen implements PlayerComponent {
             }
             document.body.classList.remove('op-fullscreen__on');
         } else {
-            const video = (this.#player.getElement() as any);
+            const video = this.#player.getElement() as any;
             this.#fullscreenWidth = window.screen.width;
             this.#fullscreenHeight = window.screen.height;
 
@@ -267,7 +277,7 @@ class Fullscreen implements PlayerComponent {
         }
 
         if (typeof window !== 'undefined' && (IS_ANDROID || IS_IPHONE)) {
-            const screen = window.screen;
+            const { screen } = window;
             if (screen.orientation) {
                 if (!this.#isFullscreen) {
                     screen.orientation.lock('landscape');
@@ -367,7 +377,7 @@ class Fullscreen implements PlayerComponent {
      * @param {KeyboardEvent} e
      * @memberof Fullscreen
      */
-    private _keydownEvent(e: KeyboardEvent) {
+    private _keydownEvent(e: KeyboardEvent): void {
         const key = e.which || e.keyCode || 0;
         const fullscreenBtnFocused = document?.activeElement?.classList.contains('op-controls__fullscreen');
         if (fullscreenBtnFocused && (key === 13 || key === 32)) {

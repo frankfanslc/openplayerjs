@@ -12,7 +12,7 @@ import EventsList from './interfaces/events-list';
 import Player from './player';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from './utils/constants';
 import { addEvent } from './utils/events';
-import { isAudio, isVideo, removeElement } from './utils/general';
+import { isAudio, isVideo, removeElement, sanitize } from './utils/general';
 
 /**
  * Controls element.
@@ -118,13 +118,13 @@ class Controls implements PlayerComponent {
         this._createControlsLayer();
         this._buildElements();
 
-        this.events.controlschanged = () => {
+        this.events.controlschanged = (): void => {
             this.destroy();
             this._setElements();
             this.create();
         };
 
-        this.events.ended = () => {
+        this.events.ended = (): void => {
             this.#player.getContainer().classList.remove('op-controls--hidden');
         };
 
@@ -134,14 +134,14 @@ class Controls implements PlayerComponent {
         const { alwaysVisible } = this.#player.getOptions().controls;
 
         if (!alwaysVisible) {
-            const showControls = () => {
+            const showControls = (): void => {
                 if (isMediaVideo) {
                     this.#player.getContainer().classList.remove('op-controls--hidden');
                     this._stopControlTimer();
                 }
             };
 
-            this.events.mouse.mouseenter = () => {
+            this.events.mouse.mouseenter = (): void => {
                 if (isMediaVideo && !this.#player.activeElement().paused) {
                     this._stopControlTimer();
                     if (this.#player.activeElement().currentTime) {
@@ -155,32 +155,26 @@ class Controls implements PlayerComponent {
                     this._startControlTimer(2500);
                 }
             };
-            this.events.mouse.mousemove = () => {
+            this.events.mouse.mousemove = (): void => {
                 if (isMediaVideo && !this.#player.activeElement().paused) {
                     if (this.#player.activeElement().currentTime) {
                         this.#player.loader.setAttribute('aria-hidden', 'true');
                         this.#player.playBtn.setAttribute('aria-hidden', this.#player.isMedia() ? 'false' : 'true');
                     } else {
-                        this.#player.playBtn.setAttribute(
-                            'aria-hidden',
-                            this.#player.getOptions().showLoaderOnInit ? 'true' : 'false'
-                        );
-                        this.#player.loader.setAttribute(
-                            'aria-hidden',
-                            this.#player.getOptions().showLoaderOnInit ? 'false' : 'true'
-                        );
+                        this.#player.playBtn.setAttribute('aria-hidden', this.#player.getOptions().showLoaderOnInit ? 'true' : 'false');
+                        this.#player.loader.setAttribute('aria-hidden', this.#player.getOptions().showLoaderOnInit ? 'false' : 'true');
                     }
 
                     this.#player.getContainer().classList.remove('op-controls--hidden');
                     this._startControlTimer(2500);
                 }
             };
-            this.events.mouse.mouseleave = () => {
+            this.events.mouse.mouseleave = (): void => {
                 if (isMediaVideo && !this.#player.activeElement().paused) {
                     this._startControlTimer(1000);
                 }
             };
-            this.events.media.play = () => {
+            this.events.media.play = (): void => {
                 if (isMediaVideo) {
                     this._startControlTimer(this.#player.getOptions().hidePlayBtnTimer);
                 }
@@ -191,14 +185,14 @@ class Controls implements PlayerComponent {
             this.events.media.stalled = showControls.bind(this);
             this.events.media.playererror = showControls.bind(this);
 
-            Object.keys(this.events.media).forEach(event => {
+            Object.keys(this.events.media).forEach((event) => {
                 this.#player.getElement().addEventListener(event, this.events.media[event], EVENT_OPTIONS);
             });
 
             if (IS_ANDROID || IS_IOS) {
                 this.#player.getContainer().addEventListener('click', this.events.mouse.mouseenter, EVENT_OPTIONS);
             } else {
-                Object.keys(this.events.mouse).forEach(event => {
+                Object.keys(this.events.mouse).forEach((event) => {
                     this.#player.getContainer().addEventListener(event, this.events.mouse[event], EVENT_OPTIONS);
                 });
             }
@@ -217,11 +211,11 @@ class Controls implements PlayerComponent {
      */
     public destroy(): void {
         if (!IS_ANDROID && !IS_IOS) {
-            Object.keys(this.events.mouse).forEach(event => {
+            Object.keys(this.events.mouse).forEach((event) => {
                 this.#player.getContainer().removeEventListener(event, this.events.mouse[event]);
             });
 
-            Object.keys(this.events.media).forEach(event => {
+            Object.keys(this.events.media).forEach((event) => {
                 this.#player.getElement().removeEventListener(event, this.events.media[event]);
             });
 
@@ -264,7 +258,7 @@ class Controls implements PlayerComponent {
         return this.#controls.querySelector(`.op-controls-layer__${layer}`) || this.#controls;
     }
 
-    private _createControlsLayer() {
+    private _createControlsLayer(): void {
         if (!this.#controls || !this.#player.getContainer().querySelector('.op-controls')) {
             this.#controls = document.createElement('div');
             this.#controls.className = 'op-controls';
@@ -345,7 +339,7 @@ class Controls implements PlayerComponent {
         const isAudioEl = isAudio(this.#player.getElement());
 
         const controlPositions = Object.keys(controls);
-        const layersExist = controlPositions.find(item => /^(top|bottom)/.test(item));
+        const layersExist = controlPositions.find((item) => /^(top|bottom)/.test(item));
         this._createControlsLayer();
 
         controlPositions.forEach((position: string) => {
@@ -390,7 +384,7 @@ class Controls implements PlayerComponent {
         // Append/prepend the custom items (if any) depending on their position:
         // If position is right, always prepend so Settings and Fullscreen are the last items;
         // otherwise, append new controls
-        this.#player.getCustomControls().forEach(item => {
+        this.#player.getCustomControls().forEach((item) => {
             const [layer, pos] = item.position.split('-');
             const currentLayer = layersExist && !pos ? 'center' : layer;
             item.layer = currentLayer;
@@ -431,13 +425,7 @@ class Controls implements PlayerComponent {
                 if (allowDefault && !item.custom && typeof item.addSettings === 'function') {
                     const menuItem = item.addSettings();
                     if (this.#settings && Object.keys(menuItem).length) {
-                        this.#settings.addItem(
-                            menuItem.name,
-                            menuItem.key,
-                            menuItem.default,
-                            menuItem.subitems,
-                            menuItem.className
-                        );
+                        this.#settings.addItem(menuItem.name, menuItem.key, menuItem.default, menuItem.subitems, menuItem.className);
                     }
                 }
             });
@@ -448,13 +436,13 @@ class Controls implements PlayerComponent {
     }
 
     /**
-     * Calback to hide custom menu.
+     * Callback to hide custom menu.
      *
      * @private
      * @param {HTMLDivElement} menu
      * @memberof Controls
      */
-    private _hideCustomMenu(menu: HTMLDivElement) {
+    private _hideCustomMenu(menu: HTMLDivElement): void {
         let timeout;
         if (timeout && typeof window !== 'undefined') {
             window.cancelAnimationFrame(timeout);
@@ -467,9 +455,9 @@ class Controls implements PlayerComponent {
         }
     }
 
-    private _toggleCustomMenu(event: any, menu: HTMLDivElement, item: ControlItem) {
+    private _toggleCustomMenu(event: any, menu: HTMLDivElement, item: ControlItem): void {
         const menus = this.#player.getContainer().querySelectorAll('.op-settings');
-        menus.forEach(m => {
+        menus.forEach((m) => {
             if (m.getAttribute('aria-hidden') === 'false' && m.id !== menu.id) {
                 m.setAttribute('aria-hidden', 'true');
             }
@@ -489,12 +477,12 @@ class Controls implements PlayerComponent {
      */
     private _createCustomControl(item: ControlItem): void {
         const control = document.createElement('button');
-        const icon = /\.(jpg|png|svg|gif)$/.test(item.icon) ? `<img src="${item.icon}">` : item.icon;
+        const icon = /\.(jpg|png|svg|gif)$/.test(item.icon) ? `<img src="${sanitize(item.icon)}">` : sanitize(item.icon);
         control.className = `op-controls__${item.id} op-control__${item.position} ${item.showInAds ? '' : 'op-control__hide-in-ad'}`;
         control.tabIndex = 0;
         control.id = item.id;
-        control.title = item.title;
-        control.innerHTML = item.content || `${icon} <span class="op-sr">${item.title}</span>`;
+        control.title = sanitize(item.title);
+        control.innerHTML = item.content ? sanitize(item.content) : icon;
 
         // In the event we have subitems for a custom control, create menu and attach events for each item
         if (item.subitems && Array.isArray(item.subitems) && item.subitems.length > 0) {
@@ -502,7 +490,7 @@ class Controls implements PlayerComponent {
             menu.className = 'op-settings op-settings__custom';
             menu.id = `${item.id}-menu`;
             menu.setAttribute('aria-hidden', 'true');
-            const items = item.subitems.map(s => {
+            const items = item.subitems.map((s) => {
                 let itemIcon = '';
                 if (s.icon) {
                     itemIcon = /\.(jpg|png|svg|gif)$/.test(s.icon) ? `<img src="${s.icon}">` : s.icon;
@@ -515,7 +503,7 @@ class Controls implements PlayerComponent {
             menu.innerHTML = `<div class="op-settings__menu" role="menu">${items.join('')}</div>`;
             this.#player.getContainer().appendChild(menu);
 
-            item.subitems.forEach(subitem => {
+            item.subitems.forEach((subitem) => {
                 const menuItem = menu.querySelector(`#${subitem.id}`);
                 if (menuItem && subitem.click && typeof subitem.click === 'function') {
                     menuItem.addEventListener('click', subitem.click, EVENT_OPTIONS);
@@ -524,7 +512,7 @@ class Controls implements PlayerComponent {
 
             // Ensure to toggle menu, hide other settings menus and dispatch a general custom
             // click event (if created)
-            control.addEventListener('click', e => this._toggleCustomMenu(e, menu, item), EVENT_OPTIONS);
+            control.addEventListener('click', (e) => this._toggleCustomMenu(e, menu, item), EVENT_OPTIONS);
 
             this.#player.getElement().addEventListener('controlshidden', () => this._hideCustomMenu(menu), EVENT_OPTIONS);
         } else if (item.click && typeof item.click === 'function') {
@@ -576,14 +564,14 @@ class Controls implements PlayerComponent {
             if (item.subitems && Array.isArray(item.subitems) && item.subitems.length > 0) {
                 const menu = this.#player.getContainer().querySelector(`#${item.id}-menu`) as HTMLDivElement;
                 if (menu) {
-                    item.subitems.forEach(subitem => {
+                    item.subitems.forEach((subitem) => {
                         const menuItem = menu.querySelector(`#${subitem.id}`);
                         if (menuItem && subitem.click && typeof subitem.click === 'function') {
                             menuItem.removeEventListener('click', subitem.click);
                         }
                     });
 
-                    control.removeEventListener('click', e => this._toggleCustomMenu(e, menu, item));
+                    control.removeEventListener('click', (e) => this._toggleCustomMenu(e, menu, item));
 
                     this.#player.getElement().removeEventListener('controlshidden', () => this._hideCustomMenu(menu));
                     removeElement(menu);

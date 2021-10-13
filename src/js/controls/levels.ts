@@ -4,9 +4,7 @@ import Level from '../interfaces/level';
 import SettingsItem from '../interfaces/settings/item';
 import SettingsSubItem from '../interfaces/settings/subitem';
 import Player from '../player';
-import {
-    EVENT_OPTIONS, IS_ANDROID, IS_IOS, NAV
-} from '../utils/constants';
+import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, NAV } from '../utils/constants';
 import { addEvent } from '../utils/events';
 import { hasClass, removeElement } from '../utils/general';
 import { isDashSource, isHlsSource } from '../utils/media';
@@ -133,8 +131,10 @@ class Levels implements PlayerComponent {
      * @memberof Levels
      */
     public create(): void {
-        const initialLevel = this.#player.getOptions().defaultLevel !== null
-            ? parseInt(this.#player.getOptions().defaultLevel, 10) : this.#player.getMedia().level;
+        const initialLevel =
+            this.#player.getOptions().defaultLevel !== null
+                ? parseInt(this.#player.getOptions().defaultLevel, 10)
+                : this.#player.getMedia().level;
         this.#default = `${initialLevel}`;
         const menuItems = this._formatMenuItems();
         const defaultLevel = menuItems.length ? menuItems.find((items: any) => items.key === this.#default) : null;
@@ -150,10 +150,10 @@ class Levels implements PlayerComponent {
         this.#button.setAttribute('data-active-level', this.#default);
         this.#button.innerHTML = `<span>${defaultLabel}</span>`;
 
-        const loadLevelsEvent = () => {
+        const loadLevelsEvent = (): void => {
             if (!this.#levels.length) {
                 this._gatherLevels();
-                setTimeout(() => {
+                setTimeout((): void => {
                     this.#player.getMedia().level = initialLevel;
                     const e = addEvent('controlschanged');
                     this.#player.getElement().dispatchEvent(e);
@@ -170,7 +170,7 @@ class Levels implements PlayerComponent {
 
         if (this.#detachMenu) {
             this._buildMenu();
-            this.#events.button.click = () => {
+            this.#events.button.click = (): void => {
                 if (this.#detachMenu) {
                     const menus = this.#player.getContainer().querySelectorAll('.op-settings');
                     for (let i = 0, total = menus.length; i < total; ++i) {
@@ -185,7 +185,7 @@ class Levels implements PlayerComponent {
                     }
                 }
             };
-            this.#events.button.mouseover = () => {
+            this.#events.button.mouseover = (): void => {
                 if (!IS_IOS && !IS_ANDROID) {
                     const menus = this.#player.getContainer().querySelectorAll('.op-settings');
                     for (let i = 0, total = menus.length; i < total; ++i) {
@@ -198,7 +198,7 @@ class Levels implements PlayerComponent {
                     }
                 }
             };
-            this.#events.button.mouseout = () => {
+            this.#events.button.mouseout = (): void => {
                 if (!IS_IOS && !IS_ANDROID) {
                     const menus = this.#player.getContainer().querySelectorAll('.op-settings');
                     for (let i = 0, total = menus.length; i < total; ++i) {
@@ -217,9 +217,9 @@ class Levels implements PlayerComponent {
             this.#player.getElement().addEventListener('controlshidden', this.#events.button.mouseout, EVENT_OPTIONS);
         }
 
-        this.#events.global.click = (e: Event) => {
-            const option = (e.target as HTMLElement);
-            const currentTime = this.#player.getMedia().currentTime;
+        this.#events.global.click = (e: Event): void => {
+            const option = e.target as HTMLElement;
+            const { currentTime } = this.#player.getMedia();
             const isPaused = this.#player.getMedia().paused;
             if (option.closest(`#${this.#player.id}`) && hasClass(option, 'op-levels__option')) {
                 const levelVal = option.getAttribute('data-value');
@@ -228,8 +228,10 @@ class Levels implements PlayerComponent {
                 if (this.#detachMenu) {
                     this.#button.setAttribute('data-active-level', `${level}`);
                     this.#button.innerHTML = `<span>${option.innerText}</span>`;
-                    const levels = option.parentElement && option.parentElement.parentElement
-                        ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item') : [];
+                    const levels =
+                        option.parentElement && option.parentElement.parentElement
+                            ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item')
+                            : [];
                     for (let i = 0, total = levels.length; i < total; ++i) {
                         levels[i].setAttribute('aria-checked', 'false');
                     }
@@ -257,22 +259,22 @@ class Levels implements PlayerComponent {
         };
 
         const connection = NAV.connection || NAV.mozConnection || NAV.webkitConnection;
-        this.#events.global.connection = () => {
+        this.#events.global.connection = (): void => {
             // Check connectivity to switch levels (only HTML5 since HLS and Dash can use adaptive streaming)
             const media = this.#player.getMedia().current;
             if (!isDashSource(media) && !isHlsSource(media)) {
                 let type = connection.effectiveType;
 
-                const levels = this.#levels.map(item => ({
+                const levels = this.#levels.map((item) => ({
                     ...item,
                     resolution: parseInt(item.label.replace('p', ''), 10),
                 }));
 
-                let level = levels.find(item => item.resolution < 360);
+                let level = levels.find((item) => item.resolution < 360);
                 if (type === '4g') {
-                    level = levels.find(item => item.resolution >= 720);
+                    level = levels.find((item) => item.resolution >= 720);
                 } else if (type === '3g') {
-                    level = levels.find(item => item.resolution >= 360 && item.resolution < 720);
+                    level = levels.find((item) => item.resolution >= 360 && item.resolution < 720);
                 }
 
                 if (level) {
@@ -284,7 +286,7 @@ class Levels implements PlayerComponent {
             }
         };
 
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
@@ -297,7 +299,7 @@ class Levels implements PlayerComponent {
     public destroy(): void {
         const connection = NAV.connection || NAV.mozConnection || NAV.webkitConnection;
 
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
         document.removeEventListener('click', this.#events.global.click);
@@ -328,13 +330,15 @@ class Levels implements PlayerComponent {
         }
         const subitems = this._formatMenuItems();
         // Avoid implementing submenu for levels if only 2 options were available
-        return subitems.length > 2 ? {
-            className: 'op-levels__option',
-            default: this.#default || '-1',
-            key: 'levels',
-            name: this.#labels.levels,
-            subitems,
-        } : {};
+        return subitems.length > 2
+            ? {
+                  className: 'op-levels__option',
+                  default: this.#default || '-1',
+                  key: 'levels',
+                  name: this.#labels.levels,
+                  subitems,
+              }
+            : {};
     }
 
     private _formatMenuItems(): SettingsSubItem[] {
@@ -343,18 +347,20 @@ class Levels implements PlayerComponent {
         let items = total ? [{ key: '-1', label: this.#labels.auto }] : [];
         for (let i = 0; i < total; i++) {
             const level = levels[i];
-            items = items.filter(el => el.key !== level.id);
+            items = items.filter((el) => el.key !== level.id);
             items.push({ key: level.id, label: level.label });
         }
 
         // Remove duplicated labels
-        items = items.reduce((acc: SettingsSubItem[], current) => {
-            const duplicate = acc.find(item => item.label === current.label);
-            if (!duplicate) {
-                return acc.concat([current]);
-            }
-            return acc;
-        }, []).sort((a, b) => (parseInt(a.label, 10) > parseInt(b.label, 10) ? 1 : -1));
+        items = items
+            .reduce((acc: SettingsSubItem[], current) => {
+                const duplicate = acc.find((item) => item.label === current.label);
+                if (!duplicate) {
+                    return acc.concat([current]);
+                }
+                return acc;
+            }, [])
+            .sort((a, b) => (parseInt(a.label, 10) > parseInt(b.label, 10) ? 1 : -1));
 
         return items;
     }
@@ -398,7 +404,7 @@ class Levels implements PlayerComponent {
         return this.#labels.auto;
     }
 
-    private _gatherLevels() {
+    private _gatherLevels(): Level[] {
         if (!this.#levels.length) {
             this.#player.getMedia().levels.forEach((level: Level) => {
                 this.#levels.push({ ...level, label: level.label || this._getResolutionsLabel(level.height) });
@@ -407,7 +413,7 @@ class Levels implements PlayerComponent {
         return this.#levels;
     }
 
-    private _buildMenu() {
+    private _buildMenu(): void {
         // Build menu if detachMenu is `true`
         if (this.#detachMenu) {
             this.#button.classList.add('op-control--no-hover');
@@ -419,11 +425,15 @@ class Levels implements PlayerComponent {
 
             // Store the submenu to reach all options for current menu item
             const menu = `<div class="op-settings__menu" role="menu" id="menu-item-levels">
-                ${options.map(item => `
+                ${options
+                    .map(
+                        (item) => `
                 <div class="op-settings__submenu-item" tabindex="0" role="menuitemradio"
                     aria-checked="${this.#default === item.key ? 'true' : 'false'}">
                     <div class="op-settings__submenu-label ${className || ''}" data-value="levels-${item.key}">${item.label}</div>
-                </div>`).join('')}
+                </div>`
+                    )
+                    .join('')}
             </div>`;
             this.#menu.innerHTML = menu;
 
@@ -431,7 +441,10 @@ class Levels implements PlayerComponent {
             itemContainer.className = `op-controls__container op-control__${this.#position}`;
             itemContainer.appendChild(this.#button);
             itemContainer.appendChild(this.#menu);
-            this.#player.getControls().getLayer(this.#layer).appendChild(itemContainer);
+            this.#player
+                .getControls()
+                .getLayer(this.#layer)
+                .appendChild(itemContainer);
         }
     }
 }

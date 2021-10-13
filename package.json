@@ -41,11 +41,13 @@
     "ima-sdk"
   ],
   "scripts": {
-    "build": "[ -d ./dist ] && rm -R ./dist; webpack --mode=production && npm run create-esm && npm run create-d-types",
+    "build": "npm test && npm run build:sources",
+    "build:sources": "[ -d ./dist ] && rm -R ./dist; webpack --mode=production && npm run create-esm && npm run create-d-types",
     "create-d-types": "tsc -p tsconfig-types.json",
     "create-esm": "[ -d ./dist/esm ] && rm -R ./dist/esm; tsc -p tsconfig-esm.json",
     "release": "npm run build && release-it",
-    "test": "karma start --single-run --browsers ChromeHeadless --log-level info karma.conf.js && tsd",
+    "test": "npm run test:sources && tsd",
+    "test:sources": "karma start --single-run --browsers ChromeHeadless --log-level info karma.conf.js",
     "test:dev": "karma start --watch --browsers Chrome karma.conf.js"
   },
   "readme": "https://github.com/openplayerjs/openplayerjs/blob/master/README.md",
@@ -74,8 +76,10 @@
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-prettier": "^4.0.0",
     "expect.js": "^0.3.1",
     "husky": "^7.0.2",
     "karma": "^6.3.4",

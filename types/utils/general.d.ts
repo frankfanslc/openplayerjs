@@ -37,7 +37,7 @@ export declare function removeElement(node?: Node): void;
  * @param {string} url
  * @returns {Promise}
  */
-export declare function loadScript(url: string): Promise<unknown>;
+export declare function loadScript(url: string): Promise<void>;
 /**
  * Perform an asynchronous (AJAX) request.
  *
@@ -68,6 +68,7 @@ export declare function offset(el: HTMLElement): {
     left: number;
     top: number;
 };
+export declare function sanitize(html: string, justText?: boolean): string;
 /**
  * Determine if string is a valid XML structure.
  *
@@ -76,3 +77,4 @@ export declare function offset(el: HTMLElement): {
  * @returns {boolean}
  */
 export declare function isXml(input: string): boolean;
+export declare function isJson(item: any): boolean;

@@ -1,13 +1,13 @@
 import OpenPlayerJS from '../src/js/player';
 import './helper';
 
-describe('player', () => {
+describe('player', (): void => {
     const defaultVideo = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4';
     // const defaultAudio = 'https://ccrma.stanford.edu/~jos/mp3/Latin.mp3';
     let videoPlayer;
     let audioPlayer;
 
-    afterEach(() => {
+    afterEach((): void => {
         if (OpenPlayerJS.instances.video) {
             OpenPlayerJS.instances.video.destroy();
         }
@@ -19,7 +19,7 @@ describe('player', () => {
         audioPlayer = null;
     });
 
-    it('creates an instance of a video player by initializing it via configuration', async () => {
+    it('creates an instance of a video player by initializing it via configuration', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
 
@@ -40,7 +40,7 @@ describe('player', () => {
         expect(videoPlayer.getContainer().querySelector('.op-controls__duration').innerText).to.equal('00:00');
     });
 
-    it('creates an instance of an audio player by initializing it via configuration', async () => {
+    it('creates an instance of an audio player by initializing it via configuration', async (): Promise<void> => {
         audioPlayer = new OpenPlayerJS('audio');
         await audioPlayer.init();
 
@@ -59,19 +59,21 @@ describe('player', () => {
         expect(audioPlayer.getContainer().querySelector('.op-controls__duration').innerText).to.equal('00:00');
     });
 
-    it('detects if user is using a mouse (by default) or keyboard', async () => {
+    it('detects if user is using a mouse (by default) or keyboard', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
         expect(videoPlayer.getContainer().classList.contains('op-player__keyboard--inactive')).to.equal(true);
 
         const event = new KeyboardEvent('keydown', {
-            bubbles: true, cancelable: true, key: 'Q',
+            bubbles: true,
+            cancelable: true,
+            key: 'Q',
         });
         videoPlayer.getContainer().dispatchEvent(event);
         expect(videoPlayer.getContainer().classList.contains('op-player__keyboard--inactive')).to.equal(false);
     });
 
-    it('detects the type of media to be played (i.e., video)', async () => {
+    it('detects the type of media to be played (i.e., video)', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
         expect(videoPlayer.getContainer().classList.contains('op-player__video')).to.equal(true);
@@ -81,7 +83,7 @@ describe('player', () => {
         expect(audioPlayer.getContainer().classList.contains('op-player__audio')).to.equal(true);
     });
 
-    it('displays a different UI when changing the mode to `fill` or `fit` (ONLY for video)', async () => {
+    it('displays a different UI when changing the mode to `fill` or `fit` (ONLY for video)', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video', { mode: 'fill' });
         await videoPlayer.init();
         expect(videoPlayer.getContainer().classList.contains('op-player__full')).to.equal(true);
@@ -103,7 +105,7 @@ describe('player', () => {
         expect(audioPlayer.getContainer().parentElement.classList.contains('op-player__fit--wrapper')).to.equal(false);
     });
 
-    it('uses the width and/or height (in px or %) indicated in the configuration (#184)', async () => {
+    it('uses the width and/or height (in px or %) indicated in the configuration (#184)', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video', { width: 100 });
         await videoPlayer.init();
         expect(videoPlayer.getContainer().style.width).to.equal('100px');
@@ -122,13 +124,13 @@ describe('player', () => {
         expect(videoPlayer.getContainer().style.height).to.equal('50%');
     });
 
-    it('displays the duration of media when player plays media, and `preload` attribute is set to `none`', async () => {
+    it('displays the duration of media when player plays media, and `preload` attribute is set to `none`', async (): Promise<void> => {
         document.getElementById('video').setAttribute('preload', 'none');
 
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
         return new Promise<void>((resolve, reject) => {
-            const checkDuration = () => {
+            const checkDuration = (): void => {
                 expect(videoPlayer.getContainer().querySelector('.op-controls__duration').innerText).to.equal('00:00');
                 videoPlayer.getElement().removeEventListener('play', checkDuration);
                 document.getElementById('video').removeAttribute('preload');
@@ -144,7 +146,7 @@ describe('player', () => {
         });
     });
 
-    it('allows user to add/remove control elements via configuration (#156)', async () => {
+    it('allows user to add/remove control elements via configuration (#156)', async (): Promise<void> => {
         const controls = {
             layers: {
                 left: ['play', 'volume'],
@@ -159,8 +161,19 @@ describe('player', () => {
         expect(audioPlayer.getContainer().querySelector('.op-controls__playpause')).to.not.be(null);
     });
 
-    it('allows the user to add captions dynamically', async () => {
-        const media = (document.getElementById('video') as HTMLMediaElement);
+    it('prevents XSS attacks when users sets control labels (#287)', async (): Promise<void> => {
+        audioPlayer = new OpenPlayerJS('audio', {
+            labels: {
+                play: '<div onclick="javascript:alert(\'XSS\')">Test<script>alert("Test");</script></div>',
+            },
+        });
+        await audioPlayer.init();
+        const play = audioPlayer.getControls().getContainer().querySelector('.op-controls__playpause') as HTMLButtonElement;
+        expect(play.getAttribute('aria-label')).to.equal('Test');
+    });
+
+    it('allows the user to add captions dynamically', async (): Promise<void> => {
+        const media = document.getElementById('video') as HTMLMediaElement;
         media.setAttribute('crossorigin', 'anonymous');
 
         videoPlayer = new OpenPlayerJS('video');
@@ -174,8 +187,8 @@ describe('player', () => {
             srclang: 'en-UK',
         });
 
-        return new Promise<void>(resolve => {
-            videoPlayer.getElement().addEventListener('controlschanged', () => {
+        return new Promise<void>((resolve) => {
+            videoPlayer.getElement().addEventListener('controlschanged', (): void => {
                 expect(videoPlayer.getContainer().querySelector('.op-controls__captions')).to.not.be(null);
                 media.removeAttribute('crossorigin');
                 resolve();
@@ -189,7 +202,7 @@ describe('player', () => {
         });
     });
 
-    it.skip('handles attempts to play an invalid source', async () => {
+    it.skip('handles attempts to play an invalid source', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
         videoPlayer.src = 'https://non-existing.test/test.mp4';
@@ -203,19 +216,20 @@ describe('player', () => {
         }
     });
 
-    it('allows to set dynamically any sources (media and Ads) when no sources are detected in media (#283)', async () => {
+    it('allows to set dynamically sources (media or Ads) when no sources are detected in media (#283)', async function x(): Promise<void> {
+        this.timeout(60000);
         const id = 'video';
         const source = document.getElementById(id).querySelector('source');
-        const media = (document.getElementById(id) as HTMLMediaElement);
+        const media = document.getElementById(id) as HTMLMediaElement;
         media.setAttribute('preload', 'none');
         media.querySelector('source').remove();
 
         videoPlayer = new OpenPlayerJS(id);
         await videoPlayer.init();
 
-        return new Promise<void>(resolve => {
+        return new Promise<void>((resolve) => {
             let assessed = false;
-            videoPlayer.getElement().addEventListener('play', () => {
+            videoPlayer.getElement().addEventListener('play', (): void => {
                 const target = videoPlayer.activeElement();
                 if (!assessed && target.currentTime > 0) {
                     expect(target.currentTime).to.not.equal(0);
@@ -239,7 +253,7 @@ describe('player', () => {
         });
     });
 
-    it('should allow listening to custom events and add custom config (i.e., HLS library) (#279)', async () => {
+    it('should allow listening to custom events and add custom config (i.e., HLS library) (#279)', async (): Promise<void> => {
         const media = document.getElementById('video') as HTMLMediaElement;
         const source = media.querySelector('source');
         media.querySelector('source').remove();
@@ -255,8 +269,8 @@ describe('player', () => {
         });
         await videoPlayer.init();
 
-        return new Promise(resolve => {
-            const manifestEvent = () => {
+        return new Promise((resolve) => {
+            const manifestEvent = (): void => {
                 expect(true).to.be(true);
                 videoPlayer.getElement().removeEventListener('hlsLevelLoaded', manifestEvent);
                 media.src = '';

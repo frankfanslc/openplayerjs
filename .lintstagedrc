@@ -2,11 +2,14 @@
     "*.{js,ts}": [
         "prettier --write",
         "eslint --fix",
-        "npm test",
+        "npm run test:sources",
         "git add --all"
     ],
     "src/js/**/*.json": [
         "prettier --write",
         "git add --all"
+    ],
+    "*.css": [
+        "stylelint --fix"
     ]
 }

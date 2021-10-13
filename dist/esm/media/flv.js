@@ -24,11 +24,13 @@ class FlvMedia extends Native {
         __classPrivateFieldSet(this, _FlvMedia_options, options, "f");
         this.element = element;
         this.media = mediaSource;
-        this.promise = (typeof flvjs === 'undefined')
-            ? loadScript('https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js')
-            : new Promise(resolve => {
-                resolve({});
-            });
+        this.promise =
+            typeof flvjs === 'undefined'
+                ?
+                    loadScript('https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js')
+                : new Promise((resolve) => {
+                    resolve({});
+                });
         this._create = this._create.bind(this);
         this.promise.then(this._create);
         return this;
@@ -45,7 +47,7 @@ class FlvMedia extends Native {
         this.element.dispatchEvent(e);
         if (!__classPrivateFieldGet(this, _FlvMedia_events, "f")) {
             __classPrivateFieldSet(this, _FlvMedia_events, flvjs.Events, "f");
-            Object.keys(__classPrivateFieldGet(this, _FlvMedia_events, "f")).forEach(event => {
+            Object.keys(__classPrivateFieldGet(this, _FlvMedia_events, "f")).forEach((event) => {
                 __classPrivateFieldGet(this, _FlvMedia_player, "f").on(__classPrivateFieldGet(this, _FlvMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _FlvMedia_events, "f")[event], args));
             });
         }
@@ -62,7 +64,7 @@ class FlvMedia extends Native {
     get levels() {
         const levels = [];
         if (__classPrivateFieldGet(this, _FlvMedia_player, "f") && __classPrivateFieldGet(this, _FlvMedia_player, "f").levels && __classPrivateFieldGet(this, _FlvMedia_player, "f").levels.length) {
-            Object.keys(__classPrivateFieldGet(this, _FlvMedia_player, "f").levels).forEach(item => {
+            Object.keys(__classPrivateFieldGet(this, _FlvMedia_player, "f").levels).forEach((item) => {
                 const { height, name } = __classPrivateFieldGet(this, _FlvMedia_player, "f").levels[item];
                 const level = {
                     height,
@@ -86,12 +88,12 @@ class FlvMedia extends Native {
         (_b = __classPrivateFieldGet(this, _FlvMedia_options, "f")) === null || _b === void 0 ? true : delete _b.configs;
         flvjs.LoggingControl.enableDebug = ((_c = __classPrivateFieldGet(this, _FlvMedia_options, "f")) === null || _c === void 0 ? void 0 : _c.debug) || false;
         flvjs.LoggingControl.enableVerbose = ((_d = __classPrivateFieldGet(this, _FlvMedia_options, "f")) === null || _d === void 0 ? void 0 : _d.debug) || false;
-        const options = Object.assign(Object.assign({}, __classPrivateFieldGet(this, _FlvMedia_options, "f") || {}), { type: 'flv', url: this.media.src });
+        const options = Object.assign(Object.assign({}, (__classPrivateFieldGet(this, _FlvMedia_options, "f") || {})), { type: 'flv', url: this.media.src });
         __classPrivateFieldSet(this, _FlvMedia_player, flvjs.createPlayer(options, configs), "f");
         this.instance = __classPrivateFieldGet(this, _FlvMedia_player, "f");
         if (!__classPrivateFieldGet(this, _FlvMedia_events, "f")) {
             __classPrivateFieldSet(this, _FlvMedia_events, flvjs.Events, "f");
-            Object.keys(__classPrivateFieldGet(this, _FlvMedia_events, "f")).forEach(event => {
+            Object.keys(__classPrivateFieldGet(this, _FlvMedia_events, "f")).forEach((event) => {
                 __classPrivateFieldGet(this, _FlvMedia_player, "f").on(__classPrivateFieldGet(this, _FlvMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _FlvMedia_events, "f")[event], args));
             });
         }

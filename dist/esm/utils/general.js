@@ -11,7 +11,7 @@ export function isAudio(element) {
 }
 export function removeElement(node) {
     if (node) {
-        const parentNode = node.parentNode;
+        const { parentNode } = node;
         if (parentNode) {
             parentNode.removeChild(node);
         }
@@ -24,7 +24,7 @@ export function loadScript(url) {
         script.async = true;
         script.onload = () => {
             removeElement(script);
-            resolve({});
+            resolve();
         };
         script.onerror = () => {
             removeElement(script);
@@ -36,8 +36,7 @@ export function loadScript(url) {
     });
 }
 export function request(url, dataType, success, error) {
-    const xhr = window.XMLHttpRequest ? new XMLHttpRequest()
-        : new ActiveXObject('Microsoft.XMLHTTP');
+    const xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     let type;
     switch (dataType) {
         case 'text':
@@ -100,14 +99,45 @@ export function offset(el) {
         top: rect.top + (window.pageYOffset || document.documentElement.scrollTop),
     };
 }
+export function sanitize(html, justText = true) {
+    const parser = new DOMParser();
+    const content = parser.parseFromString(html, 'text/html');
+    const formattedContent = content.body || document.createElement('body');
+    const scripts = formattedContent.querySelectorAll('script');
+    for (let i = 0, total = scripts.length; i < total; i++) {
+        scripts[i].remove();
+    }
+    function clean(element) {
+        const nodes = element.children;
+        for (let i = 0, total = nodes.length; i < total; i++) {
+            const node = nodes[i];
+            const { attributes } = node;
+            for (let j = 0, t = attributes.length; j < t; j++) {
+                const { name, value } = attributes[j];
+                const val = value.replace(/\s+/g, '').toLowerCase();
+                if (['src', 'href', 'xlink:href'].includes(name)) {
+                    if (val.includes('javascript:') || val.includes('data:')) {
+                        node.removeAttribute(name);
+                    }
+                }
+                if (name.startsWith('on')) {
+                    node.removeAttribute(name);
+                }
+            }
+            clean(node);
+        }
+    }
+    clean(formattedContent);
+    return justText ? (formattedContent.textContent || '').replace(/\s{2,}/g, '') : formattedContent.innerHTML;
+}
 export function isXml(input) {
     let parsedXml;
-    if (typeof window.DOMParser !== 'undefined') {
-        parsedXml = (text) => new window.DOMParser().parseFromString(text, 'text/xml');
+    if (typeof DOMParser !== 'undefined') {
+        parsedXml = (text) => new DOMParser().parseFromString(text, 'text/xml');
     }
-    else if (typeof window.ActiveXObject !== 'undefined' && new window.ActiveXObject('Microsoft.XMLDOM')) {
+    else if (typeof ActiveXObject !== 'undefined' && new ActiveXObject('Microsoft.XMLDOM')) {
         parsedXml = (text) => {
-            const xmlDoc = new window.ActiveXObject('Microsoft.XMLDOM');
+            const xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
             xmlDoc.async = false;
             xmlDoc.loadXML(text);
             return xmlDoc;
@@ -129,4 +159,17 @@ export function isXml(input) {
         return false;
     }
     return true;
+}
+export function isJson(item) {
+    item = typeof item !== 'string' ? JSON.stringify(item) : item;
+    try {
+        item = JSON.parse(item);
+    }
+    catch (e) {
+        return false;
+    }
+    if (typeof item === 'object' && item !== null) {
+        return true;
+    }
+    return false;
 }

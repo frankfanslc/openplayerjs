@@ -9,11 +9,9 @@ import PlayerOptions from './interfaces/player-options';
 import Source from './interfaces/source';
 import Media from './media';
 import Ads from './media/ads';
-import {
-    EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE
-} from './utils/constants';
+import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from './utils/constants';
 import { addEvent } from './utils/events';
-import { isAudio, isVideo, removeElement } from './utils/general';
+import { isAudio, isVideo, removeElement, sanitize } from './utils/general';
 import { isAutoplaySupported, predictType } from './utils/media';
 
 /**
@@ -70,7 +68,7 @@ class Player {
      * @param {object} media  The object that will contain all the native methods/setters/getters to play media
      * @memberof Player
      */
-    public static addMedia(name: string, mimeType: string, valid: (url: string) => string, media: any) {
+    public static addMedia(name: string, mimeType: string, valid: (url: string) => string, media: any): void {
         Player.customMedia.media[mimeType] = media;
         Player.customMedia.optionsKey[mimeType] = name;
         Player.customMedia.rules.push(valid);
@@ -406,7 +404,7 @@ class Player {
             this.#media.destroy();
         }
 
-        Object.keys(this.#events).forEach(event => {
+        Object.keys(this.#events).forEach((event) => {
             el.removeEventListener(event, this.#events[event]);
         });
 
@@ -614,7 +612,7 @@ class Player {
      */
     public removeControl(controlName: string): void {
         const { layers } = this.getOptions().controls;
-        Object.keys(layers).forEach(layer => {
+        Object.keys(layers).forEach((layer) => {
             layers[layer].forEach((item: string, idx: number) => {
                 if (item === controlName) {
                     layers[layer].splice(idx, 1);
@@ -670,7 +668,7 @@ class Player {
         }
 
         this.proxy = this;
-        this.getElement().addEventListener('loadedmetadata', () => {
+        this.getElement().addEventListener('loadedmetadata', (): void => {
             this.getMedia().currentTime = currentTime;
             if (!paused) {
                 this.play();
@@ -711,7 +709,7 @@ class Player {
         } else if (typeof media === 'string') {
             this.#element.src = media;
         } else if (Array.isArray(media)) {
-            media.forEach(m => {
+            media.forEach((m) => {
                 const source = document.createElement('source');
                 source.src = m.src;
                 source.type = m.type || predictType(m.src, this.#element);
@@ -800,17 +798,25 @@ class Player {
             this.#element.parentElement.insertBefore(messageContainer, this.#element);
         }
 
-        wrapper.addEventListener('keydown', () => {
-            if (wrapper.classList.contains('op-player__keyboard--inactive')) {
-                wrapper.classList.remove('op-player__keyboard--inactive');
-            }
-        }, EVENT_OPTIONS);
+        wrapper.addEventListener(
+            'keydown',
+            (): void => {
+                if (wrapper.classList.contains('op-player__keyboard--inactive')) {
+                    wrapper.classList.remove('op-player__keyboard--inactive');
+                }
+            },
+            EVENT_OPTIONS
+        );
 
-        wrapper.addEventListener('click', () => {
-            if (!wrapper.classList.contains('op-player__keyboard--inactive')) {
-                wrapper.classList.add('op-player__keyboard--inactive');
-            }
-        }, EVENT_OPTIONS);
+        wrapper.addEventListener(
+            'click',
+            (): void => {
+                if (!wrapper.classList.contains('op-player__keyboard--inactive')) {
+                    wrapper.classList.add('op-player__keyboard--inactive');
+                }
+            },
+            EVENT_OPTIONS
+        );
 
         if (this.#options.mode === 'fill' && !isAudio(this.#element) && !IS_IPHONE) {
             // Create fill effect on video, scaling and cropping dimensions relative to its parent, setting just a class.
@@ -909,16 +915,20 @@ class Player {
             this.#element.parentElement.insertBefore(this.playBtn, this.#element);
         }
 
-        this.playBtn.addEventListener('click', () => {
-            if (this.#adsInstance) {
-                this.#adsInstance.playRequested = this.activeElement().paused;
-            }
-            if (this.activeElement().paused) {
-                this.activeElement().play();
-            } else {
-                this.activeElement().pause();
-            }
-        }, EVENT_OPTIONS);
+        this.playBtn.addEventListener(
+            'click',
+            (): void => {
+                if (this.#adsInstance) {
+                    this.#adsInstance.playRequested = this.activeElement().paused;
+                }
+                if (this.activeElement().paused) {
+                    this.activeElement().play();
+                } else {
+                    this.activeElement().pause();
+                }
+            },
+            EVENT_OPTIONS
+        );
     }
 
     /**
@@ -930,7 +940,7 @@ class Player {
      */
     private _setEvents(): void {
         if (isVideo(this.#element)) {
-            this.#events.loadedmetadata = () => {
+            this.#events.loadedmetadata = (): void => {
                 const el = this.activeElement();
                 if (this.#options.showLoaderOnInit && !IS_IOS && !IS_ANDROID) {
                     this.loader.setAttribute('aria-hidden', 'false');
@@ -944,16 +954,16 @@ class Player {
                     this.playBtn.setAttribute('aria-pressed', 'false');
                 }
             };
-            this.#events.waiting = () => {
+            this.#events.waiting = (): void => {
                 this.playBtn.setAttribute('aria-hidden', 'true');
                 this.loader.setAttribute('aria-hidden', 'false');
             };
-            this.#events.seeking = () => {
+            this.#events.seeking = (): void => {
                 const el = this.activeElement();
                 this.playBtn.setAttribute('aria-hidden', 'true');
                 this.loader.setAttribute('aria-hidden', el instanceof Media ? 'false' : 'true');
             };
-            this.#events.seeked = () => {
+            this.#events.seeked = (): void => {
                 const el = this.activeElement();
                 if (Math.round(el.currentTime) === 0) {
                     this.playBtn.setAttribute('aria-hidden', 'true');
@@ -963,23 +973,23 @@ class Player {
                     this.loader.setAttribute('aria-hidden', 'true');
                 }
             };
-            this.#events.play = () => {
+            this.#events.play = (): void => {
                 this.playBtn.classList.add('op-player__play--paused');
                 this.playBtn.title = this.#options.labels.pause;
                 this.loader.setAttribute('aria-hidden', 'true');
                 if (this.#options.showLoaderOnInit) {
                     this.playBtn.setAttribute('aria-hidden', 'true');
                 } else {
-                    setTimeout(() => {
+                    setTimeout((): void => {
                         this.playBtn.setAttribute('aria-hidden', 'true');
                     }, this.#options.hidePlayBtnTimer);
                 }
             };
-            this.#events.playing = () => {
+            this.#events.playing = (): void => {
                 this.loader.setAttribute('aria-hidden', 'true');
                 this.playBtn.setAttribute('aria-hidden', 'true');
             };
-            this.#events.pause = () => {
+            this.#events.pause = (): void => {
                 const el = this.activeElement();
                 this.playBtn.classList.remove('op-player__play--paused');
                 this.playBtn.title = this.#options.labels.play;
@@ -992,13 +1002,13 @@ class Player {
                     this.loader.setAttribute('aria-hidden', 'true');
                 }
             };
-            this.#events.ended = () => {
+            this.#events.ended = (): void => {
                 this.loader.setAttribute('aria-hidden', 'true');
                 this.playBtn.setAttribute('aria-hidden', 'true');
             };
         }
 
-        Object.keys(this.#events).forEach(event => {
+        Object.keys(this.#events).forEach((event) => {
             this.#element.addEventListener(event, this.#events[event], EVENT_OPTIONS);
         });
 
@@ -1014,54 +1024,64 @@ class Player {
      * @private
      * @memberof Player
      */
-    private _autoplay() {
+    private _autoplay(): void {
         if (!this.#processedAutoplay) {
             this.#processedAutoplay = true;
             this.#element.removeEventListener('canplay', this._autoplay);
 
-            isAutoplaySupported(this.#element, this.#volume, autoplay => {
-                this.#canAutoplay = autoplay;
-            }, muted => {
-                this.#canAutoplayMuted = muted;
-            }, () => {
-                if (this.#canAutoplayMuted) {
-                    this.activeElement().muted = true;
-                    this.activeElement().volume = 0;
+            isAutoplaySupported(
+                this.#element,
+                this.#volume,
+                (autoplay) => {
+                    this.#canAutoplay = autoplay;
+                },
+                (muted) => {
+                    this.#canAutoplayMuted = muted;
+                },
+                (): void => {
+                    if (this.#canAutoplayMuted) {
+                        this.activeElement().muted = true;
+                        this.activeElement().volume = 0;
 
-                    const e = addEvent('volumechange');
-                    this.#element.dispatchEvent(e);
+                        const e = addEvent('volumechange');
+                        this.#element.dispatchEvent(e);
 
-                    // Insert element to unmute if browser allows autoplay with muted media
-                    const volumeEl = document.createElement('div');
-                    const action = IS_IOS || IS_ANDROID ? this.#options.labels.tap : this.#options.labels.click;
-                    volumeEl.className = 'op-player__unmute';
-                    volumeEl.innerHTML = `<span>${action}</span>`;
-                    volumeEl.tabIndex = 0;
+                        // Insert element to unmute if browser allows autoplay with muted media
+                        const volumeEl = document.createElement('div');
+                        const action = IS_IOS || IS_ANDROID ? this.#options.labels.tap : this.#options.labels.click;
+                        volumeEl.className = 'op-player__unmute';
+                        volumeEl.innerHTML = `<span>${action}</span>`;
+                        volumeEl.tabIndex = 0;
 
-                    volumeEl.addEventListener('click', () => {
-                        this.activeElement().muted = false;
+                        volumeEl.addEventListener(
+                            'click',
+                            (): void => {
+                                this.activeElement().muted = false;
+                                this.activeElement().volume = this.#volume;
+
+                                const event = addEvent('volumechange');
+                                this.#element.dispatchEvent(event);
+
+                                removeElement(volumeEl);
+                            },
+                            EVENT_OPTIONS
+                        );
+
+                        const target = this.getContainer();
+                        target.insertBefore(volumeEl, target.firstChild);
+                    } else {
+                        this.activeElement().muted = this.#element.muted;
                         this.activeElement().volume = this.#volume;
+                    }
 
-                        const event = addEvent('volumechange');
-                        this.#element.dispatchEvent(event);
-
-                        removeElement(volumeEl);
-                    }, EVENT_OPTIONS);
-
-                    const target = this.getContainer();
-                    target.insertBefore(volumeEl, target.firstChild);
-                } else {
-                    this.activeElement().muted = this.#element.muted;
-                    this.activeElement().volume = this.#volume;
+                    if (this.#ads) {
+                        const adsOptions = this.#options && this.#options.ads ? this.#options.ads : undefined;
+                        this.#adsInstance = new Ads(this, this.#ads, this.#canAutoplay, this.#canAutoplayMuted, adsOptions);
+                    } else if (this.#canAutoplay || this.#canAutoplayMuted) {
+                        this.play();
+                    }
                 }
-
-                if (this.#ads) {
-                    const adsOptions = this.#options && this.#options.ads ? this.#options.ads : undefined;
-                    this.#adsInstance = new Ads(this, this.#ads, this.#canAutoplay, this.#canAutoplayMuted, adsOptions);
-                } else if (this.#canAutoplay || this.#canAutoplayMuted) {
-                    this.play();
-                }
-            });
+            );
         }
     }
 
@@ -1077,15 +1097,21 @@ class Player {
         this.#options = { ...this.#defaultOptions, ...playerOptions };
         if (playerOptions) {
             const objectElements = ['labels', 'controls'];
-            objectElements.forEach(item => {
-                this.#options[item] = playerOptions[item] && Object.keys(playerOptions[item]).length
-                    ? { ...this.#defaultOptions[item], ...playerOptions[item] }
-                    : this.#defaultOptions[item];
+            objectElements.forEach((item) => {
+                if (item === 'labels' && playerOptions[item]) {
+                    Object.keys(playerOptions[item]).forEach((key) => {
+                        playerOptions[item][key] = sanitize(playerOptions[item][key]);
+                    });
+                }
+                this.#options[item] =
+                    playerOptions[item] && Object.keys(playerOptions[item]).length
+                        ? { ...this.#defaultOptions[item], ...playerOptions[item] }
+                        : this.#defaultOptions[item];
             });
         }
     }
 
-    private _enableKeyBindings(e: KeyboardEvent) {
+    private _enableKeyBindings(e: KeyboardEvent): void {
         const key = e.which || e.keyCode || 0;
         const el = this.activeElement();
         const isAd = this.isAd();
@@ -1199,7 +1225,7 @@ class Player {
                         if (target.parentElement) {
                             target.parentElement.setAttribute('aria-hidden', 'false');
                         }
-                        setTimeout(() => {
+                        setTimeout((): void => {
                             if (target.parentElement) {
                                 target.parentElement.setAttribute('aria-hidden', 'true');
                             }

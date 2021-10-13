@@ -3,7 +3,7 @@ import EventsList from '../interfaces/events-list';
 import Player from '../player';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
 import { addEvent } from '../utils/events';
-import { isAudio, removeElement } from '../utils/general';
+import { removeElement } from '../utils/general';
 
 /**
  * Volume controller element.
@@ -174,18 +174,17 @@ class Volume implements PlayerComponent {
         this.#button.setAttribute('aria-controls', this.#player.id);
         this.#button.setAttribute('aria-pressed', 'false');
         this.#button.setAttribute('aria-label', this.#labels.mute);
-        this.#button.innerHTML = `<span class="op-sr">${this.#labels.mute}</span>`;
 
         /**
          * @private
          * @param {*} element
          */
-        const updateSlider = (element: any) => {
+        const updateSlider = (element: any): void => {
             const mediaVolume = element.volume * 1;
             const vol = Math.floor(mediaVolume * 100);
 
             this.#slider.value = `${element.volume}`;
-            this.#display.value = (mediaVolume * 10);
+            this.#display.value = mediaVolume * 10;
             this.#container.setAttribute('aria-valuenow', `${vol}`);
             this.#container.setAttribute('aria-valuetext', `${this.#labels.volume}: ${vol}`);
         };
@@ -194,7 +193,7 @@ class Volume implements PlayerComponent {
          * @private
          * @param {*} element
          */
-        const updateButton = (element: any) => {
+        const updateButton = (element: any): void => {
             const vol = element.volume;
             if (vol <= 0.5 && vol > 0) {
                 this.#button.classList.remove('op-controls__mute--muted');
@@ -212,11 +211,11 @@ class Volume implements PlayerComponent {
          * @private
          * @param {Event} event
          */
-        const updateVolume = (event: Event) => {
+        const updateVolume = (event: Event): void => {
             const el = this.#player.activeElement();
             const value = parseFloat((event.target as HTMLInputElement).value);
             el.volume = value;
-            el.muted = (el.volume === 0);
+            el.muted = el.volume === 0;
             this.#volume = value;
             const unmuteEl = this.#player.getContainer().querySelector('.op-player__unmute');
             if (!el.muted && unmuteEl) {
@@ -226,17 +225,12 @@ class Volume implements PlayerComponent {
             this.#player.getElement().dispatchEvent(e);
         };
 
-        this.#events.media.volumechange = () => {
+        this.#events.media.volumechange = (): void => {
             const el = this.#player.activeElement();
             updateSlider(el);
             updateButton(el);
         };
-        this.#events.media.timeupdate = () => {
-            if (isAudio(this.#player.getElement()) && (this.#player.activeElement().duration === Infinity
-            || this.#player.getElement().getAttribute('op-live__enabled'))) {
-            }
-        };
-        this.#events.media.loadedmetadata = () => {
+        this.#events.media.loadedmetadata = (): void => {
             const el = this.#player.activeElement();
             if (el.muted) {
                 el.volume = 0;
@@ -247,7 +241,7 @@ class Volume implements PlayerComponent {
         this.#events.slider.input = updateVolume.bind(this);
         this.#events.slider.change = updateVolume.bind(this);
 
-        this.#events.button.click = () => {
+        this.#events.button.click = (): void => {
             this.#button.setAttribute('aria-pressed', 'true');
             const el = this.#player.activeElement();
             el.muted = !el.muted;
@@ -266,11 +260,11 @@ class Volume implements PlayerComponent {
         };
 
         this.#button.addEventListener('click', this.#events.button.click, EVENT_OPTIONS);
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
-        Object.keys(this.#events.slider).forEach(event => {
+        Object.keys(this.#events.slider).forEach((event) => {
             this.#slider.addEventListener(event, this.#events.slider[event], EVENT_OPTIONS);
         });
 
@@ -290,11 +284,11 @@ class Volume implements PlayerComponent {
      */
     public destroy(): void {
         this.#button.removeEventListener('click', this.#events.button.click);
-        Object.keys(this.#events.media).forEach(event => {
+        Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
 
-        Object.keys(this.#events.slider).forEach(event => {
+        Object.keys(this.#events.slider).forEach((event) => {
             this.#slider.removeEventListener(event, this.#events.slider[event]);
         });
 
@@ -312,7 +306,7 @@ class Volume implements PlayerComponent {
      * @param {KeyboardEvent} e
      * @memberof Volume
      */
-    private _keydownEvent(e: KeyboardEvent) {
+    private _keydownEvent(e: KeyboardEvent): void {
         const key = e.which || e.keyCode || 0;
         const el = this.#player.activeElement();
         const playBtnFocused = document?.activeElement?.classList.contains('op-controls__mute');

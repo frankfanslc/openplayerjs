@@ -61,7 +61,7 @@ class HTML5Media extends Native {
      * @memberof NativeMedia
      */
     public canPlayType(mimeType: string): boolean {
-        return !!(this.element.canPlayType(mimeType).replace('no', ''));
+        return !!this.element.canPlayType(mimeType).replace('no', '');
     }
 
     /**
@@ -104,7 +104,7 @@ class HTML5Media extends Native {
     }
 
     set level(level: string) {
-        const idx = this.#levelList.findIndex(item => item.id === level);
+        const idx = this.#levelList.findIndex((item) => item.id === level);
         if (idx > -1) {
             this.#currentLevel = this.levels[idx];
             const levels = this.element.querySelectorAll('source[title]');
@@ -142,18 +142,22 @@ class HTML5Media extends Native {
         const target = e;
         if (target?.track?.kind === 'metadata') {
             target.track.mode = 'hidden';
-            target.track.addEventListener('cuechange', event => {
-                const track = (event.target as TextTrack);
-                const cue = track.activeCues ? track.activeCues[0] : null;
-                if (cue) {
-                    const metaDataEvent = addEvent('metadataready', { detail: cue });
-                    this.element.dispatchEvent(metaDataEvent);
-                }
-            }, EVENT_OPTIONS);
+            target.track.addEventListener(
+                'cuechange',
+                (event) => {
+                    const track = event.target as TextTrack;
+                    const cue = track.activeCues ? track.activeCues[0] : null;
+                    if (cue) {
+                        const metaDataEvent = addEvent('metadataready', { detail: cue });
+                        this.element.dispatchEvent(metaDataEvent);
+                    }
+                },
+                EVENT_OPTIONS
+            );
         }
     }
 
-    private _setTimeout() {
+    private _setTimeout(): void {
         if (!this.#started && window !== undefined) {
             this.#started = true;
             this.#timer = window.setInterval(() => {
@@ -162,7 +166,7 @@ class HTML5Media extends Native {
                     const message = 'Media download failed part-way due to a network error';
                     const details = {
                         detail: {
-                            data: { message, error: 2},
+                            data: { message, error: 2 },
                             message,
                             type: 'HTML5',
                         },
@@ -178,7 +182,7 @@ class HTML5Media extends Native {
         }
     }
 
-    private _clearTimeout() {
+    private _clearTimeout(): void {
         if (this.#timer) {
             clearInterval(this.#timer);
             this.#retryCount = 0;
@@ -186,7 +190,7 @@ class HTML5Media extends Native {
         }
     }
 
-    private _dispatchError(e: Event) {
+    private _dispatchError(e: Event): void {
         let defaultMessage;
         const target = e.target as HTMLMediaElement;
         const error = target?.error;

@@ -49,12 +49,13 @@ class DashMedia extends Native {
         super(element, mediaSource);
         this.#options = options;
 
-        this.promise = (typeof dashjs === 'undefined')
-            // Ever-green script
-            ? loadScript('https://cdn.dashjs.org/latest/dash.all.min.js')
-            : new Promise(resolve => {
-                resolve({});
-            });
+        this.promise =
+            typeof dashjs === 'undefined'
+                ? // Ever-green script
+                  loadScript('https://cdn.dashjs.org/latest/dash.all.min.js')
+                : new Promise((resolve) => {
+                      resolve({});
+                  });
 
         this._assign = this._assign.bind(this);
         this.promise.then(() => {
@@ -88,7 +89,7 @@ class DashMedia extends Native {
 
         if (!this.#events) {
             this.#events = dashjs.MediaPlayer.events;
-            Object.keys(this.#events).forEach(event => {
+            Object.keys(this.#events).forEach((event) => {
                 this.#player.on(this.#events[event], this._assign);
             });
         }
@@ -116,7 +117,7 @@ class DashMedia extends Native {
             this.#player.attachSource(media.src);
 
             this.#events = dashjs.MediaPlayer.events;
-            Object.keys(this.#events).forEach(event => {
+            Object.keys(this.#events).forEach((event) => {
                 this.#player.on(this.#events[event], this._assign);
             });
         }
@@ -187,7 +188,7 @@ class DashMedia extends Native {
      */
     private _revoke(): void {
         if (this.#events) {
-            Object.keys(this.#events).forEach(event => {
+            Object.keys(this.#events).forEach((event) => {
                 this.#player.off(this.#events[event], this._assign);
             });
             this.#events = [];
@@ -202,7 +203,7 @@ class DashMedia extends Native {
      *
      * @memberof DashMedia
      */
-    private _preparePlayer() {
+    private _preparePlayer(): void {
         // In version 3x, `getDebug` is deprecated
         if (typeof this.#player.getDebug().setLogToBrowserConsole === 'undefined') {
             this.#player.updateSettings({
@@ -224,7 +225,7 @@ class DashMedia extends Native {
         this.#player.setAutoPlay(false);
 
         // If DRM is set, load protection data
-        if (this.#options && typeof this.#options.drm === 'object' && Object.keys(this.#options.drm).length) {
+        if (this.#options?.drm && Object.keys(this.#options.drm).length) {
             this.#player.setProtectionData(this.#options.drm);
             if (this.#options.robustnessLevel && this.#options.robustnessLevel) {
                 this.#player.getProtectionController().setRobustnessLevel(this.#options.robustnessLevel);

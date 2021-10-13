@@ -231,13 +231,13 @@ declare class Media {
      * @memberof Media
      * @readonly
      */
-    get levels(): any;
+    get levels(): Level[];
     /**
      *
      * @memberof Media
      * @readonly
      */
-    get instance(): any;
+    get instance(): Media | null;
     /**
      * Gather all media sources within the video/audio/iframe tags.
      *

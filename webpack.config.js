@@ -71,7 +71,7 @@ module.exports = {
             {
                 test: /\.svg$/,
                 exclude: /node_modules/,
-                type: 'asset/inline'
+                type: 'asset/inline',
             },
             {
                 test: /\.css$/,
@@ -91,12 +91,8 @@ module.exports = {
                         loader: 'postcss-loader',
                         options: {
                             postcssOptions: {
-                                plugins: [
-                                    require('stylelint'),
-                                    require('postcss-preset-env'),
-                                    require('autoprefixer'),
-                                ],
-                                minimize: false
+                                plugins: [require('stylelint'), require('postcss-preset-env'), require('autoprefixer')],
+                                minimize: false,
                             },
                             sourceMap: true,
                         },
@@ -108,7 +104,7 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js'],
         fallback: {
-            fs: false
+            fs: false,
         },
     },
     optimization: {
@@ -138,10 +134,10 @@ module.exports = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '[name].min.css'
+            filename: '[name].min.css',
         }),
         new UnminifiedWebpackPlugin({
             postfix: 'nomin',
-        })
+        }),
     ],
 };

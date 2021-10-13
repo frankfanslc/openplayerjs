@@ -89,7 +89,7 @@ declare class Controls implements PlayerComponent {
      */
     private _buildElements;
     /**
-     * Calback to hide custom menu.
+     * Callback to hide custom menu.
      *
      * @private
      * @param {HTMLDivElement} menu

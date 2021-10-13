@@ -68,7 +68,7 @@ export const IS_IE = UA ? /(trident|microsoft)/i.test(NAV.appName) : false;
  * @type boolean
  * @default
  */
-export const IS_EDGE = NAV ? ('msLaunchUri' in NAV && !('documentMode' in document)) : false;
+export const IS_EDGE = NAV ? 'msLaunchUri' in NAV && !('documentMode' in document) : false;
 
 /**
  * Check if current browser is Chrome (any version).
@@ -109,7 +109,7 @@ export const IS_STOCK_ANDROID = UA ? /^mozilla\/\d+\.\d+\s\(linux;\su;/i.test(UA
  * @type boolean
  * @default
  */
-export const HAS_MSE = typeof window !== 'undefined' ? ('MediaSource' in (window as any)) : false;
+export const HAS_MSE = typeof window !== 'undefined' ? 'MediaSource' in (window as any) : false;
 
 /**
  * Check if current browser supports HLS streaming.
@@ -118,18 +118,22 @@ export const HAS_MSE = typeof window !== 'undefined' ? ('MediaSource' in (window
  * @type boolean
  * @default
  */
-export const SUPPORTS_HLS = () => {
+export const SUPPORTS_HLS = (): boolean => {
     if (typeof window === 'undefined') {
         return false;
     }
     const mediaSource = (window as any).MediaSource || (window as any).WebKitMediaSource;
     const sourceBuffer = (window as any).SourceBuffer || (window as any).WebKitSourceBuffer;
-    const isTypeSupported = mediaSource && typeof mediaSource.isTypeSupported === 'function'
-        && mediaSource.isTypeSupported('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
+    const isTypeSupported =
+        mediaSource &&
+        typeof mediaSource.isTypeSupported === 'function' &&
+        mediaSource.isTypeSupported('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
 
-    const sourceBufferValidAPI = !sourceBuffer
-        || (sourceBuffer.prototype && typeof sourceBuffer.prototype.appendBuffer === 'function'
-        && typeof sourceBuffer.prototype.remove === 'function');
+    const sourceBufferValidAPI =
+        !sourceBuffer ||
+        (sourceBuffer.prototype &&
+            typeof sourceBuffer.prototype.appendBuffer === 'function' &&
+            typeof sourceBuffer.prototype.remove === 'function');
 
     // Safari is still an exception since it has built-in HLS support; currently HLS.js
     // is still in beta to support Safari
@@ -144,4 +148,4 @@ export const DVR_THRESHOLD = 120;
 /**
  * Event options to be passed when using `addEventListener` for browser optimizations
  */
-export const EVENT_OPTIONS = IS_IE ? false : { passive: false};
+export const EVENT_OPTIONS = IS_IE ? false : { passive: false };

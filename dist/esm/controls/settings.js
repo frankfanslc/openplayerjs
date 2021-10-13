@@ -41,7 +41,6 @@ class Settings {
         __classPrivateFieldGet(this, _Settings_button, "f").setAttribute('aria-controls', __classPrivateFieldGet(this, _Settings_player, "f").id);
         __classPrivateFieldGet(this, _Settings_button, "f").setAttribute('aria-pressed', 'false');
         __classPrivateFieldGet(this, _Settings_button, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Settings_labels, "f").settings);
-        __classPrivateFieldGet(this, _Settings_button, "f").innerHTML = `<span class="op-sr">${__classPrivateFieldGet(this, _Settings_labels, "f").settings}</span>`;
         __classPrivateFieldSet(this, _Settings_menu, document.createElement('div'), "f");
         __classPrivateFieldGet(this, _Settings_menu, "f").className = 'op-settings';
         __classPrivateFieldGet(this, _Settings_menu, "f").setAttribute('aria-hidden', 'true');
@@ -54,7 +53,7 @@ class Settings {
                     menus[i].setAttribute('aria-hidden', 'true');
                 }
             }
-            __classPrivateFieldGet(this, _Settings_menu, "f").setAttribute('aria-hidden', (__classPrivateFieldGet(this, _Settings_menu, "f").getAttribute('aria-hidden') === 'false' ? 'true' : 'false'));
+            __classPrivateFieldGet(this, _Settings_menu, "f").setAttribute('aria-hidden', __classPrivateFieldGet(this, _Settings_menu, "f").getAttribute('aria-hidden') === 'false' ? 'true' : 'false');
         };
         this.hideEvent = () => {
             let timeout;
@@ -86,7 +85,7 @@ class Settings {
         };
         __classPrivateFieldGet(this, _Settings_events, "f").global.resize = this.hideEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_button, "f").addEventListener('click', this.clickEvent, EVENT_OPTIONS);
-        Object.keys(__classPrivateFieldGet(this, _Settings_events, "f")).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Settings_events, "f")).forEach((event) => {
             __classPrivateFieldGet(this, _Settings_player, "f").getElement().addEventListener(event, __classPrivateFieldGet(this, _Settings_events, "f").media[event], EVENT_OPTIONS);
         });
         document.addEventListener('click', __classPrivateFieldGet(this, _Settings_events, "f").global.click, EVENT_OPTIONS);
@@ -94,12 +93,15 @@ class Settings {
         if (typeof window !== 'undefined') {
             window.addEventListener('resize', __classPrivateFieldGet(this, _Settings_events, "f").global.resize, EVENT_OPTIONS);
         }
-        __classPrivateFieldGet(this, _Settings_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Settings_layer, "f")).appendChild(__classPrivateFieldGet(this, _Settings_button, "f"));
+        __classPrivateFieldGet(this, _Settings_player, "f")
+            .getControls()
+            .getLayer(__classPrivateFieldGet(this, _Settings_layer, "f"))
+            .appendChild(__classPrivateFieldGet(this, _Settings_button, "f"));
         __classPrivateFieldGet(this, _Settings_player, "f").getContainer().appendChild(__classPrivateFieldGet(this, _Settings_menu, "f"));
     }
     destroy() {
         __classPrivateFieldGet(this, _Settings_button, "f").removeEventListener('click', this.clickEvent);
-        Object.keys(__classPrivateFieldGet(this, _Settings_events, "f")).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Settings_events, "f")).forEach((event) => {
             __classPrivateFieldGet(this, _Settings_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Settings_events, "f").media[event]);
         });
         document.removeEventListener('click', __classPrivateFieldGet(this, _Settings_events, "f").global.click);
@@ -143,7 +145,7 @@ class Settings {
         menuItem.tabIndex = 0;
         menuItem.setAttribute('role', 'menuitemradio');
         menuItem.innerHTML = `<div class="op-settings__menu-label" data-value="${key}-${defaultValue}">${name}</div>`;
-        const submenuMatch = submenu ? submenu.find(x => x.key === defaultValue) : null;
+        const submenuMatch = submenu ? submenu.find((x) => x.key === defaultValue) : null;
         if (submenuMatch) {
             menuItem.innerHTML += `<div class="op-settings__menu-content" tabindex="0">${submenuMatch.label}</div>`;
         }
@@ -158,12 +160,14 @@ class Settings {
                     <button type="button" class="op-settings__back" tabindex="0">${name}</button>
                 </div>
                 <div class="op-settings__menu" role="menu" id="menu-item-${key}">
-                    ${submenu.map((item) => `
+                    ${submenu
+                .map((item) => `
                     <div class="op-settings__submenu-item" role="menuitemradio" aria-checked="${defaultValue === item.key ? 'true' : 'false'}">
                         <div class="op-settings__submenu-label ${className || ''}" tabindex="0" data-value="${key}-${item.key}">
                             ${item.label}
                         </div>
-                    </div>`).join('')}
+                    </div>`)
+                .join('')}
                 </div>`;
             __classPrivateFieldGet(this, _Settings_submenu, "f")[key] = subItems;
         }
@@ -184,7 +188,7 @@ class Settings {
                     if (fragments.length > 0) {
                         fragments.pop();
                         const current = fragments.join('-').replace(/^\-|\-$/, '');
-                        if (typeof __classPrivateFieldGet(this, _Settings_submenu, "f")[current] !== undefined) {
+                        if (typeof __classPrivateFieldGet(this, _Settings_submenu, "f")[current] !== 'undefined') {
                             __classPrivateFieldGet(this, _Settings_menu, "f").classList.add('op-settings--sliding');
                             setTimeout(() => {
                                 __classPrivateFieldGet(this, _Settings_menu, "f").innerHTML = __classPrivateFieldGet(this, _Settings_submenu, "f")[current];
@@ -247,9 +251,9 @@ class Settings {
         const key = e.which || e.keyCode || 0;
         const isAd = __classPrivateFieldGet(this, _Settings_player, "f").isAd();
         const settingsBtnFocused = (_a = document === null || document === void 0 ? void 0 : document.activeElement) === null || _a === void 0 ? void 0 : _a.classList.contains('op-controls__settings');
-        const menuFocused = ((_b = document === null || document === void 0 ? void 0 : document.activeElement) === null || _b === void 0 ? void 0 : _b.classList.contains('op-settings__menu-content'))
-            || ((_c = document === null || document === void 0 ? void 0 : document.activeElement) === null || _c === void 0 ? void 0 : _c.classList.contains('op-settings__back'))
-            || ((_d = document === null || document === void 0 ? void 0 : document.activeElement) === null || _d === void 0 ? void 0 : _d.classList.contains('op-settings__submenu-label'));
+        const menuFocused = ((_b = document === null || document === void 0 ? void 0 : document.activeElement) === null || _b === void 0 ? void 0 : _b.classList.contains('op-settings__menu-content')) ||
+            ((_c = document === null || document === void 0 ? void 0 : document.activeElement) === null || _c === void 0 ? void 0 : _c.classList.contains('op-settings__back')) ||
+            ((_d = document === null || document === void 0 ? void 0 : document.activeElement) === null || _d === void 0 ? void 0 : _d.classList.contains('op-settings__submenu-label'));
         if (!isAd) {
             if (settingsBtnFocused && (key === 13 || key === 32)) {
                 this.clickEvent();

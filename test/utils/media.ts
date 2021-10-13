@@ -3,81 +3,109 @@ import * as media from '../../src/js/utils/media';
 import '../helper';
 
 describe('utils/media', () => {
-    it('determines the extension of a source', done => {
+    it('determines the extension of a source', (done) => {
         expect(media.getExtension('https://www.w3schools.com/xml/note.xml')).to.equal('xml');
         expect(media.getExtension('test.pdf')).to.equal('pdf');
         expect(media.getExtension('test')).to.equal('');
         done();
     });
-    it('determines if media source is an HLS resource', done => {
-        expect(media.isHlsSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
-            type: 'video/mp4',
-        })).to.equal(true);
-        expect(media.isHlsSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
-            type: 'application/x-mpegURL',
-        })).to.equal(true);
-        expect(media.isHlsSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
-            type: 'application/vnd.apple.mpegurl',
-        })).to.equal(true);
-        expect(media.isHlsSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
-            type: 'audio/mp3',
-        })).to.equal(false);
+    it('determines if media source is an HLS resource', (done) => {
+        expect(
+            media.isHlsSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+                type: 'video/mp4',
+            })
+        ).to.equal(true);
+        expect(
+            media.isHlsSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
+                type: 'application/x-mpegURL',
+            })
+        ).to.equal(true);
+        expect(
+            media.isHlsSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
+                type: 'application/vnd.apple.mpegurl',
+            })
+        ).to.equal(true);
+        expect(
+            media.isHlsSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
+                type: 'audio/mp3',
+            })
+        ).to.equal(false);
         done();
     });
-    it('determines if media source is an HLS playlist resource', done => {
-        expect(media.isM3USource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u',
-            type: 'video/mp4',
-        })).to.equal(true);
-        expect(media.isM3USource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
-            type: 'audio/mp3',
-        })).to.equal(false);
+    it('determines if media source is an HLS playlist resource', (done) => {
+        expect(
+            media.isM3USource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u',
+                type: 'video/mp4',
+            })
+        ).to.equal(true);
+        expect(
+            media.isM3USource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
+                type: 'audio/mp3',
+            })
+        ).to.equal(false);
         done();
     });
-    it('determines if media source is an MPEG-DASH resource', done => {
-        expect(media.isDashSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mpd',
-            type: 'video/mp4',
-        })).to.equal(true);
-        expect(media.isDashSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
-            type: 'application/dash+xml',
-        })).to.equal(true);
-        expect(media.isDashSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
-            type: 'audio/mp3',
-        })).to.equal(false);
+    it('determines if media source is an MPEG-DASH resource', (done) => {
+        expect(
+            media.isDashSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mpd',
+                type: 'video/mp4',
+            })
+        ).to.equal(true);
+        expect(
+            media.isDashSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
+                type: 'application/dash+xml',
+            })
+        ).to.equal(true);
+        expect(
+            media.isDashSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
+                type: 'audio/mp3',
+            })
+        ).to.equal(false);
         done();
     });
-    it('determines if media source is an FLV resource', done => {
-        expect(media.isFlvSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.flv',
-            type: 'video/mp4',
-        })).to.equal(true);
-        expect(media.isFlvSource({
-            src: 'rtmp://bitdash-a.akamaihd.net/content/sintel/hls/playlist.flv',
-            type: 'video/mp4',
-        })).to.equal(true);
-        expect(media.isFlvSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
-            type: 'video/x-flv',
-        })).to.equal(true);
-        expect(media.isFlvSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
-            type: 'video/flv',
-        })).to.equal(true);
-        expect(media.isFlvSource({
-            src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
-            type: 'audio/mp3',
-        })).to.equal(false);
+    it('determines if media source is an FLV resource', (done) => {
+        expect(
+            media.isFlvSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.flv',
+                type: 'video/mp4',
+            })
+        ).to.equal(true);
+        expect(
+            media.isFlvSource({
+                src: 'rtmp://bitdash-a.akamaihd.net/content/sintel/hls/playlist.flv',
+                type: 'video/mp4',
+            })
+        ).to.equal(true);
+        expect(
+            media.isFlvSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
+                type: 'video/x-flv',
+            })
+        ).to.equal(true);
+        expect(
+            media.isFlvSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4',
+                type: 'video/flv',
+            })
+        ).to.equal(true);
+        expect(
+            media.isFlvSource({
+                src: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3',
+                type: 'audio/mp3',
+            })
+        ).to.equal(false);
         done();
     });
-    it('predicts the extension of a media source based on the URL provided', done => {
+    it('predicts the extension of a media source based on the URL provided', (done) => {
         const video = document.getElementById('video') as HTMLMediaElement;
         const audio = document.getElementById('audio') as HTMLMediaElement;
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp4', video)).to.equal('video/mp4');
@@ -85,12 +113,13 @@ describe('utils/media', () => {
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.webm', audio)).to.equal('audio/webm');
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.ogg', video)).to.equal('video/ogg');
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.ogg', audio)).to.equal('audio/ogg');
-        expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8', video))
-            .to.equal('application/x-mpegURL');
-        expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u', video))
-            .to.equal('application/x-mpegURL');
-        expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mpd', video))
-            .to.equal('application/dash+xml');
+        expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8', video)).to.equal(
+            'application/x-mpegURL'
+        );
+        expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u', video)).to.equal(
+            'application/x-mpegURL'
+        );
+        expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mpd', video)).to.equal('application/dash+xml');
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.mp3', video)).to.equal('audio/mp3');
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.ogv', video)).to.equal('video/ogg');
         expect(media.predictType('https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.oga', video)).to.equal('audio/ogg');

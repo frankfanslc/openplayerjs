@@ -83,9 +83,9 @@ class Ads {
         __classPrivateFieldSet(this, _Ads_adsOptions, Object.assign(Object.assign({}, defaultOpts), options), "f");
         if (options) {
             const objectElements = ['customClick'];
-            objectElements.forEach(item => {
-                __classPrivateFieldGet(this, _Ads_adsOptions, "f")[item] = options[item] && Object.keys(options[item]).length
-                    ? Object.assign(Object.assign({}, defaultOpts[item]), options[item]) : defaultOpts[item];
+            objectElements.forEach((item) => {
+                __classPrivateFieldGet(this, _Ads_adsOptions, "f")[item] =
+                    options[item] && Object.keys(options[item]).length ? Object.assign(Object.assign({}, defaultOpts[item]), options[item]) : defaultOpts[item];
             });
         }
         __classPrivateFieldSet(this, _Ads_playTriggered, false, "f");
@@ -108,10 +108,10 @@ class Ads {
         this._onContentResumeRequested = this._onContentResumeRequested.bind(this);
         __classPrivateFieldSet(this, _Ads_promise, path && (typeof google === 'undefined' || typeof google.ima === 'undefined')
             ? loadScript(path)
-            : new Promise(resolve => {
+            : new Promise((resolve) => {
                 resolve({});
             }), "f");
-        __classPrivateFieldGet(this, _Ads_promise, "f").then(this.load).catch(error => {
+        __classPrivateFieldGet(this, _Ads_promise, "f").then(this.load).catch((error) => {
             let message = 'Ad script could not be loaded; please check if you have an AdBlock';
             message += 'turned on, or if you provided a valid URL is correct';
             console.error(`Ad error: ${message}.`);
@@ -182,11 +182,11 @@ class Ads {
             window.addEventListener('resize', this._handleResizeAds, EVENT_OPTIONS);
         }
         __classPrivateFieldGet(this, _Ads_element, "f").addEventListener('loadedmetadata', this._handleResizeAds, EVENT_OPTIONS);
-        if (__classPrivateFieldGet(this, _Ads_autoStart, "f") === true
-            || __classPrivateFieldGet(this, _Ads_autoStartMuted, "f") === true
-            || force === true
-            || __classPrivateFieldGet(this, _Ads_adsOptions, "f").enablePreloading === true
-            || __classPrivateFieldGet(this, _Ads_playTriggered, "f") === true) {
+        if (__classPrivateFieldGet(this, _Ads_autoStart, "f") === true ||
+            __classPrivateFieldGet(this, _Ads_autoStartMuted, "f") === true ||
+            force === true ||
+            __classPrivateFieldGet(this, _Ads_adsOptions, "f").enablePreloading === true ||
+            __classPrivateFieldGet(this, _Ads_playTriggered, "f") === true) {
             if (!__classPrivateFieldGet(this, _Ads_adsDone, "f")) {
                 __classPrivateFieldSet(this, _Ads_adsDone, true, "f");
                 __classPrivateFieldGet(this, _Ads_adDisplayContainer, "f").initialize();
@@ -231,7 +231,7 @@ class Ads {
         if (__classPrivateFieldGet(this, _Ads_adsManager, "f")) {
             __classPrivateFieldGet(this, _Ads_adsManager, "f").removeEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error);
             if (__classPrivateFieldGet(this, _Ads_events, "f")) {
-                __classPrivateFieldGet(this, _Ads_events, "f").forEach(event => {
+                __classPrivateFieldGet(this, _Ads_events, "f").forEach((event) => {
                     __classPrivateFieldGet(this, _Ads_adsManager, "f").removeEventListener(event, this._assign);
                 });
             }
@@ -532,7 +532,7 @@ class Ads {
         adsRenderingSettings.enablePreloading = __classPrivateFieldGet(this, _Ads_adsOptions, "f").enablePreloading;
         __classPrivateFieldSet(this, _Ads_adsManager, adsManagerLoadedEvent.getAdsManager(__classPrivateFieldGet(this, _Ads_element, "f"), adsRenderingSettings), "f");
         this._start(__classPrivateFieldGet(this, _Ads_adsManager, "f"));
-        this.loadPromise = new Promise(resolve => resolve);
+        this.loadPromise = new Promise((resolve) => resolve);
     }
     _start(manager) {
         if (__classPrivateFieldGet(this, _Ads_adsCustomClickContainer, "f") && manager.isCustomClickTrackingUsed()) {
@@ -578,7 +578,7 @@ class Ads {
                 __classPrivateFieldGet(this, _Ads_adsContainer, "f").addEventListener(event, mouseEvents[event], EVENT_OPTIONS);
             }
         });
-        __classPrivateFieldGet(this, _Ads_events, "f").forEach(event => {
+        __classPrivateFieldGet(this, _Ads_events, "f").forEach((event) => {
             manager.addEventListener(event, this._assign, EVENT_OPTIONS);
         });
         manager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error, EVENT_OPTIONS);
@@ -729,7 +729,9 @@ class Ads {
                     __classPrivateFieldGet(this, _Ads_element, "f").dispatchEvent(e);
                 }, 50);
             }
-            catch (err) { }
+            catch (err) {
+                console.error(err);
+            }
         }
     }
     _requestAds() {

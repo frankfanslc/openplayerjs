@@ -1,14 +1,10 @@
-import Options from '../interfaces/ads/options';
+import Options from '../interfaces/ads-options';
 import Source from '../interfaces/source';
 import Media from '../media';
 import Player from '../player';
-import {
-    EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE
-} from '../utils/constants';
+import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from '../utils/constants';
 import { addEvent } from '../utils/events';
-import {
-    isVideo, isXml, loadScript, removeElement
-} from '../utils/general';
+import { isVideo, isXml, loadScript, removeElement } from '../utils/general';
 
 declare const google: any;
 
@@ -328,19 +324,19 @@ class Ads {
         this.#adsOptions = { ...defaultOpts, ...options };
         if (options) {
             const objectElements = ['customClick'];
-            objectElements.forEach(item => {
-                this.#adsOptions[item] = options[item] && Object.keys(options[item]).length
-                    ? { ...defaultOpts[item], ...options[item] }
-                    : defaultOpts[item];
+            objectElements.forEach((item) => {
+                this.#adsOptions[item] =
+                    options[item] && Object.keys(options[item]).length ? { ...defaultOpts[item], ...options[item] } : defaultOpts[item];
             });
         }
         this.#playTriggered = false;
         this.#originalVolume = this.#element.volume;
         this.#adsVolume = this.#originalVolume;
 
-        const path = this.#adsOptions.debug && this.#adsOptions.sdkPath
-            ? this.#adsOptions.sdkPath.replace(/(\.js$)/, '_debug.js')
-            : this.#adsOptions.sdkPath;
+        const path =
+            this.#adsOptions.debug && this.#adsOptions.sdkPath
+                ? this.#adsOptions.sdkPath.replace(/(\.js$)/, '_debug.js')
+                : this.#adsOptions.sdkPath;
 
         this._handleClickInContainer = this._handleClickInContainer.bind(this);
         this.load = this.load.bind(this);
@@ -355,13 +351,14 @@ class Ads {
         this._onContentPauseRequested = this._onContentPauseRequested.bind(this);
         this._onContentResumeRequested = this._onContentResumeRequested.bind(this);
 
-        this.#promise = path && (typeof google === 'undefined' || typeof google.ima === 'undefined')
-            ? loadScript(path)
-            : new Promise(resolve => {
-                resolve({});
-            });
+        this.#promise =
+            path && (typeof google === 'undefined' || typeof google.ima === 'undefined')
+                ? loadScript(path)
+                : new Promise((resolve) => {
+                      resolve({});
+                  });
 
-        this.#promise.then(this.load).catch(error => {
+        this.#promise.then(this.load).catch((error) => {
             let message = 'Ad script could not be loaded; please check if you have an AdBlock';
             message += 'turned on, or if you provided a valid URL is correct';
             console.error(`Ad error: ${message}.`);
@@ -463,11 +460,11 @@ class Ads {
 
         // Request Ads automatically if `autoplay` was set
         if (
-            this.#autoStart === true
-            || this.#autoStartMuted === true
-            || force === true
-            || this.#adsOptions.enablePreloading === true
-            || this.#playTriggered === true
+            this.#autoStart === true ||
+            this.#autoStartMuted === true ||
+            force === true ||
+            this.#adsOptions.enablePreloading === true ||
+            this.#playTriggered === true
         ) {
             if (!this.#adsDone) {
                 this.#adsDone = true;
@@ -530,7 +527,7 @@ class Ads {
             this.#adsManager.removeEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error);
 
             if (this.#events) {
-                this.#events.forEach(event => {
+                this.#events.forEach((event) => {
                     this.#adsManager.removeEventListener(event, this._assign);
                 });
             }
@@ -968,7 +965,7 @@ class Ads {
         // Get the ads manager.
         this.#adsManager = adsManagerLoadedEvent.getAdsManager(this.#element, adsRenderingSettings);
         this._start(this.#adsManager);
-        this.loadPromise = new Promise(resolve => resolve);
+        this.loadPromise = new Promise((resolve) => resolve);
     }
 
     /**
@@ -1026,7 +1023,7 @@ class Ads {
                 this.#adsContainer.addEventListener(event, mouseEvents[event], EVENT_OPTIONS);
             }
         });
-        this.#events.forEach(event => {
+        this.#events.forEach((event) => {
             manager.addEventListener(event, this._assign, EVENT_OPTIONS);
         });
         manager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error, EVENT_OPTIONS);
@@ -1158,7 +1155,7 @@ class Ads {
      * @private
      * @memberof Ads
      */
-    private _loadedMetadataHandler() {
+    private _loadedMetadataHandler(): void {
         if (Array.isArray(this.#ads)) {
             this.#currentAdsIndex++;
             if (this.#currentAdsIndex <= this.#ads.length - 1) {
@@ -1214,7 +1211,9 @@ class Ads {
                     const e = addEvent('play');
                     this.#element.dispatchEvent(e);
                 }, 50);
-            } catch (err) {}
+            } catch (err) {
+                console.error(err);
+            }
         }
     }
 
@@ -1250,7 +1249,7 @@ class Ads {
      *
      * @memberof Ads
      */
-    private _contentLoadedAction() {
+    private _contentLoadedAction(): void {
         if (this.#preloadContent) {
             this.#element.removeEventListener('loadedmetadata', this.#preloadContent);
             this.#preloadContent = null;
@@ -1267,7 +1266,7 @@ class Ads {
      *
      * @memberof Ads
      */
-    private _resetAdsAfterManualBreak() {
+    private _resetAdsAfterManualBreak(): void {
         if (this.#adsManager) {
             this.#adsManager.destroy();
         }
@@ -1281,18 +1280,18 @@ class Ads {
      *
      * @memberof Ads
      */
-    private _prepareMedia() {
+    private _prepareMedia(): void {
         this.#media.currentTime = this.#lastTimePaused;
         this.#element.removeEventListener('loadedmetadata', this._loadedMetadataHandler);
         this._resumeMedia();
     }
 
-    private _setMediaVolume(volume: number) {
+    private _setMediaVolume(volume: number): void {
         this.#media.volume = volume;
         this.#media.muted = volume === 0;
     }
 
-    private _handleClickInContainer() {
+    private _handleClickInContainer(): void {
         if (this.#media.paused) {
             const e = addEvent('paused');
             this.#element.dispatchEvent(e);
@@ -1300,7 +1299,7 @@ class Ads {
         }
     }
 
-    private _handleResizeAds() {
+    private _handleResizeAds(): void {
         this.resizeAds();
     }
 }

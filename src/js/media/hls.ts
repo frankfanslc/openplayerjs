@@ -82,12 +82,13 @@ class HlsMedia extends Native {
         this.element = element;
         this.media = mediaSource;
         this.#autoplay = autoplay;
-        this.promise = (typeof Hls === 'undefined')
-            // Ever-green script
-            ? loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js')
-            : new Promise(resolve => {
-                resolve({});
-            });
+        this.promise =
+            typeof Hls === 'undefined'
+                ? // Ever-green script
+                  loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js')
+                : new Promise((resolve) => {
+                      resolve({});
+                  });
 
         this._create = this._create.bind(this);
         this._revoke = this._revoke.bind(this);
@@ -124,8 +125,8 @@ class HlsMedia extends Native {
 
         if (!this.#events) {
             this.#events = Hls.Events;
-            Object.keys(this.#events).forEach(event => {
-                this.#player.on(this.#events[event], (...args: Array<Record<string, unknown>>) => this._assign(this.#events[event], args));
+            Object.keys(this.#events).forEach((event) => {
+                this.#player.on(this.#events[event], (...args: Record<string, unknown>[]) => this._assign(this.#events[event], args));
             });
         }
     }
@@ -152,8 +153,8 @@ class HlsMedia extends Native {
             this.#player.attachMedia(this.element);
 
             this.#events = Hls.Events;
-            Object.keys(this.#events).forEach(event => {
-                this.#player.on(this.#events[event], (...args: Array<Record<string, unknown>>) => this._assign(this.#events[event], args));
+            Object.keys(this.#events).forEach((event) => {
+                this.#player.on(this.#events[event], (...args: Record<string, unknown>[]) => this._assign(this.#events[event], args));
             });
         }
     }
@@ -161,7 +162,7 @@ class HlsMedia extends Native {
     get levels(): Level[] {
         const levels: Level[] = [];
         if (this.#player && this.#player.levels && this.#player.levels.length) {
-            Object.keys(this.#player.levels).forEach(item => {
+            Object.keys(this.#player.levels).forEach((item) => {
                 const { height, name } = this.#player.levels[item];
                 const level = {
                     height,
@@ -190,15 +191,15 @@ class HlsMedia extends Native {
      * @private
      * @memberof HlsMedia
      */
-    private _create() {
+    private _create(): void {
         const autoplay = !!(this.element.preload === 'auto' || this.#autoplay);
         (this.#options as Record<string, unknown>).autoStartLoad = autoplay;
 
         this.#player = new Hls(this.#options);
         this.instance = this.#player;
         this.#events = Hls.Events;
-        Object.keys(this.#events).forEach(event => {
-            this.#player.on(this.#events[event], (...args: Array<Record<string, unknown>>) => this._assign(this.#events[event], args));
+        Object.keys(this.#events).forEach((event) => {
+            this.#player.on(this.#events[event], (...args: Record<string, unknown>[]) => this._assign(this.#events[event], args));
         });
 
         if (!autoplay) {
@@ -220,7 +221,7 @@ class HlsMedia extends Native {
      * @param {any} data The data passed to the event, could be an object or an array
      * @memberof HlsMedia
      */
-    private _assign(event: string, data: Array<Record<string, unknown>>): void {
+    private _assign(event: string, data: Record<string, unknown>[]): void {
         if (event === 'hlsError') {
             const errorDetails = {
                 detail: {
@@ -234,16 +235,16 @@ class HlsMedia extends Native {
 
             // borrowed from https://video-dev.github.io/hls.js/demo
             const type = data[1].type as string;
-            const fatal = data[1].fatal;
+            const { fatal } = data[1];
             const details = data[1];
             if (fatal) {
                 switch (type) {
                     case 'mediaError':
                         const now = new Date().getTime();
-                        if (!this.#recoverDecodingErrorDate || (now - this.#recoverDecodingErrorDate) > 3000) {
+                        if (!this.#recoverDecodingErrorDate || now - this.#recoverDecodingErrorDate > 3000) {
                             this.#recoverDecodingErrorDate = new Date().getTime();
                             this.#player.recoverMediaError();
-                        } else if (!this.#recoverSwapAudioCodecDate || (now - this.#recoverSwapAudioCodecDate) > 3000) {
+                        } else if (!this.#recoverSwapAudioCodecDate || now - this.#recoverSwapAudioCodecDate > 3000) {
                             this.#recoverSwapAudioCodecDate = new Date().getTime();
                             console.warn('Attempting to swap Audio Codec and recover from media error');
                             this.#player.swapAudioCodec();
@@ -251,24 +252,24 @@ class HlsMedia extends Native {
                         } else {
                             const msg = 'Cannot recover, last media error recovery failed';
                             console.error(msg);
-                            const mediaEvent = addEvent(type, { detail: { data: details }});
+                            const mediaEvent = addEvent(type, { detail: { data: details } });
                             this.element.dispatchEvent(mediaEvent);
                         }
                         break;
                     case 'networkError':
                         const message = 'Network error';
                         console.error(message);
-                        const networkEvent = addEvent(type, { detail: { data: details }});
+                        const networkEvent = addEvent(type, { detail: { data: details } });
                         this.element.dispatchEvent(networkEvent);
                         break;
                     default:
                         this.#player.destroy();
-                        const fatalEvent = addEvent(type, { detail: { data: details }});
+                        const fatalEvent = addEvent(type, { detail: { data: details } });
                         this.element.dispatchEvent(fatalEvent);
                         break;
                 }
             } else {
-                const err = addEvent(type, { detail: { data: details }});
+                const err = addEvent(type, { detail: { data: details } });
                 this.element.dispatchEvent(err);
             }
         } else {
@@ -300,8 +301,8 @@ class HlsMedia extends Native {
             this.#player.stopLoad();
         }
         if (this.#events) {
-            Object.keys(this.#events).forEach(event => {
-                this.#player.off(this.#events[event], (...args: Array<Record<string, unknown>>) => this._assign(this.#events[event], args));
+            Object.keys(this.#events).forEach((event) => {
+                this.#player.off(this.#events[event], (...args: Record<string, unknown>[]) => this._assign(this.#events[event], args));
             });
         }
         this.element.removeEventListener('play', this._play);

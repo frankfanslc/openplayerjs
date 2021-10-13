@@ -30,18 +30,16 @@ class Fullscreen {
         __classPrivateFieldSet(this, _Fullscreen_layer, layer, "f");
         __classPrivateFieldSet(this, _Fullscreen_isFullscreen, document.body.classList.contains('op-fullscreen__on'), "f");
         const target = document;
-        this.fullScreenEnabled = !!(target.fullscreenEnabled || target.mozFullScreenEnabled || target.msFullscreenEnabled
-            || target.webkitSupportsFullscreen || target.webkitFullscreenEnabled
-            || document.createElement('video').webkitRequestFullScreen);
+        this.fullScreenEnabled = !!(target.fullscreenEnabled ||
+            target.mozFullScreenEnabled ||
+            target.msFullscreenEnabled ||
+            target.webkitSupportsFullscreen ||
+            target.webkitFullscreenEnabled ||
+            document.createElement('video').webkitRequestFullScreen);
         this._keydownEvent = this._keydownEvent.bind(this);
         this._fullscreenChange = this._fullscreenChange.bind(this);
-        __classPrivateFieldSet(this, _Fullscreen_fullscreenEvents, [
-            'fullscreenchange',
-            'mozfullscreenchange',
-            'webkitfullscreenchange',
-            'msfullscreenchange',
-        ], "f");
-        __classPrivateFieldGet(this, _Fullscreen_fullscreenEvents, "f").forEach(event => {
+        __classPrivateFieldSet(this, _Fullscreen_fullscreenEvents, ['fullscreenchange', 'mozfullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'], "f");
+        __classPrivateFieldGet(this, _Fullscreen_fullscreenEvents, "f").forEach((event) => {
             document.addEventListener(event, this._fullscreenChange, EVENT_OPTIONS);
         });
         this._setFullscreenData(false);
@@ -69,18 +67,20 @@ class Fullscreen {
         __classPrivateFieldGet(this, _Fullscreen_button, "f").setAttribute('aria-controls', __classPrivateFieldGet(this, _Fullscreen_player, "f").id);
         __classPrivateFieldGet(this, _Fullscreen_button, "f").setAttribute('aria-pressed', 'false');
         __classPrivateFieldGet(this, _Fullscreen_button, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Fullscreen_labels, "f").fullscreen);
-        __classPrivateFieldGet(this, _Fullscreen_button, "f").innerHTML = `<span class="op-sr">${__classPrivateFieldGet(this, _Fullscreen_labels, "f").fullscreen}</span>`;
         __classPrivateFieldSet(this, _Fullscreen_clickEvent, () => {
             __classPrivateFieldGet(this, _Fullscreen_button, "f").setAttribute('aria-pressed', 'true');
             this.toggleFullscreen();
         }, "f");
         __classPrivateFieldSet(this, _Fullscreen_clickEvent, __classPrivateFieldGet(this, _Fullscreen_clickEvent, "f").bind(this), "f");
         __classPrivateFieldGet(this, _Fullscreen_button, "f").addEventListener('click', __classPrivateFieldGet(this, _Fullscreen_clickEvent, "f"), EVENT_OPTIONS);
-        __classPrivateFieldGet(this, _Fullscreen_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Fullscreen_layer, "f")).appendChild(__classPrivateFieldGet(this, _Fullscreen_button, "f"));
+        __classPrivateFieldGet(this, _Fullscreen_player, "f")
+            .getControls()
+            .getLayer(__classPrivateFieldGet(this, _Fullscreen_layer, "f"))
+            .appendChild(__classPrivateFieldGet(this, _Fullscreen_button, "f"));
     }
     destroy() {
         __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().removeEventListener('keydown', this._keydownEvent);
-        __classPrivateFieldGet(this, _Fullscreen_fullscreenEvents, "f").forEach(event => {
+        __classPrivateFieldGet(this, _Fullscreen_fullscreenEvents, "f").forEach((event) => {
             document.removeEventListener(event, this._fullscreenChange);
         });
         if (IS_IPHONE) {
@@ -143,7 +143,7 @@ class Fullscreen {
             document.body.classList.add('op-fullscreen__on');
         }
         if (typeof window !== 'undefined' && (IS_ANDROID || IS_IPHONE)) {
-            const screen = window.screen;
+            const { screen } = window;
             if (screen.orientation) {
                 if (!__classPrivateFieldGet(this, _Fullscreen_isFullscreen, "f")) {
                     screen.orientation.lock('landscape');

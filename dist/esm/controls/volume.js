@@ -12,7 +12,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _Volume_player, _Volume_button, _Volume_container, _Volume_display, _Volume_slider, _Volume_events, _Volume_volume, _Volume_labels, _Volume_position, _Volume_layer;
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
 import { addEvent } from '../utils/events';
-import { isAudio, removeElement } from '../utils/general';
+import { removeElement } from '../utils/general';
 class Volume {
     constructor(player, position, layer) {
         _Volume_player.set(this, void 0);
@@ -71,12 +71,11 @@ class Volume {
         __classPrivateFieldGet(this, _Volume_button, "f").setAttribute('aria-controls', __classPrivateFieldGet(this, _Volume_player, "f").id);
         __classPrivateFieldGet(this, _Volume_button, "f").setAttribute('aria-pressed', 'false');
         __classPrivateFieldGet(this, _Volume_button, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Volume_labels, "f").mute);
-        __classPrivateFieldGet(this, _Volume_button, "f").innerHTML = `<span class="op-sr">${__classPrivateFieldGet(this, _Volume_labels, "f").mute}</span>`;
         const updateSlider = (element) => {
             const mediaVolume = element.volume * 1;
             const vol = Math.floor(mediaVolume * 100);
             __classPrivateFieldGet(this, _Volume_slider, "f").value = `${element.volume}`;
-            __classPrivateFieldGet(this, _Volume_display, "f").value = (mediaVolume * 10);
+            __classPrivateFieldGet(this, _Volume_display, "f").value = mediaVolume * 10;
             __classPrivateFieldGet(this, _Volume_container, "f").setAttribute('aria-valuenow', `${vol}`);
             __classPrivateFieldGet(this, _Volume_container, "f").setAttribute('aria-valuetext', `${__classPrivateFieldGet(this, _Volume_labels, "f").volume}: ${vol}`);
         };
@@ -99,7 +98,7 @@ class Volume {
             const el = __classPrivateFieldGet(this, _Volume_player, "f").activeElement();
             const value = parseFloat(event.target.value);
             el.volume = value;
-            el.muted = (el.volume === 0);
+            el.muted = el.volume === 0;
             __classPrivateFieldSet(this, _Volume_volume, value, "f");
             const unmuteEl = __classPrivateFieldGet(this, _Volume_player, "f").getContainer().querySelector('.op-player__unmute');
             if (!el.muted && unmuteEl) {
@@ -112,11 +111,6 @@ class Volume {
             const el = __classPrivateFieldGet(this, _Volume_player, "f").activeElement();
             updateSlider(el);
             updateButton(el);
-        };
-        __classPrivateFieldGet(this, _Volume_events, "f").media.timeupdate = () => {
-            if (isAudio(__classPrivateFieldGet(this, _Volume_player, "f").getElement()) && (__classPrivateFieldGet(this, _Volume_player, "f").activeElement().duration === Infinity
-                || __classPrivateFieldGet(this, _Volume_player, "f").getElement().getAttribute('op-live__enabled'))) {
-            }
         };
         __classPrivateFieldGet(this, _Volume_events, "f").media.loadedmetadata = () => {
             const el = __classPrivateFieldGet(this, _Volume_player, "f").activeElement();
@@ -146,10 +140,10 @@ class Volume {
             __classPrivateFieldGet(this, _Volume_player, "f").getElement().dispatchEvent(event);
         };
         __classPrivateFieldGet(this, _Volume_button, "f").addEventListener('click', __classPrivateFieldGet(this, _Volume_events, "f").button.click, EVENT_OPTIONS);
-        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Volume_player, "f").getElement().addEventListener(event, __classPrivateFieldGet(this, _Volume_events, "f").media[event], EVENT_OPTIONS);
         });
-        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").slider).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").slider).forEach((event) => {
             __classPrivateFieldGet(this, _Volume_slider, "f").addEventListener(event, __classPrivateFieldGet(this, _Volume_events, "f").slider[event], EVENT_OPTIONS);
         });
         __classPrivateFieldGet(this, _Volume_player, "f").getContainer().addEventListener('keydown', this._keydownEvent, EVENT_OPTIONS);
@@ -161,10 +155,10 @@ class Volume {
     }
     destroy() {
         __classPrivateFieldGet(this, _Volume_button, "f").removeEventListener('click', __classPrivateFieldGet(this, _Volume_events, "f").button.click);
-        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Volume_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Volume_events, "f").media[event]);
         });
-        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").slider).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Volume_events, "f").slider).forEach((event) => {
             __classPrivateFieldGet(this, _Volume_slider, "f").removeEventListener(event, __classPrivateFieldGet(this, _Volume_events, "f").slider[event]);
         });
         __classPrivateFieldGet(this, _Volume_player, "f").getContainer().removeEventListener('keydown', this._keydownEvent);

@@ -84,25 +84,25 @@ class Settings implements PlayerComponent {
      * @type object
      * @memberof Settings
      */
-     #labels: any;
+    #labels: any;
 
-     /**
-      * Position of the button to be indicated as part of its class name
-      *
-      * @private
-      * @type {string}
-      * @memberof Settings
-      */
-     #position: string;
+    /**
+     * Position of the button to be indicated as part of its class name
+     *
+     * @private
+     * @type {string}
+     * @memberof Settings
+     */
+    #position: string;
 
-     /**
-      * Layer where the control item will be placed
-      *
-      * @private
-      * @type {string}
-      * @memberof Captions
-      */
-     #layer: string;
+    /**
+     * Layer where the control item will be placed
+     *
+     * @private
+     * @type {string}
+     * @memberof Captions
+     */
+    #layer: string;
 
     /**
      * Event that displays main menu when clicking in Settings button.
@@ -161,14 +161,13 @@ class Settings implements PlayerComponent {
         this.#button.setAttribute('aria-controls', this.#player.id);
         this.#button.setAttribute('aria-pressed', 'false');
         this.#button.setAttribute('aria-label', this.#labels.settings);
-        this.#button.innerHTML = `<span class="op-sr">${this.#labels.settings}</span>`;
 
         this.#menu = document.createElement('div');
         this.#menu.className = 'op-settings';
         this.#menu.setAttribute('aria-hidden', 'true');
         this.#menu.innerHTML = '<div class="op-settings__menu" role="menu"></div>';
 
-        this.clickEvent = () => {
+        this.clickEvent = (): void => {
             this.#button.setAttribute('aria-pressed', 'true');
             const menus = this.#player.getContainer().querySelectorAll('.op-settings');
             for (let i = 0, total = menus.length; i < total; ++i) {
@@ -176,24 +175,24 @@ class Settings implements PlayerComponent {
                     menus[i].setAttribute('aria-hidden', 'true');
                 }
             }
-            this.#menu.setAttribute('aria-hidden', (this.#menu.getAttribute('aria-hidden') === 'false' ? 'true' : 'false'));
+            this.#menu.setAttribute('aria-hidden', this.#menu.getAttribute('aria-hidden') === 'false' ? 'true' : 'false');
         };
 
-        this.hideEvent = () => {
+        this.hideEvent = (): void => {
             let timeout;
             if (timeout && typeof window !== 'undefined') {
                 window.cancelAnimationFrame(timeout);
             }
 
             if (typeof window !== 'undefined') {
-                timeout = window.requestAnimationFrame(() => {
+                timeout = window.requestAnimationFrame((): void => {
                     this.#menu.innerHTML = this.#originalOutput;
                     this.#menu.setAttribute('aria-hidden', 'true');
                 });
             }
         };
 
-        this.removeEvent = (e: CustomEvent) => {
+        this.removeEvent = (e: CustomEvent): void => {
             const { id, type } = e.detail;
             this.removeItem(id, type);
         };
@@ -208,7 +207,7 @@ class Settings implements PlayerComponent {
         this.clickEvent = this.clickEvent.bind(this);
         this.hideEvent = this.hideEvent.bind(this);
 
-        this.#events.global.click = (e: any) => {
+        this.#events.global.click = (e: any): void => {
             if (e.target.closest(`#${this.#player.id}`) && hasClass(e.target, 'op-speed__option')) {
                 this.#player.getMedia().playbackRate = parseFloat(e.target.getAttribute('data-value').replace('speed-', ''));
             }
@@ -216,7 +215,7 @@ class Settings implements PlayerComponent {
         this.#events.global.resize = this.hideEvent.bind(this);
 
         this.#button.addEventListener('click', this.clickEvent, EVENT_OPTIONS);
-        Object.keys(this.#events).forEach(event => {
+        Object.keys(this.#events).forEach((event) => {
             this.#player.getElement().addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
         document.addEventListener('click', this.#events.global.click, EVENT_OPTIONS);
@@ -225,7 +224,10 @@ class Settings implements PlayerComponent {
             window.addEventListener('resize', this.#events.global.resize, EVENT_OPTIONS);
         }
 
-        this.#player.getControls().getLayer(this.#layer).appendChild(this.#button);
+        this.#player
+            .getControls()
+            .getLayer(this.#layer)
+            .appendChild(this.#button);
         this.#player.getContainer().appendChild(this.#menu);
     }
 
@@ -236,7 +238,7 @@ class Settings implements PlayerComponent {
      */
     public destroy(): void {
         this.#button.removeEventListener('click', this.clickEvent);
-        Object.keys(this.#events).forEach(event => {
+        Object.keys(this.#events).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
         document.removeEventListener('click', this.#events.global.click);
@@ -306,7 +308,7 @@ class Settings implements PlayerComponent {
         menuItem.setAttribute('role', 'menuitemradio');
         menuItem.innerHTML = `<div class="op-settings__menu-label" data-value="${key}-${defaultValue}">${name}</div>`;
 
-        const submenuMatch = submenu ? submenu.find(x => x.key === defaultValue) : null;
+        const submenuMatch = submenu ? submenu.find((x) => x.key === defaultValue) : null;
         if (submenuMatch) {
             menuItem.innerHTML += `<div class="op-settings__menu-content" tabindex="0">${submenuMatch.label}</div>`;
         }
@@ -324,22 +326,28 @@ class Settings implements PlayerComponent {
                     <button type="button" class="op-settings__back" tabindex="0">${name}</button>
                 </div>
                 <div class="op-settings__menu" role="menu" id="menu-item-${key}">
-                    ${submenu.map((item: SettingsSubItem) => `
-                    <div class="op-settings__submenu-item" role="menuitemradio" aria-checked="${defaultValue === item.key ? 'true' : 'false'}">
+                    ${submenu
+                        .map(
+                            (item: SettingsSubItem) => `
+                    <div class="op-settings__submenu-item" role="menuitemradio" aria-checked="${
+                        defaultValue === item.key ? 'true' : 'false'
+                    }">
                         <div class="op-settings__submenu-label ${className || ''}" tabindex="0" data-value="${key}-${item.key}">
                             ${item.label}
                         </div>
-                    </div>`).join('')}
+                    </div>`
+                        )
+                        .join('')}
                 </div>`;
             this.#submenu[key] = subItems;
         }
 
-        this.#events.global['settings.submenu'] = (e: Event) => {
-            const target = (e.target as HTMLElement);
+        this.#events.global['settings.submenu'] = (e: Event): void => {
+            const target = e.target as HTMLElement;
             if (target.closest(`#${this.#player.id}`)) {
                 if (hasClass(target, 'op-settings__back')) {
                     this.#menu.classList.add('op-settings--sliding');
-                    setTimeout(() => {
+                    setTimeout((): void => {
                         this.#menu.innerHTML = this.#originalOutput;
                         this.#menu.classList.remove('op-settings--sliding');
                     }, 100);
@@ -352,9 +360,9 @@ class Settings implements PlayerComponent {
 
                         // eslint-disable-next-line no-useless-escape
                         const current = fragments.join('-').replace(/^\-|\-$/, '');
-                        if (typeof this.#submenu[current] !== undefined) {
+                        if (typeof this.#submenu[current] !== 'undefined') {
                             this.#menu.classList.add('op-settings--sliding');
-                            setTimeout(() => {
+                            setTimeout((): void => {
                                 this.#menu.innerHTML = this.#submenu[current];
                                 this.#menu.classList.remove('op-settings--sliding');
                             }, 100);
@@ -376,7 +384,7 @@ class Settings implements PlayerComponent {
 
                         // Restore original menu, and set the new value
                         this.#menu.classList.add('op-settings--sliding');
-                        setTimeout(() => {
+                        setTimeout((): void => {
                             this.#menu.innerHTML = this.#originalOutput;
                             const prev = this.#menu.querySelector(`.op-settings__menu-label[data-value="${key}-${defaultValue}"]`);
                             if (prev) {
@@ -408,7 +416,7 @@ class Settings implements PlayerComponent {
      * @param {number} [minItems=2]
      * @memberof Settings
      */
-    public removeItem(id: string|number, type: string, minItems = 2) {
+    public removeItem(id: string | number, type: string, minItems = 2): void {
         const target = this.#player.getElement().querySelector(`.op-settings__submenu-label[data-value=${type}-${id}]`);
         if (target) {
             removeElement(target);
@@ -431,14 +439,15 @@ class Settings implements PlayerComponent {
      * @param {KeyboardEvent} e
      * @memberof Volume
      */
-    private _keydownEvent(e: KeyboardEvent) {
+    private _keydownEvent(e: KeyboardEvent): void {
         const key = e.which || e.keyCode || 0;
         const isAd = this.#player.isAd();
         const settingsBtnFocused = document?.activeElement?.classList.contains('op-controls__settings');
 
-        const menuFocused = document?.activeElement?.classList.contains('op-settings__menu-content')
-            || document?.activeElement?.classList.contains('op-settings__back')
-            || document?.activeElement?.classList.contains('op-settings__submenu-label');
+        const menuFocused =
+            document?.activeElement?.classList.contains('op-settings__menu-content') ||
+            document?.activeElement?.classList.contains('op-settings__back') ||
+            document?.activeElement?.classList.contains('op-settings__submenu-label');
         if (!isAd) {
             if (settingsBtnFocused && (key === 13 || key === 32)) {
                 this.clickEvent();

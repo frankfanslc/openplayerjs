@@ -41,8 +41,10 @@ class Play {
         __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-controls', __classPrivateFieldGet(this, _Play_player, "f").id);
         __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-pressed', 'false');
         __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Play_labels, "f").play);
-        __classPrivateFieldGet(this, _Play_button, "f").innerHTML = `<span class="op-sr">${__classPrivateFieldGet(this, _Play_labels, "f").play}/${__classPrivateFieldGet(this, _Play_labels, "f").pause}</span>`;
-        __classPrivateFieldGet(this, _Play_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Play_layer, "f")).appendChild(__classPrivateFieldGet(this, _Play_button, "f"));
+        __classPrivateFieldGet(this, _Play_player, "f")
+            .getControls()
+            .getLayer(__classPrivateFieldGet(this, _Play_layer, "f"))
+            .appendChild(__classPrivateFieldGet(this, _Play_button, "f"));
         __classPrivateFieldGet(this, _Play_events, "f").media.click = (e) => {
             __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-pressed', 'true');
             const el = __classPrivateFieldGet(this, _Play_player, "f").activeElement();
@@ -78,7 +80,7 @@ class Play {
                 __classPrivateFieldGet(this, _Play_button, "f").title = __classPrivateFieldGet(this, _Play_labels, "f").pause;
                 __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Play_labels, "f").pause);
                 if (__classPrivateFieldGet(this, _Play_player, "f").getOptions().pauseOthers) {
-                    Object.keys(Player.instances).forEach(key => {
+                    Object.keys(Player.instances).forEach((key) => {
                         if (key !== __classPrivateFieldGet(this, _Play_player, "f").id) {
                             const target = Player.instances[key].activeElement();
                             target.pause();
@@ -113,8 +115,8 @@ class Play {
                 __classPrivateFieldGet(this, _Play_button, "f").classList.add('op-controls__playpause--replay');
                 __classPrivateFieldGet(this, _Play_button, "f").classList.remove('op-controls__playpause--pause');
             }
-            else if (__classPrivateFieldGet(this, _Play_player, "f").getElement().currentTime >= __classPrivateFieldGet(this, _Play_player, "f").getElement().duration
-                || __classPrivateFieldGet(this, _Play_player, "f").getElement().currentTime <= 0) {
+            else if (__classPrivateFieldGet(this, _Play_player, "f").getElement().currentTime >= __classPrivateFieldGet(this, _Play_player, "f").getElement().duration ||
+                __classPrivateFieldGet(this, _Play_player, "f").getElement().currentTime <= 0) {
                 __classPrivateFieldGet(this, _Play_button, "f").classList.add('op-controls__playpause--replay');
                 __classPrivateFieldGet(this, _Play_button, "f").classList.remove('op-controls__playpause--pause');
             }
@@ -144,18 +146,24 @@ class Play {
                 element.dispatchEvent(event);
             }
         };
-        Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach((event) => {
             element.addEventListener(event, __classPrivateFieldGet(this, _Play_events, "f").media[event], EVENT_OPTIONS);
         });
-        __classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().addEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
+        __classPrivateFieldGet(this, _Play_player, "f")
+            .getControls()
+            .getContainer()
+            .addEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Play_player, "f").getContainer().addEventListener('keydown', this._keydownEvent, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Play_button, "f").addEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").media.click, EVENT_OPTIONS);
     }
     destroy() {
-        Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach(event => {
+        Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Play_events, "f").media[event]);
         });
-        __classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().removeEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
+        __classPrivateFieldGet(this, _Play_player, "f")
+            .getControls()
+            .getContainer()
+            .removeEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
         __classPrivateFieldGet(this, _Play_player, "f").getContainer().removeEventListener('keydown', this._keydownEvent);
         __classPrivateFieldGet(this, _Play_button, "f").removeEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").media.click);
         removeElement(__classPrivateFieldGet(this, _Play_button, "f"));
