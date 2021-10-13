@@ -285,6 +285,8 @@ class Ads {
 
     loadedAd = false;
 
+    #afterInit = false;
+
     /**
      * Create an instance of Ads.
      *
@@ -296,7 +298,7 @@ class Ads {
      * @returns {Ads}
      * @memberof Ads
      */
-    constructor(player: Player, ads: string | string[], autoStart?: boolean, autoStartMuted?: boolean, options?: Options) {
+    constructor(player: Player, ads: string | string[], autoStart?: boolean, autoStartMuted?: boolean, options?: Options, afterInit?: boolean) {
         const defaultOpts: Options = {
             autoPlayAdBreaks: true,
             customClick: {
@@ -316,6 +318,7 @@ class Ads {
         };
         this.#player = player;
         this.#ads = ads;
+        this.#afterInit = afterInit || false;
         this.#media = player.getMedia();
         this.#element = player.getElement();
         this.#autoStart = autoStart || false;
@@ -391,7 +394,7 @@ class Ads {
          * If we have set `autoPlayAdBreaks` to false and haven't set the
          * force flag, don't load ads yet
          */
-        if (!google && !google.ima && !this.#adsOptions.autoPlayAdBreaks && !force) {
+        if (typeof google === 'undefined' || !google.ima || (!this.#adsOptions.autoPlayAdBreaks && !force)) {
             return;
         }
 
@@ -482,6 +485,9 @@ class Ads {
     public async play(): Promise<void> {
         if (!this.#adsDone) {
             this.#playTriggered = true;
+            if (!this.#afterInit) {
+                this._initNotDoneAds();
+            }
             await this.loadPromise;
             return;
         }

@@ -6929,14 +6929,14 @@ var ads_classPrivateFieldGet = undefined && undefined.__classPrivateFieldGet || 
   return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 
-var _Ads_adsEnded, _Ads_adsDone, _Ads_adsActive, _Ads_adsStarted, _Ads_intervalTimer, _Ads_adsVolume, _Ads_adsMuted, _Ads_adsDuration, _Ads_adsCurrentTime, _Ads_adsManager, _Ads_player, _Ads_media, _Ads_element, _Ads_events, _Ads_ads, _Ads_promise, _Ads_adsLoader, _Ads_adsContainer, _Ads_adsCustomClickContainer, _Ads_adDisplayContainer, _Ads_adsRequest, _Ads_autoStart, _Ads_autoStartMuted, _Ads_playTriggered, _Ads_adsOptions, _Ads_currentAdsIndex, _Ads_originalVolume, _Ads_preloadContent, _Ads_lastTimePaused, _Ads_mediaSources, _Ads_mediaStarted;
+var _Ads_adsEnded, _Ads_adsDone, _Ads_adsActive, _Ads_adsStarted, _Ads_intervalTimer, _Ads_adsVolume, _Ads_adsMuted, _Ads_adsDuration, _Ads_adsCurrentTime, _Ads_adsManager, _Ads_player, _Ads_media, _Ads_element, _Ads_events, _Ads_ads, _Ads_promise, _Ads_adsLoader, _Ads_adsContainer, _Ads_adsCustomClickContainer, _Ads_adDisplayContainer, _Ads_adsRequest, _Ads_autoStart, _Ads_autoStartMuted, _Ads_playTriggered, _Ads_adsOptions, _Ads_currentAdsIndex, _Ads_originalVolume, _Ads_preloadContent, _Ads_lastTimePaused, _Ads_mediaSources, _Ads_mediaStarted, _Ads_afterInit;
 
 
 
 
 
 var Ads = function () {
-  function Ads(player, ads, autoStart, autoStartMuted, options) {
+  function Ads(player, ads, autoStart, autoStartMuted, options, afterInit) {
     var _this = this;
 
     classCallCheck_default()(this, Ads);
@@ -7004,6 +7004,9 @@ var Ads = function () {
     _Ads_mediaStarted.set(this, false);
 
     this.loadedAd = false;
+
+    _Ads_afterInit.set(this, false);
+
     var defaultOpts = {
       autoPlayAdBreaks: true,
       customClick: {
@@ -7025,6 +7028,8 @@ var Ads = function () {
     ads_classPrivateFieldSet(this, _Ads_player, player, "f");
 
     ads_classPrivateFieldSet(this, _Ads_ads, ads, "f");
+
+    ads_classPrivateFieldSet(this, _Ads_afterInit, afterInit || false, "f");
 
     ads_classPrivateFieldSet(this, _Ads_media, player.getMedia(), "f");
 
@@ -7097,7 +7102,7 @@ var Ads = function () {
         return;
       }
 
-      if (!google && !google.ima && !ads_classPrivateFieldGet(this, _Ads_adsOptions, "f").autoPlayAdBreaks && !force) {
+      if (typeof google === 'undefined' || !google.ima || !ads_classPrivateFieldGet(this, _Ads_adsOptions, "f").autoPlayAdBreaks && !force) {
         return;
       }
 
@@ -7191,19 +7196,23 @@ var Ads = function () {
             switch (_context.prev = _context.next) {
               case 0:
                 if (ads_classPrivateFieldGet(this, _Ads_adsDone, "f")) {
-                  _context.next = 5;
+                  _context.next = 6;
                   break;
                 }
 
                 ads_classPrivateFieldSet(this, _Ads_playTriggered, true, "f");
 
-                _context.next = 4;
+                if (!ads_classPrivateFieldGet(this, _Ads_afterInit, "f")) {
+                  this._initNotDoneAds();
+                }
+
+                _context.next = 5;
                 return this.loadPromise;
 
-              case 4:
+              case 5:
                 return _context.abrupt("return");
 
-              case 5:
+              case 6:
                 if (ads_classPrivateFieldGet(this, _Ads_adsManager, "f")) {
                   try {
                     if (!ads_classPrivateFieldGet(this, _Ads_intervalTimer, "f") && ads_classPrivateFieldGet(this, _Ads_adsActive, "f") === false) {
@@ -7222,7 +7231,7 @@ var Ads = function () {
                   }
                 }
 
-              case 6:
+              case 7:
               case "end":
                 return _context.stop();
             }
@@ -8000,7 +8009,7 @@ var Ads = function () {
   return Ads;
 }();
 
-_Ads_adsEnded = new WeakMap(), _Ads_adsDone = new WeakMap(), _Ads_adsActive = new WeakMap(), _Ads_adsStarted = new WeakMap(), _Ads_intervalTimer = new WeakMap(), _Ads_adsVolume = new WeakMap(), _Ads_adsMuted = new WeakMap(), _Ads_adsDuration = new WeakMap(), _Ads_adsCurrentTime = new WeakMap(), _Ads_adsManager = new WeakMap(), _Ads_player = new WeakMap(), _Ads_media = new WeakMap(), _Ads_element = new WeakMap(), _Ads_events = new WeakMap(), _Ads_ads = new WeakMap(), _Ads_promise = new WeakMap(), _Ads_adsLoader = new WeakMap(), _Ads_adsContainer = new WeakMap(), _Ads_adsCustomClickContainer = new WeakMap(), _Ads_adDisplayContainer = new WeakMap(), _Ads_adsRequest = new WeakMap(), _Ads_autoStart = new WeakMap(), _Ads_autoStartMuted = new WeakMap(), _Ads_playTriggered = new WeakMap(), _Ads_adsOptions = new WeakMap(), _Ads_currentAdsIndex = new WeakMap(), _Ads_originalVolume = new WeakMap(), _Ads_preloadContent = new WeakMap(), _Ads_lastTimePaused = new WeakMap(), _Ads_mediaSources = new WeakMap(), _Ads_mediaStarted = new WeakMap();
+_Ads_adsEnded = new WeakMap(), _Ads_adsDone = new WeakMap(), _Ads_adsActive = new WeakMap(), _Ads_adsStarted = new WeakMap(), _Ads_intervalTimer = new WeakMap(), _Ads_adsVolume = new WeakMap(), _Ads_adsMuted = new WeakMap(), _Ads_adsDuration = new WeakMap(), _Ads_adsCurrentTime = new WeakMap(), _Ads_adsManager = new WeakMap(), _Ads_player = new WeakMap(), _Ads_media = new WeakMap(), _Ads_element = new WeakMap(), _Ads_events = new WeakMap(), _Ads_ads = new WeakMap(), _Ads_promise = new WeakMap(), _Ads_adsLoader = new WeakMap(), _Ads_adsContainer = new WeakMap(), _Ads_adsCustomClickContainer = new WeakMap(), _Ads_adDisplayContainer = new WeakMap(), _Ads_adsRequest = new WeakMap(), _Ads_autoStart = new WeakMap(), _Ads_autoStartMuted = new WeakMap(), _Ads_playTriggered = new WeakMap(), _Ads_adsOptions = new WeakMap(), _Ads_currentAdsIndex = new WeakMap(), _Ads_originalVolume = new WeakMap(), _Ads_preloadContent = new WeakMap(), _Ads_lastTimePaused = new WeakMap(), _Ads_mediaSources = new WeakMap(), _Ads_mediaStarted = new WeakMap(), _Ads_afterInit = new WeakMap();
 /* harmony default export */ const ads = (Ads);
 ;// CONCATENATED MODULE: ./src/js/player.ts
 
@@ -8562,7 +8571,7 @@ var Player = function () {
                   adsOptions = player_classPrivateFieldGet(this, _Player_options, "f") && player_classPrivateFieldGet(this, _Player_options, "f").ads ? player_classPrivateFieldGet(this, _Player_options, "f").ads : undefined;
                   autoplay = !this.activeElement().paused || player_classPrivateFieldGet(this, _Player_canAutoplay, "f");
 
-                  player_classPrivateFieldSet(this, _Player_adsInstance, new ads(this, src, autoplay, player_classPrivateFieldGet(this, _Player_canAutoplayMuted, "f"), adsOptions), "f");
+                  player_classPrivateFieldSet(this, _Player_adsInstance, new ads(this, src, autoplay, player_classPrivateFieldGet(this, _Player_canAutoplayMuted, "f"), adsOptions, true), "f");
                 }
 
                 _context4.next = 4;

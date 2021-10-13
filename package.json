@@ -1,6 +1,6 @@
 {
   "name": "openplayerjs",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "homepage": "https://www.openplayerjs.com/",
   "author": {
     "name": "Rafael Miranda",
@@ -114,6 +114,6 @@
   },
   "dependencies": {
     "auto-changelog": "^1.16.4",
-    "core-js": "^3.18.1"
+    "core-js": "^3.18.2"
   }
 }
