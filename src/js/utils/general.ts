@@ -59,7 +59,7 @@ export function removeElement(node?: Node): void {
  * @returns {Promise}
  */
 export function loadScript(url: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         const script = document.createElement('script');
         script.src = url;
         script.async = true;

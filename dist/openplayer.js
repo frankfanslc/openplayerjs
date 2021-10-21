@@ -1407,7 +1407,15 @@ function formatTime(seconds, frameRate) {
   var h = Math.floor(m / 60);
 
   var wrap = function wrap(value) {
-    return value < 10 ? "0".concat(value) : value.toString();
+    if (value < 10) {
+      if (value <= 0) {
+        return '00';
+      }
+
+      return "0".concat(value.toString());
+    }
+
+    return value.toString();
   };
 
   m %= 60;
@@ -6929,14 +6937,14 @@ var ads_classPrivateFieldGet = undefined && undefined.__classPrivateFieldGet || 
   return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 
-var _Ads_adsEnded, _Ads_adsDone, _Ads_adsActive, _Ads_adsStarted, _Ads_intervalTimer, _Ads_adsVolume, _Ads_adsMuted, _Ads_adsDuration, _Ads_adsCurrentTime, _Ads_adsManager, _Ads_player, _Ads_media, _Ads_element, _Ads_events, _Ads_ads, _Ads_promise, _Ads_adsLoader, _Ads_adsContainer, _Ads_adsCustomClickContainer, _Ads_adDisplayContainer, _Ads_adsRequest, _Ads_autoStart, _Ads_autoStartMuted, _Ads_playTriggered, _Ads_adsOptions, _Ads_currentAdsIndex, _Ads_originalVolume, _Ads_preloadContent, _Ads_lastTimePaused, _Ads_mediaSources, _Ads_mediaStarted, _Ads_afterInit;
+var _Ads_adsEnded, _Ads_adsDone, _Ads_adsActive, _Ads_adsStarted, _Ads_intervalTimer, _Ads_adsVolume, _Ads_adsMuted, _Ads_adsDuration, _Ads_adsCurrentTime, _Ads_adsManager, _Ads_player, _Ads_media, _Ads_element, _Ads_events, _Ads_ads, _Ads_promise, _Ads_adsLoader, _Ads_adsContainer, _Ads_adsCustomClickContainer, _Ads_adDisplayContainer, _Ads_adsRequest, _Ads_autoStart, _Ads_autoStartMuted, _Ads_playTriggered, _Ads_adsOptions, _Ads_currentAdsIndex, _Ads_originalVolume, _Ads_preloadContent, _Ads_lastTimePaused, _Ads_mediaSources, _Ads_mediaStarted;
 
 
 
 
 
 var Ads = function () {
-  function Ads(player, ads, autoStart, autoStartMuted, options, afterInit) {
+  function Ads(player, ads, autoStart, autoStartMuted, options) {
     var _this = this;
 
     classCallCheck_default()(this, Ads);
@@ -7004,9 +7012,6 @@ var Ads = function () {
     _Ads_mediaStarted.set(this, false);
 
     this.loadedAd = false;
-
-    _Ads_afterInit.set(this, false);
-
     var defaultOpts = {
       autoPlayAdBreaks: true,
       customClick: {
@@ -7028,8 +7033,6 @@ var Ads = function () {
     ads_classPrivateFieldSet(this, _Ads_player, player, "f");
 
     ads_classPrivateFieldSet(this, _Ads_ads, ads, "f");
-
-    ads_classPrivateFieldSet(this, _Ads_afterInit, afterInit || false, "f");
 
     ads_classPrivateFieldSet(this, _Ads_media, player.getMedia(), "f");
 
@@ -7074,8 +7077,10 @@ var Ads = function () {
       resolve({});
     }), "f");
 
-    ads_classPrivateFieldGet(this, _Ads_promise, "f").then(this.load).catch(function (error) {
-      var message = 'Ad script could not be loaded; please check if you have an AdBlock';
+    ads_classPrivateFieldGet(this, _Ads_promise, "f").then(function () {
+      _this.load();
+    }).catch(function (error) {
+      var message = 'Ad script could not be loaded; please check if you have an AdBlock ';
       message += 'turned on, or if you provided a valid URL is correct';
       console.error("Ad error: ".concat(message, "."));
       var details = {
@@ -7098,11 +7103,11 @@ var Ads = function () {
     value: function load() {
       var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-      if (this.loadedAd) {
+      if (typeof google === 'undefined' || !google.ima || !force && this.loadedAd && ads_classPrivateFieldGet(this, _Ads_adsOptions, "f").autoPlayAdBreaks) {
         return;
       }
 
-      if (typeof google === 'undefined' || !google.ima || !ads_classPrivateFieldGet(this, _Ads_adsOptions, "f").autoPlayAdBreaks && !force) {
+      if (!ads_classPrivateFieldGet(this, _Ads_adsOptions, "f").autoPlayAdBreaks && !force) {
         return;
       }
 
@@ -7160,7 +7165,7 @@ var Ads = function () {
       }
 
       google.ima.settings.setPlayerType('openplayerjs');
-      google.ima.settings.setPlayerVersion('2.9.1');
+      google.ima.settings.setPlayerVersion('2.9.3');
 
       ads_classPrivateFieldSet(this, _Ads_adDisplayContainer, new google.ima.AdDisplayContainer(ads_classPrivateFieldGet(this, _Ads_adsContainer, "f"), ads_classPrivateFieldGet(this, _Ads_element, "f"), ads_classPrivateFieldGet(this, _Ads_adsCustomClickContainer, "f")), "f");
 
@@ -7196,23 +7201,17 @@ var Ads = function () {
             switch (_context.prev = _context.next) {
               case 0:
                 if (ads_classPrivateFieldGet(this, _Ads_adsDone, "f")) {
-                  _context.next = 6;
+                  _context.next = 4;
                   break;
                 }
 
                 ads_classPrivateFieldSet(this, _Ads_playTriggered, true, "f");
 
-                if (!ads_classPrivateFieldGet(this, _Ads_afterInit, "f")) {
-                  this._initNotDoneAds();
-                }
+                this._initNotDoneAds();
 
-                _context.next = 5;
-                return this.loadPromise;
-
-              case 5:
                 return _context.abrupt("return");
 
-              case 6:
+              case 4:
                 if (ads_classPrivateFieldGet(this, _Ads_adsManager, "f")) {
                   try {
                     if (!ads_classPrivateFieldGet(this, _Ads_intervalTimer, "f") && ads_classPrivateFieldGet(this, _Ads_adsActive, "f") === false) {
@@ -7231,7 +7230,7 @@ var Ads = function () {
                   }
                 }
 
-              case 7:
+              case 5:
               case "end":
                 return _context.stop();
             }
@@ -7313,6 +7312,16 @@ var Ads = function () {
       }
 
       removeElement(ads_classPrivateFieldGet(this, _Ads_adsContainer, "f"));
+      this.loadPromise = null;
+      this.loadedAd = false;
+
+      ads_classPrivateFieldSet(this, _Ads_adsDone, false, "f");
+
+      ads_classPrivateFieldSet(this, _Ads_playTriggered, false, "f");
+
+      ads_classPrivateFieldSet(this, _Ads_adsDuration, 0, "f");
+
+      ads_classPrivateFieldSet(this, _Ads_adsCurrentTime, 0, "f");
     }
   }, {
     key: "resizeAds",
@@ -7567,10 +7576,6 @@ var Ads = function () {
 
             ads_classPrivateFieldSet(this, _Ads_adsStarted, false, "f");
 
-            ads_classPrivateFieldSet(this, _Ads_adsDuration, 0, "f");
-
-            ads_classPrivateFieldSet(this, _Ads_adsCurrentTime, 0, "f");
-
             if (ads_classPrivateFieldGet(this, _Ads_element, "f").parentElement) {
               ads_classPrivateFieldGet(this, _Ads_element, "f").parentElement.classList.remove('op-ads--active');
             }
@@ -7649,14 +7654,12 @@ var Ads = function () {
       if (Array.isArray(ads_classPrivateFieldGet(this, _Ads_ads, "f")) && ads_classPrivateFieldGet(this, _Ads_ads, "f").length > 1 && ads_classPrivateFieldGet(this, _Ads_currentAdsIndex, "f") < ads_classPrivateFieldGet(this, _Ads_ads, "f").length - 1) {
         ads_classPrivateFieldSet(this, _Ads_currentAdsIndex, (_a = ads_classPrivateFieldGet(this, _Ads_currentAdsIndex, "f"), _a++, _a), "f");
 
-        ads_classPrivateFieldSet(this, _Ads_playTriggered, true, "f");
+        this.destroy();
 
         ads_classPrivateFieldSet(this, _Ads_adsStarted, true, "f");
 
-        ads_classPrivateFieldSet(this, _Ads_adsDone, false, "f");
+        ads_classPrivateFieldSet(this, _Ads_playTriggered, true, "f");
 
-        this.destroy();
-        this.loadedAd = false;
         this.load(true);
         console.warn("Ad warning: ".concat(error.toString()));
       } else {
@@ -7723,9 +7726,7 @@ var Ads = function () {
         manager.addEventListener(event, _this5._assign, EVENT_OPTIONS);
       });
 
-      manager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error, EVENT_OPTIONS);
-
-      if (ads_classPrivateFieldGet(this, _Ads_autoStart, "f") === true || ads_classPrivateFieldGet(this, _Ads_playTriggered, "f") === true) {
+      if (ads_classPrivateFieldGet(this, _Ads_autoStart, "f") === true || ads_classPrivateFieldGet(this, _Ads_autoStartMuted, "f") === true || ads_classPrivateFieldGet(this, _Ads_playTriggered, "f") === true) {
         ads_classPrivateFieldSet(this, _Ads_playTriggered, false, "f");
 
         if (!ads_classPrivateFieldGet(this, _Ads_adsDone, "f")) {
@@ -7739,10 +7740,6 @@ var Ads = function () {
         var e = addEvent('play');
 
         ads_classPrivateFieldGet(this, _Ads_element, "f").dispatchEvent(e);
-
-        var event = addEvent('playing');
-
-        ads_classPrivateFieldGet(this, _Ads_element, "f").dispatchEvent(event);
       } else if (ads_classPrivateFieldGet(this, _Ads_adsOptions, "f").enablePreloading === true) {
         manager.init(ads_classPrivateFieldGet(this, _Ads_element, "f").offsetWidth, ads_classPrivateFieldGet(this, _Ads_element, "f").offsetHeight, ads_classPrivateFieldGet(this, _Ads_element, "f").parentElement && ads_classPrivateFieldGet(this, _Ads_element, "f").parentElement.getAttribute('data-fullscreen') === 'true' ? google.ima.ViewMode.FULLSCREEN : google.ima.ViewMode.NORMAL);
       }
@@ -7750,9 +7747,9 @@ var Ads = function () {
   }, {
     key: "_initNotDoneAds",
     value: function _initNotDoneAds() {
-      ads_classPrivateFieldSet(this, _Ads_adsDone, true, "f");
-
       if (ads_classPrivateFieldGet(this, _Ads_adDisplayContainer, "f")) {
+        ads_classPrivateFieldSet(this, _Ads_adsDone, true, "f");
+
         ads_classPrivateFieldGet(this, _Ads_adDisplayContainer, "f").initialize();
 
         if (IS_IOS || IS_ANDROID) {
@@ -7819,9 +7816,6 @@ var Ads = function () {
 
         ads_classPrivateFieldSet(this, _Ads_adsStarted, true, "f");
 
-        ads_classPrivateFieldSet(this, _Ads_adsDone, false, "f");
-
-        this.loadedAd = false;
         this.load(true);
       } else {
         ads_classPrivateFieldGet(this, _Ads_element, "f").addEventListener('ended', this._contentEndedListener, EVENT_OPTIONS);
@@ -8009,7 +8003,7 @@ var Ads = function () {
   return Ads;
 }();
 
-_Ads_adsEnded = new WeakMap(), _Ads_adsDone = new WeakMap(), _Ads_adsActive = new WeakMap(), _Ads_adsStarted = new WeakMap(), _Ads_intervalTimer = new WeakMap(), _Ads_adsVolume = new WeakMap(), _Ads_adsMuted = new WeakMap(), _Ads_adsDuration = new WeakMap(), _Ads_adsCurrentTime = new WeakMap(), _Ads_adsManager = new WeakMap(), _Ads_player = new WeakMap(), _Ads_media = new WeakMap(), _Ads_element = new WeakMap(), _Ads_events = new WeakMap(), _Ads_ads = new WeakMap(), _Ads_promise = new WeakMap(), _Ads_adsLoader = new WeakMap(), _Ads_adsContainer = new WeakMap(), _Ads_adsCustomClickContainer = new WeakMap(), _Ads_adDisplayContainer = new WeakMap(), _Ads_adsRequest = new WeakMap(), _Ads_autoStart = new WeakMap(), _Ads_autoStartMuted = new WeakMap(), _Ads_playTriggered = new WeakMap(), _Ads_adsOptions = new WeakMap(), _Ads_currentAdsIndex = new WeakMap(), _Ads_originalVolume = new WeakMap(), _Ads_preloadContent = new WeakMap(), _Ads_lastTimePaused = new WeakMap(), _Ads_mediaSources = new WeakMap(), _Ads_mediaStarted = new WeakMap(), _Ads_afterInit = new WeakMap();
+_Ads_adsEnded = new WeakMap(), _Ads_adsDone = new WeakMap(), _Ads_adsActive = new WeakMap(), _Ads_adsStarted = new WeakMap(), _Ads_intervalTimer = new WeakMap(), _Ads_adsVolume = new WeakMap(), _Ads_adsMuted = new WeakMap(), _Ads_adsDuration = new WeakMap(), _Ads_adsCurrentTime = new WeakMap(), _Ads_adsManager = new WeakMap(), _Ads_player = new WeakMap(), _Ads_media = new WeakMap(), _Ads_element = new WeakMap(), _Ads_events = new WeakMap(), _Ads_ads = new WeakMap(), _Ads_promise = new WeakMap(), _Ads_adsLoader = new WeakMap(), _Ads_adsContainer = new WeakMap(), _Ads_adsCustomClickContainer = new WeakMap(), _Ads_adDisplayContainer = new WeakMap(), _Ads_adsRequest = new WeakMap(), _Ads_autoStart = new WeakMap(), _Ads_autoStartMuted = new WeakMap(), _Ads_playTriggered = new WeakMap(), _Ads_adsOptions = new WeakMap(), _Ads_currentAdsIndex = new WeakMap(), _Ads_originalVolume = new WeakMap(), _Ads_preloadContent = new WeakMap(), _Ads_lastTimePaused = new WeakMap(), _Ads_mediaSources = new WeakMap(), _Ads_mediaStarted = new WeakMap();
 /* harmony default export */ const ads = (Ads);
 ;// CONCATENATED MODULE: ./src/js/player.ts
 
@@ -8261,20 +8255,21 @@ var Player = function () {
 
               case 4:
                 if (!player_classPrivateFieldGet(this, _Player_adsInstance, "f")) {
-                  _context2.next = 8;
+                  _context2.next = 9;
                   break;
                 }
 
-                _context2.next = 7;
+                player_classPrivateFieldGet(this, _Player_adsInstance, "f").playRequested = true;
+                _context2.next = 8;
                 return player_classPrivateFieldGet(this, _Player_adsInstance, "f").loadPromise;
 
-              case 7:
+              case 8:
                 return _context2.abrupt("return", player_classPrivateFieldGet(this, _Player_adsInstance, "f").play());
 
-              case 8:
+              case 9:
                 return _context2.abrupt("return", player_classPrivateFieldGet(this, _Player_media, "f").play());
 
-              case 9:
+              case 10:
               case "end":
                 return _context2.stop();
             }
@@ -8555,43 +8550,28 @@ var Player = function () {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                _context4.prev = 0;
+                try {
+                  if (this.isAd()) {
+                    this.getAd().destroy();
+                    this.getAd().src = src;
+                    this.getAd().loadedAd = false;
+                    this.getAd().load();
+                  } else {
+                    adsOptions = player_classPrivateFieldGet(this, _Player_options, "f") && player_classPrivateFieldGet(this, _Player_options, "f").ads ? player_classPrivateFieldGet(this, _Player_options, "f").ads : undefined;
+                    autoplay = !this.activeElement().paused || player_classPrivateFieldGet(this, _Player_canAutoplay, "f");
 
-                if (this.isAd()) {
-                  this.activeElement().destroy();
-                  this.activeElement().src = src;
-                  this.getAd().isDone = false;
-
-                  if (!this.activeElement().paused) {
-                    this.getAd().playRequested = true;
+                    player_classPrivateFieldSet(this, _Player_adsInstance, new ads(this, src, autoplay, player_classPrivateFieldGet(this, _Player_canAutoplayMuted, "f"), adsOptions), "f");
                   }
-
-                  this.activeElement().load(true);
-                } else {
-                  adsOptions = player_classPrivateFieldGet(this, _Player_options, "f") && player_classPrivateFieldGet(this, _Player_options, "f").ads ? player_classPrivateFieldGet(this, _Player_options, "f").ads : undefined;
-                  autoplay = !this.activeElement().paused || player_classPrivateFieldGet(this, _Player_canAutoplay, "f");
-
-                  player_classPrivateFieldSet(this, _Player_adsInstance, new ads(this, src, autoplay, player_classPrivateFieldGet(this, _Player_canAutoplayMuted, "f"), adsOptions, true), "f");
+                } catch (err) {
+                  console.error(err);
                 }
 
-                _context4.next = 4;
-                return player_classPrivateFieldGet(this, _Player_adsInstance, "f").loadPromise;
-
-              case 4:
-                _context4.next = 9;
-                break;
-
-              case 6:
-                _context4.prev = 6;
-                _context4.t0 = _context4["catch"](0);
-                console.error(_context4.t0);
-
-              case 9:
+              case 1:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[0, 6]]);
+        }, _callee4, this);
       }));
     }
   }, {

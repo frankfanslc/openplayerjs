@@ -11,10 +11,18 @@ export function formatTime(seconds: number, frameRate?: number): string {
     let s = Math.floor(seconds);
     let m = Math.floor(s / 60);
     const h = Math.floor(m / 60);
-    const wrap = (value: number): string => (value < 10 ? `0${value}` : value.toString());
+    const wrap = (value: number) => {
+        if (value < 10) {
+            if (value <= 0) {
+                return '00';
+            }
+            return `0${value.toString()}`;
+        }
+        return value.toString();
+    };
     m %= 60;
     s %= 60;
-    return `${h > 0 ? `${wrap(h)}:` : ''}${wrap(m)}:${wrap(s)}${f ? `:${wrap(f)}` : ''}`;
+    return `${h > 0 ? `${wrap(h)}:` : ''}${wrap(m)}:${wrap(s)}${(f ? `:${wrap(f)}` : '')}`;
 }
 /**
  * Convert STMPE string into seconds
