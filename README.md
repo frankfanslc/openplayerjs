@@ -38,6 +38,13 @@ So, please consider this before upgrading to any of the 3.x.x version going forw
 - **Can play ads in infinite loop**, desired for ads that are in a heavy text page.
 - Always **responsive** by default, for both video/audio tags; for video, **`fill`** and **`fit`** modes are available to either scale and crop media relative to its parent container, or to attempt to make the media fit its parent container (including black bars), respectively.
 
+## Projects using OpenPlayerJS
+
+| | | |
+|--|--|--|
+|[<img width="120" alt="MedSims" src="https://img.medscapestatic.com/pi/global/icons/icon-medsims-logo@2x.png" />](https://www.medscape.org/simulation) | [<img width="120" alt="Arrow Classic Rock" src="https://player.arrow.nl/tmp/images/logo.1507670326.jpg" />](https://player.arrow.nl/ad.html) | [<img width="120" alt="Uttlesford District Council" src="https://uttlesford.moderngov.co.uk/SiteSpecific/res/img/uttlesfordlogo.png" />](https://uttlesford.moderngov.co.uk/ieListDocuments.aspx?CId=159&MId=5501)|
+|[<img width="120" alt="LectureTube" src="https://live.video.tuwien.ac.at/room/assets/lecturetube_landscape.svg" />](https://live.video.tuwien.ac.at/room/heart0/player.html)| | |
+
 ## Migrating from older version to new ones
 
 To learn more details about how to migrate from 1.x.x version to 2.x.x, or any breaking changes in newer versions, visit the [Migration document](./migration.md).
