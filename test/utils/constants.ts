@@ -15,7 +15,6 @@ describe('utils/constants', () => {
         expect(constants.IS_FIREFOX).to.equal(false);
         expect(constants.IS_SAFARI).to.equal(false);
         expect(constants.IS_STOCK_ANDROID).to.equal(false);
-        expect(constants.IS_IE).to.equal(false);
         done();
     });
 

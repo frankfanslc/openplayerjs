@@ -1,81 +1,28 @@
-import EventsList from '../interfaces/events-list';
-import Level from '../interfaces/level';
-import Source from '../interfaces/source';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { EventsList, Level, Source } from '../interfaces';
 import { DVR_THRESHOLD, EVENT_OPTIONS, SUPPORTS_HLS } from '../utils/constants';
-import { addEvent } from '../utils/events';
-import { loadScript } from '../utils/general';
+import { addEvent, loadScript } from '../utils/general';
 import { isHlsSource } from '../utils/media';
 import Native from './native';
 
 declare const Hls: any;
 
-/**
- * HLS Media.
- *
- * @description Class that handles M3U8 files using hls.js within the player
- * @see https://github.com/video-dev/hls.js/
- * @class HlsMedia
- */
+// @see https://github.com/video-dev/hls.js/
 class HlsMedia extends Native {
-    /**
-     * Instance of hls.js player.
-     *
-     * @type Hls
-     * @memberof HlsMedia
-     */
     #player: any;
 
-    /**
-     * Hls events that will be triggered in Player.
-     *
-     * @see https://github.com/video-dev/hls.js/blob/master/src/events.js
-     * @type EventsList
-     * @memberof HlsMedia
-     */
+    // @see https://github.com/video-dev/hls.js/blob/master/src/events.js
     #events: EventsList = {};
 
-    /**
-     * Time in milliseconds to attempt to recover media after an error.
-     *
-     * @type number
-     * @memberof HlsMedia
-     */
     #recoverDecodingErrorDate = 0;
 
-    /**
-     * Time in milliseconds to attempt to swap audio codec after an error.
-     *
-     * @type number
-     * @memberof HlsMedia
-     */
     #recoverSwapAudioCodecDate = 0;
 
-    /**
-     * Hls options to be passed to the Hls instance.
-     *
-     * @see https://github.com/video-dev/hls.js/blob/master/docs/API.md#fine-tuning
-     * @private
-     * @type object
-     * @memberof HlsMedia
-     */
+    // @see https://github.com/video-dev/hls.js/blob/master/docs/API.md#fine-tuning
     #options?: unknown;
 
-    /**
-     * Flag to indicate if `autoplay` attribute was set
-     *
-     * @private
-     * @type boolean
-     * @memberof HlsMedia
-     */
     #autoplay: boolean;
 
-    /**
-     * Creates an instance of HlsMedia.
-     *
-     * @param {HTMLMediaElement} element
-     * @param {Source} mediaSource
-     * @memberof HlsMedia
-     */
     constructor(element: HTMLMediaElement, mediaSource: Source, autoplay = false, options?: unknown) {
         super(element, mediaSource);
         this.#options = options || {};
@@ -98,22 +45,11 @@ class HlsMedia extends Native {
         return this;
     }
 
-    /**
-     * Provide support via hls.js if browser does not have native support for HLS
-     *
-     * @inheritDoc
-     * @memberof HlsMedia
-     */
-    public canPlayType(mimeType: string): boolean {
+    canPlayType(mimeType: string): boolean {
         return SUPPORTS_HLS() && mimeType === 'application/x-mpegURL';
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof HlsMedia
-     */
-    public load(): void {
+    load(): void {
         if (this.#player) {
             this.#player.detachMedia();
             this.#player.loadSource(this.media.src);
@@ -131,20 +67,10 @@ class HlsMedia extends Native {
         }
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof HlsMedia
-     */
-    public destroy(): void {
+    destroy(): void {
         this._revoke();
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof HlsMedia
-     */
     set src(media: Source) {
         if (isHlsSource(media)) {
             this._revoke();
@@ -183,14 +109,6 @@ class HlsMedia extends Native {
         return this.#player ? this.#player.currentLevel : -1;
     }
 
-    /**
-     * Setup Hls player with options.
-     *
-     * Some of the options/events will be overridden to improve performance and user's experience.
-     *
-     * @private
-     * @memberof HlsMedia
-     */
     private _create(): void {
         const autoplay = !!(this.element.preload === 'auto' || this.#autoplay);
         (this.#options as Record<string, unknown>).autoStartLoad = autoplay;
@@ -208,19 +126,10 @@ class HlsMedia extends Native {
         }
     }
 
-    /**
-     * Custom HLS events
-     *
-     * These events can be attached to the original node using addEventListener and the name of the event,
-     * using or not Hls.Events object
-     * @see https://github.com/video-dev/hls.js/blob/master/src/events.js
-     * @see https://github.com/video-dev/hls.js/blob/master/src/errors.js
-     * @see https://github.com/video-dev/hls.js/blob/master/docs/API.md#runtime-events
-     * @see https://github.com/video-dev/hls.js/blob/master/docs/API.md#errors
-     * @param {string} event The name of the HLS event
-     * @param {any} data The data passed to the event, could be an object or an array
-     * @memberof HlsMedia
-     */
+    // @see https://github.com/video-dev/hls.js/blob/master/src/events.js
+    // @see https://github.com/video-dev/hls.js/blob/master/src/errors.js
+    // @see https://github.com/video-dev/hls.js/blob/master/docs/API.md#runtime-events
+    // @see https://github.com/video-dev/hls.js/blob/master/docs/API.md#errors
     private _assign(event: string, data: Record<string, unknown>[]): void {
         if (event === 'hlsError') {
             const errorDetails = {
@@ -291,11 +200,6 @@ class HlsMedia extends Native {
         }
     }
 
-    /**
-     * Remove all hls.js events and destroy hls.js player instance.
-     *
-     * @memberof HlsMedia
-     */
     private _revoke(): void {
         if (this.#player) {
             this.#player.stopLoad();

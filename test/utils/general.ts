@@ -41,29 +41,6 @@ describe('utils/general', () => {
         // }
     });
 
-    it('removes a DOM element', (done) => {
-        const paragraph = document.createElement('p');
-        paragraph.textContent = 'test';
-        document.body.appendChild(paragraph);
-        general.removeElement(document.querySelector('p'));
-        expect(window.document.querySelector('p')).to.equal(null);
-        done();
-    });
-
-    it('checks if DOM element has a specific class', (done) => {
-        const paragraph = document.createElement('p');
-        paragraph.textContent = 'test';
-        paragraph.className = 'test';
-        document.body.appendChild(paragraph);
-        let hasClass = general.hasClass(document.querySelector('p'), 'test');
-        expect(hasClass).to.equal(true);
-
-        hasClass = general.hasClass(window.document.querySelector('p'), 'no-class');
-        expect(hasClass).to.equal(false);
-        general.removeElement(window.document.querySelector('p'));
-        done();
-    });
-
     it('sanitizes string from XSS attacks', (done) => {
         const content = '<div onclick="javascript:alert(\'XSS\')">Test<script>alert("Test");</script></div>';
         expect(general.sanitize(content)).to.equal('Test');
@@ -93,6 +70,17 @@ describe('utils/general', () => {
                 "name": "test"
             }`)
         ).to.equal(true);
+        done();
+    });
+
+    it('must return a custom event to be dispatched', (done) => {
+        let event = general.addEvent('custom');
+        let custom = new CustomEvent('custom');
+        expect(event.type).to.equal(custom.type);
+
+        event = general.addEvent('test', { detail: { data: 'test' } });
+        custom = new CustomEvent('test', { detail: { data: 'test' } });
+        expect(event.detail.data).to.equal((custom.detail as any).data);
         done();
     });
 });

@@ -1,51 +1,22 @@
-import DashOptions from '../interfaces/dash-options';
-import EventsList from '../interfaces/events-list';
-import Level from '../interfaces/level';
-import Source from '../interfaces/source';
+import { EventsList, Level, Source } from '../interfaces';
 import { HAS_MSE } from '../utils/constants';
-import { addEvent } from '../utils/events';
-import { loadScript } from '../utils/general';
+import { addEvent, loadScript } from '../utils/general';
 import { isDashSource } from '../utils/media';
 import Native from './native';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare const dashjs: any;
 
-/**
- * M(PEG)-DASH Media.
- *
- * @description Class that handles MPD files using dash.js within the player
- * @see https://github.com/Dash-Industry-Forum/dash.js/
- * @see https://github.com/Dash-Industry-Forum/dash.js/wiki/Migration-3.0
- * @class DashMedia
- */
 class DashMedia extends Native {
-    /**
-     * Instance of dashjs player.
-     *
-     * @type dashjs
-     * @memberof DashMedia
-     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     #player: any;
 
-    /**
-     * DashJS events that will be triggered in Player.
-     *
-     * @see http://cdn.dashjs.org/latest/jsdoc/MediaPlayerEvents.html
-     * @type EventsList
-     * @memberof DashMedia
-     */
+    // @see http://cdn.dashjs.org/latest/jsdoc/MediaPlayerEvents.html
     #events: EventsList = {};
 
-    #options?: DashOptions = {};
+    #options?: unknown = {};
 
-    /**
-     * Creates an instance of DashMedia.
-     *
-     * @param {HTMLMediaElement} element
-     * @param {Source} mediaSource
-     * @memberof DashMedia
-     */
-    constructor(element: HTMLMediaElement, mediaSource: Source, options?: DashOptions) {
+    constructor(element: HTMLMediaElement, mediaSource: Source, options?: unknown) {
         super(element, mediaSource);
         this.#options = options;
 
@@ -66,21 +37,11 @@ class DashMedia extends Native {
         return this;
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof DashMedia
-     */
-    public canPlayType(mimeType: string): boolean {
+    canPlayType(mimeType: string): boolean {
         return HAS_MSE && mimeType === 'application/dash+xml';
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof DashMedia
-     */
-    public load(): void {
+    load(): void {
         this._preparePlayer();
         this.#player.attachSource(this.media.src);
 
@@ -95,20 +56,10 @@ class DashMedia extends Native {
         }
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof DashMedia
-     */
-    public destroy(): void {
+    destroy(): void {
         this._revoke();
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof DashMedia
-     */
     set src(media: Source) {
         if (isDashSource(media)) {
             this._revoke();
@@ -157,15 +108,8 @@ class DashMedia extends Native {
         return this.#player ? this.#player.getQualityFor('video') : -1;
     }
 
-    /**
-     * Custom M(PEG)-DASH events
-     *
-     * These events can be attached to the original node using addEventListener and the name of the event,
-     * not using dashjs.MediaPlayer.events object
-     * @see http://cdn.dashjs.org/latest/jsdoc/MediaPlayerEvents.html
-     * @param {dashjs.MediaPlayerEvents.events} event
-     */
-    private _assign(event: any): void {
+    // @see http://cdn.dashjs.org/latest/jsdoc/MediaPlayerEvents.html
+    private _assign(event: Event): void {
         if (event.type === 'error') {
             const details = {
                 detail: {
@@ -181,11 +125,6 @@ class DashMedia extends Native {
         }
     }
 
-    /**
-     * Remove all dash.js events and destroy dashjs player instance.
-     *
-     * @memberof DashMedia
-     */
     private _revoke(): void {
         if (this.#events) {
             Object.keys(this.#events).forEach((event) => {
@@ -196,41 +135,20 @@ class DashMedia extends Native {
         this.#player.reset();
     }
 
-    /**
-     * Set player with proper configuration to have better performance.
-     *
-     * Also, considers the addition of DRM settings.
-     *
-     * @memberof DashMedia
-     */
     private _preparePlayer(): void {
-        // In version 3x, `getDebug` is deprecated
-        if (typeof this.#player.getDebug().setLogToBrowserConsole === 'undefined') {
-            this.#player.updateSettings({
-                debug: {
-                    logLevel: dashjs.Debug.LOG_LEVEL_NONE,
-                },
-                streaming: {
-                    fastSwitchEnabled: true,
-                    scheduleWhilePaused: false,
-                },
-            });
-        } else {
-            this.#player.getDebug().setLogToBrowserConsole(false);
-            this.#player.setScheduleWhilePaused(false);
-            this.#player.setFastSwitchEnabled(true);
-        }
+        this.#player.updateSettings({
+            debug: {
+                logLevel: dashjs.Debug.LOG_LEVEL_NONE,
+            },
+            streaming: {
+                fastSwitchEnabled: true,
+                scheduleWhilePaused: false,
+            },
+            ...((this.#options as Record<string, unknown>) || {}),
+        });
         this.#player.initialize();
         this.#player.attachView(this.element);
         this.#player.setAutoPlay(false);
-
-        // If DRM is set, load protection data
-        if (this.#options?.drm && Object.keys(this.#options.drm).length) {
-            this.#player.setProtectionData(this.#options.drm);
-            if (this.#options.robustnessLevel && this.#options.robustnessLevel) {
-                this.#player.getProtectionController().setRobustnessLevel(this.#options.robustnessLevel);
-            }
-        }
     }
 }
 

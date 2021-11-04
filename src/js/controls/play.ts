@@ -1,117 +1,48 @@
-import PlayerComponent from '../interfaces/component';
-import EventsList from '../interfaces/events-list';
+import { EventsList, PlayerComponent } from '../interfaces';
 import Player from '../player';
 import { EVENT_OPTIONS } from '../utils/constants';
-import { addEvent } from '../utils/events';
-import { hasClass, isAudio, removeElement } from '../utils/general';
+import { addEvent, isAudio } from '../utils/general';
 
-/**
- * Play/pause element.
- *
- * @description This class controls the state of the media, by playing or pausing it, and
- * when it ends, updates the state to replay the current media.
- * @see https://developer.mozilla.org/en-US/Apps/Fundamentals/Audio_and_video_delivery/cross_browser_video_player#PlayPause
- * @class Play
- * @implements PlayerComponent
- */
 class Play implements PlayerComponent {
-    /**
-     * Instance of OpenPlayer.
-     *
-     * @private
-     * @type Player
-     * @memberof Play
-     */
     #player: Player;
 
-    /**
-     * Button to play/pause media.
-     *
-     * @private
-     * @type HTMLButtonElement
-     * @memberof Play
-     */
     #button: HTMLButtonElement;
 
-    /**
-     * Events that will be triggered in Play element:
-     *  - controls (when `controlschanged` event is being triggered)
-     *  - media (to toggle button's class and play/pause media)
-     *
-     * @private
-     * @see [[Controls._buildElements]]
-     * @type EventsList
-     * @memberof Play
-     */
     #events: EventsList = {
         controls: {},
         media: {},
     };
 
-    /**
-     * Default labels from player's config
-     *
-     * @private
-     * @type object
-     * @memberof Play
-     */
-    #labels: any;
+    #controlPosition: string;
 
-    /**
-     * Position of the button to be indicated as part of its class name
-     *
-     * @private
-     * @type {string}
-     * @memberof Play
-     */
-    #position: string;
+    #controlLayer: string;
 
-    /**
-     * Layer where the control item will be placed
-     *
-     * @private
-     * @type {string}
-     * @memberof Play
-     */
-    #layer: string;
-
-    /**
-     * Create an instance of Play.
-     *
-     * @param {Player} player
-     * @returns {Play}
-     * @memberof Play
-     */
     constructor(player: Player, position: string, layer: string) {
         this.#player = player;
-        this.#labels = this.#player.getOptions().labels;
-        this.#position = position;
-        this.#layer = layer;
-        this._keydownEvent = this._keydownEvent.bind(this);
+        this.#controlPosition = position;
+        this.#controlLayer = layer;
+
+        this._enterSpaceKeyEvent = this._enterSpaceKeyEvent.bind(this);
         return this;
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof Play
-     */
-    public create(): void {
+    create(): void {
+        const { labels } = this.#player.getOptions();
         this.#button = document.createElement('button');
         this.#button.type = 'button';
-        this.#button.className = `op-controls__playpause op-control__${this.#position}`;
+        this.#button.className = `op-controls__playpause op-control__${this.#controlPosition}`;
         this.#button.tabIndex = 0;
-        this.#button.title = this.#labels.play;
+        this.#button.title = labels?.play || '';
         this.#button.setAttribute('aria-controls', this.#player.id);
         this.#button.setAttribute('aria-pressed', 'false');
-        this.#button.setAttribute('aria-label', this.#labels.play);
+        this.#button.setAttribute('aria-label', labels?.play || '');
 
         this.#player
             .getControls()
-            .getLayer(this.#layer)
+            .getLayer(this.#controlLayer)
             .appendChild(this.#button);
 
-        this.#events.media.click = (e: any): void => {
+        this.#events.media.click = (e: Event): void => {
             this.#button.setAttribute('aria-pressed', 'true');
             const el = this.#player.activeElement();
             if (el.paused || el.ended) {
@@ -138,16 +69,16 @@ class Play implements PlayerComponent {
                 } else {
                     this.#button.classList.add('op-controls__playpause--pause');
                 }
-                this.#button.title = this.#labels.play;
-                this.#button.setAttribute('aria-label', this.#labels.play);
+                this.#button.title = labels?.play || '';
+                this.#button.setAttribute('aria-label', labels?.play || '');
             } else {
                 this.#button.classList.remove('op-controls__playpause--replay');
                 this.#button.classList.add('op-controls__playpause--pause');
 
-                this.#button.title = this.#labels.pause;
-                this.#button.setAttribute('aria-label', this.#labels.pause);
+                this.#button.title = labels?.pause || '';
+                this.#button.setAttribute('aria-label', labels?.pause || '');
 
-                if (this.#player.getOptions().pauseOthers) {
+                if (this.#player.getOptions()?.pauseOthers) {
                     Object.keys(Player.instances).forEach((key) => {
                         if (key !== this.#player.id) {
                             const target = Player.instances[key].activeElement();
@@ -158,25 +89,25 @@ class Play implements PlayerComponent {
             }
         };
         this.#events.media.loadedmetadata = (): void => {
-            if (hasClass(this.#button, 'op-controls__playpause--pause')) {
+            if (this.#button.classList.contains('op-controls__playpause--pause')) {
                 this.#button.classList.remove('op-controls__playpause--replay');
                 this.#button.classList.remove('op-controls__playpause--pause');
-                this.#button.title = this.#labels.play;
-                this.#button.setAttribute('aria-label', this.#labels.play);
+                this.#button.title = labels?.play || '';
+                this.#button.setAttribute('aria-label', labels?.play || '');
             }
         };
         this.#events.media.playing = (): void => {
-            if (!hasClass(this.#button, 'op-controls__playpause--pause')) {
+            if (!this.#button.classList.contains('op-controls__playpause--pause')) {
                 this.#button.classList.remove('op-controls__playpause--replay');
                 this.#button.classList.add('op-controls__playpause--pause');
-                this.#button.title = this.#labels.pause;
-                this.#button.setAttribute('aria-label', this.#labels.pause);
+                this.#button.title = labels?.pause || '';
+                this.#button.setAttribute('aria-label', labels?.pause || '');
             }
         };
         this.#events.media.pause = (): void => {
             this.#button.classList.remove('op-controls__playpause--pause');
-            this.#button.title = this.#labels.play;
-            this.#button.setAttribute('aria-label', this.#labels.play);
+            this.#button.title = labels?.play || '';
+            this.#button.setAttribute('aria-label', labels?.play || '');
         };
         this.#events.media.ended = (): void => {
             if (this.#player.activeElement().ended && this.#player.isMedia()) {
@@ -192,14 +123,14 @@ class Play implements PlayerComponent {
                 this.#button.classList.remove('op-controls__playpause--replay');
                 this.#button.classList.add('op-controls__playpause--pause');
             }
-            this.#button.title = this.#labels.play;
-            this.#button.setAttribute('aria-label', this.#labels.play);
+            this.#button.title = labels?.play || '';
+            this.#button.setAttribute('aria-label', labels?.play || '');
         };
         this.#events.media.adsmediaended = (): void => {
             this.#button.classList.remove('op-controls__playpause--replay');
             this.#button.classList.add('op-controls__playpause--pause');
-            this.#button.title = this.#labels.pause;
-            this.#button.setAttribute('aria-label', this.#labels.pause);
+            this.#button.title = labels?.pause || '';
+            this.#button.setAttribute('aria-label', labels?.pause || '');
         };
         this.#events.media.playererror = (): void => {
             if (isAudioEl) {
@@ -225,17 +156,12 @@ class Play implements PlayerComponent {
             .getContainer()
             .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
 
-        this.#player.getContainer().addEventListener('keydown', this._keydownEvent, EVENT_OPTIONS);
+        this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
 
         this.#button.addEventListener('click', this.#events.media.click, EVENT_OPTIONS);
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof Play
-     */
-    public destroy(): void {
+    destroy(): void {
         Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
@@ -245,20 +171,13 @@ class Play implements PlayerComponent {
             .getContainer()
             .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
-        this.#player.getContainer().removeEventListener('keydown', this._keydownEvent);
+        this.#player.getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
 
         this.#button.removeEventListener('click', this.#events.media.click);
-        removeElement(this.#button);
+        this.#button.remove();
     }
 
-    /**
-     * Use the `Enter` and space bar keys to play/pause.
-     *
-     * @private
-     * @param {KeyboardEvent} e
-     * @memberof Play
-     */
-    private _keydownEvent(e: KeyboardEvent): void {
+    private _enterSpaceKeyEvent(e: KeyboardEvent): void {
         const key = e.which || e.keyCode || 0;
         const playBtnFocused = document?.activeElement?.classList.contains('op-controls__playpause');
         if (playBtnFocused && (key === 13 || key === 32)) {

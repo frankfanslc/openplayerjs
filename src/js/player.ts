@@ -1,53 +1,22 @@
 import Controls from './controls';
 import Fullscreen from './controls/fullscreen';
-import Track from './interfaces/captions/track';
-import ControlItem from './interfaces/control-item';
-import CustomMedia from './interfaces/custom-media';
-import EventsList from './interfaces/events-list';
-import PlayerInstanceList from './interfaces/instance';
-import PlayerOptions from './interfaces/player-options';
-import Source from './interfaces/source';
+import { ControlItem, CustomMedia, EventsList, Languages, PlayerLabels, PlayerLayers, PlayerOptions, Source, Track } from './interfaces';
 import Media from './media';
 import Ads from './media/ads';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from './utils/constants';
-import { addEvent } from './utils/events';
-import { isAudio, isVideo, removeElement, sanitize } from './utils/general';
-import { isAutoplaySupported, predictType } from './utils/media';
+import { addEvent, isAudio, isVideo, sanitize } from './utils/general';
+import { isAutoplaySupported, predictMimeType } from './utils/media';
 
-/**
- * OpenPlayerJS.
- *
- * @description This class generates controls to play native media (such as MP4, MP3, HLS, M(PEG-DASH),
- * and have a unified look-and-feel on all modern browsers (including IE11)
- * @class Player
- */
 class Player {
-    /**
-     * Collection of OpenPlayer instances.
-     *
-     * @type PlayerInstanceList
-     * @memberof Player
-     */
-    public static instances: PlayerInstanceList = {};
+    static instances: { [id: string]: Player } = {};
 
-    /**
-     * Collection of additional (non-native) media
-     *
-     * @type CustomMedia
-     * @memberof Player
-     */
-    public static customMedia: CustomMedia = {
+    static customMedia: CustomMedia = {
         media: {},
         optionsKey: {},
         rules: [],
     };
 
-    /**
-     * Convert all the video/audio tags with `op-player` class in a OpenMedia player instance.
-     *
-     * @memberof Player
-     */
-    public static init(): void {
+    static init(): void {
         Player.instances = {};
         const targets = document.querySelectorAll('video.op-player, audio.op-player');
         for (let i = 0, total = targets.length; i < total; i++) {
@@ -59,179 +28,49 @@ class Player {
         }
     }
 
-    /**
-     * Add new media types, such as iframe API players (YouTube, Vimeo, Dailymotion, etc.)
-     *
-     * @param {string} name  The name of the media, which will be used to determine options when configuring player
-     * @param {string} mimeType  The pseudo MIME type associated with media (generally, will be `video/x-[name]`)
-     * @param {(url: string) => string} valid  A callback to determine if a match was found between the MIME type and media source
-     * @param {object} media  The object that will contain all the native methods/setters/getters to play media
-     * @memberof Player
-     */
-    public static addMedia(name: string, mimeType: string, valid: (url: string) => string, media: any): void {
+    static addMedia(name: string, mimeType: string, valid: (url: string) => string, media: Source): void {
         Player.customMedia.media[mimeType] = media;
         Player.customMedia.optionsKey[mimeType] = name;
         Player.customMedia.rules.push(valid);
     }
 
-    /**
-     * Instance of Controls object.
-     *
-     * @type Controls
-     * @memberof Player
-     */
+    loader: HTMLSpanElement;
+
+    playBtn: HTMLButtonElement;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    proxy: any = null;
+
     #controls: Controls;
 
-    /**
-     * Instance of Ads object.
-     *
-     * @type Ads
-     * @memberof Player
-     */
     #adsInstance: Ads;
 
-    /**
-     * Button to play media.
-     *
-     * @type HTMLButtonElement
-     * @memberof Player
-     */
-    public playBtn: HTMLButtonElement;
-
-    /**
-     * Element to indicate that media is being loaded.
-     *
-     * Only applies for `Media` object, since `Ads` does not need it.
-     * @type HTMLSpanElement
-     * @memberof Player
-     */
-    public loader: HTMLSpanElement;
-
-    /**
-     * Adapter to toggle between different players.
-     * Useful for Chromecast integration.
-     *
-     * @type unknown
-     * @memberof Player
-     */
-    public proxy: any = null;
-
-    /**
-     * Unique identified for the current player instance.
-     *
-     * @type string
-     * @memberof Player
-     */
     #uid = '';
 
-    /**
-     * Native video/audio tag to create player instance.
-     *
-     * @type HTMLMediaElement
-     * @memberof Player
-     */
     #element: HTMLMediaElement;
 
-    /**
-     * URL that defines a valid Ad XML file to be read by Google IMA SDK
-     *
-     * @see https://developers.google.com/interactive-media-ads/docs/sdks/html5/tags
-     * @type string|string[]
-     * @memberof Player
-     */
     #ads?: string | string[];
 
-    /**
-     * Instance of Media object.
-     *
-     * @type Media
-     * @memberof Player
-     */
     #media: Media;
 
-    /**
-     * Events that will be triggered in Player to show/hide Play button and loader element,
-     * and to interact with the player using a keyboard for accessibility purposes.
-     *
-     * @type EventsList
-     * @memberof Player
-     */
     #events: EventsList = {};
 
-    /**
-     * Flag to determine if player can autoplay media.
-     *
-     * @see [[Player._autoplay]]
-     * @type boolean
-     * @memberof Player
-     */
     #autoplay = false;
 
-    /**
-     * Storage for original volume level value, when testing browser's autoplay capabilities
-     * to restore it back.
-     *
-     * @see [[Player._autoplay]]
-     * @type number
-     * @memberof Player
-     */
     #volume: number;
 
-    /**
-     * Flag that indicates if browser supports autoplay.
-     *
-     * @see [[Player._autoplay]]
-     * @type boolean
-     * @memberof Player
-     */
     #canAutoplay = false;
 
-    /**
-     * Flag that indicates if browser supports autoplay in mute mode.
-     *
-     * This is the case with iOS.
-     * @see [[Player._autoplay]]
-     * @type boolean
-     * @memberof Player
-     */
     #canAutoplayMuted = false;
 
-    /**
-     * Flag that indicates if autoplay algorithm has been applied.
-     *
-     * @see [[Player._autoplay]]
-     * @type boolean
-     * @memberof Player
-     */
     #processedAutoplay = false;
 
-    /**
-     * Container for other player options.
-     *
-     * @private
-     * @type PlayerOptions
-     * @memberof Player
-     */
-    #options: PlayerOptions = {};
+    #options: PlayerOptions;
 
-    /**
-     * List of custom controls.
-     *
-     * @private
-     * @type ControlItem[]
-     * @memberof Player
-     */
     #customControlItems: ControlItem[] = [];
 
     #fullscreen: Fullscreen;
 
-    /**
-     * Default configuration for player.
-     *
-     * @private
-     * @type PlayerOptions
-     * @memberof Player
-     */
     #defaultOptions: PlayerOptions = {
         controls: {
             alwaysVisible: false,
@@ -241,7 +80,7 @@ class Player {
                 right: ['captions', 'settings', 'fullscreen'],
             },
         },
-        defaultLevel: null,
+        defaultLevel: undefined,
         detachMenus: false,
         forceNative: true,
         height: 0,
@@ -291,14 +130,6 @@ class Player {
         width: 0,
     };
 
-    /**
-     * Create an instance of Player.
-     *
-     * @param {(HTMLMediaElement|string)} element  A video/audio tag or its identifier.
-     * @param {PlayerOptions} playerOptions  Options to enhance Hls and Dash players, among other things.
-     * @returns {Player}
-     * @memberof Player
-     */
     constructor(element: HTMLMediaElement | string, options?: PlayerOptions) {
         this.#element = element instanceof HTMLMediaElement ? element : (document.getElementById(element) as HTMLMediaElement);
         if (this.#element) {
@@ -311,8 +142,8 @@ class Player {
             if (this.#options.ads && this.#options.ads.src) {
                 this.#ads = this.#options.ads.src;
             }
-            if (this.#options.startTime > 0) {
-                this.#element.currentTime = this.#options.startTime;
+            if ((this.#options?.startTime || 0) > 0) {
+                this.#element.currentTime = this.#options.startTime || 0;
             }
             this.#volume = this.#element.volume;
         }
@@ -321,14 +152,7 @@ class Player {
         return this;
     }
 
-    /**
-     * Create all the markup and events needed for the player.
-     *
-     * Note that no controls will be created if user is trying to instantiate a video element
-     * in an iPhone, because iOS will only use QuickTime as a default constrain.
-     * @memberof Player
-     */
-    public async init(): Promise<void> {
+    async init(): Promise<void> {
         if (this._isValid()) {
             this._wrapInstance();
             await this._prepareMedia();
@@ -340,24 +164,12 @@ class Player {
         }
     }
 
-    /**
-     * Load media.
-     *
-     * HLS and M(PEG)-DASH perform more operations during loading if browser does not support them natively.
-     * @memberof Player
-     */
-    public load(): Promise<void> | void {
+    load(): Promise<void> | void {
         this.#media.loaded = false;
         return this.isMedia() ? this.#media.load() : undefined;
     }
 
-    /**
-     * Play media.
-     *
-     * If Ads are detected, different methods than the native ones are triggered with this operation.
-     * @memberof Player
-     */
-    public async play(): Promise<void> {
+    async play(): Promise<void> {
         if (this.#media && !this.#media.loaded) {
             await this.#media.load();
             this.#media.loaded = true;
@@ -370,13 +182,7 @@ class Player {
         return this.#media.play();
     }
 
-    /**
-     * Pause media.
-     *
-     * If Ads are detected, different methods than the native ones are triggered with this operation.
-     * @memberof Player
-     */
-    public pause(): void {
+    pause(): void {
         if (this.#adsInstance) {
             this.#adsInstance.pause();
         } else {
@@ -384,13 +190,7 @@ class Player {
         }
     }
 
-    /**
-     * Destroy OpenMedia Player instance (including all events associated) and return the
-     * video/audio tag to its original state.
-     *
-     * @memberof Player
-     */
-    public destroy(): void {
+    destroy(): void {
         if (this.#adsInstance) {
             this.#adsInstance.pause();
             this.#adsInstance.destroy();
@@ -419,11 +219,13 @@ class Player {
         }
 
         if (isVideo(this.#element)) {
-            removeElement(this.playBtn);
-            removeElement(this.loader);
+            this.playBtn.remove();
+            this.loader.remove();
         }
 
-        this.#element.removeEventListener('playererror', this.#options.onError);
+        if (this.#options?.onError) {
+            this.#element.removeEventListener('playererror', this.#options.onError);
+        }
 
         el.controls = true;
         el.setAttribute('id', this.#uid);
@@ -440,47 +242,19 @@ class Player {
         el.dispatchEvent(e);
     }
 
-    /**
-     * Retrieve the parent element (with `op-player` class) of the native video/audio tag.
-     *
-     * This element is mostly useful to attach other player component's markup in a place
-     * different than the controls bar.
-     * @returns {HTMLElement}
-     * @memberof Player
-     */
-    public getContainer(): HTMLElement {
+    getContainer(): HTMLElement {
         return this.#element.parentElement || this.#element;
     }
 
-    /**
-     * Retrieve an instance of the controls object used in the player instance.
-     *
-     * This element is mostly useful to attach other player component's markup in the controls bar.
-     * @returns {Controls}
-     * @memberof Player
-     */
-    public getControls(): Controls {
+    getControls(): Controls {
         return this.#controls;
     }
 
-    /**
-     * Retrieve an instance of the custom controls invoked in the player instance.
-     *
-     * @returns {ControlItem[]}
-     * @memberof Player
-     */
-    public getCustomControls(): ControlItem[] {
+    getCustomControls(): ControlItem[] {
         return this.#customControlItems;
     }
 
-    /**
-     * Retrieve the original video/audio tag.
-     *
-     * This element is useful to attach different events in other player's components.
-     * @returns {HTMLMediaElement}
-     * @memberof Player
-     */
-    public getElement(): HTMLMediaElement {
+    getElement(): HTMLMediaElement {
         return this.#element;
     }
 
@@ -491,78 +265,35 @@ class Player {
      * @returns {EventsList}
      * @memberof Player
      */
-    public getEvents(): EventsList {
+    getEvents(): EventsList {
         return this.#events;
     }
 
-    /**
-     * Retrieve the list of config options associated with the player..
-     *
-     * @returns {PlayerOptions}
-     * @memberof Player
-     */
-    public getOptions(): PlayerOptions {
+    getOptions(): PlayerOptions {
         return this.#options;
     }
 
-    /**
-     * Retrieve the current media object (could be Ads or any other media type).
-     *
-     * @returns {(Ads|Media)}
-     * @memberof Player
-     */
-    public activeElement(): Ads | Media {
+    activeElement(): Ads | Media {
         return this.#adsInstance && this.#adsInstance.started() ? this.#adsInstance : this.#media;
     }
 
-    /**
-     * Check if current media is an instance of a native media type.
-     *
-     * @returns {boolean}
-     * @memberof Player
-     */
-    public isMedia(): boolean {
+    isMedia(): boolean {
         return this.activeElement() instanceof Media;
     }
 
-    /**
-     * Check if current media is an instance of an Ad.
-     *
-     * @returns {boolean}
-     * @memberof Player
-     */
-    public isAd(): boolean {
+    isAd(): boolean {
         return this.activeElement() instanceof Ads;
     }
 
-    /**
-     * Retrieve an instance of the `Media` object.
-     *
-     * @returns {Media}
-     * @memberof Player
-     */
-    public getMedia(): Media {
+    getMedia(): Media {
         return this.#media;
     }
 
-    /**
-     * Retrieve an instance of the `Ads` object.
-     *
-     * @returns {Ads}
-     * @memberof Player
-     */
-    public getAd(): Ads {
+    getAd(): Ads {
         return this.#adsInstance;
     }
 
-    /**
-     * Append a new `<track>` tag to the video/audio tag and dispatch event
-     * so it gets registered/loaded in the player, via `controlschanged` event.
-     *
-     * @param {Track} args
-     * @memberof Player
-     */
-    public addCaptions(args: Track): void {
+    addCaptions(args: Track): void {
         if (args.default) {
             const tracks = this.#element.querySelectorAll('track');
             for (let i = 0, total = tracks.length; i < total; i++) {
@@ -592,33 +323,26 @@ class Player {
         el.dispatchEvent(e);
     }
 
-    /**
-     * Add new custom control to the list to be rendered.
-     *
-     * @param {ControlItem} args
-     * @memberof Player
-     */
-    public addControl(args: ControlItem): void {
+    addControl(args: ControlItem): void {
         args.custom = true;
         this.#customControlItems.push(args);
         const e = addEvent('controlschanged');
         this.#element.dispatchEvent(e);
     }
 
-    /**
-     * Remove a control to the list (whether custom or not).
-     *
-     * @param {string} controlName
-     * @memberof Player
-     */
-    public removeControl(controlName: string): void {
-        const { layers } = this.getOptions().controls;
-        Object.keys(layers).forEach((layer) => {
-            layers[layer].forEach((item: string, idx: number) => {
-                if (item === controlName) {
-                    layers[layer].splice(idx, 1);
-                }
-            });
+    removeControl(controlName: string): void {
+        const { layers } = this.getOptions().controls || {};
+        const keys = layers ? Object.keys(layers) : [];
+
+        keys.forEach((layer) => {
+            const current = layers ? layers[layer as keyof PlayerLayers] : [];
+            if (current) {
+                current.forEach((item: string, idx: number) => {
+                    if (item === controlName) {
+                        current.splice(idx, 1);
+                    }
+                });
+            }
         });
 
         // Check custom controls and remove reference there as well
@@ -631,14 +355,11 @@ class Player {
         this.#element.dispatchEvent(e);
     }
 
-    /**
-     * Load media and events depending of media type.
-     *
-     * @memberof Player
-     */
-    public async _prepareMedia(): Promise<void> {
+    async _prepareMedia(): Promise<void> {
         try {
-            this.#element.addEventListener('playererror', this.#options.onError, EVENT_OPTIONS);
+            if (this.#options?.onError) {
+                this.#element.addEventListener('playererror', this.#options.onError, EVENT_OPTIONS);
+            }
             if (this.#autoplay && isVideo(this.#element)) {
                 this.#element.addEventListener('canplay', this._autoplay, EVENT_OPTIONS);
             }
@@ -658,7 +379,7 @@ class Player {
         }
     }
 
-    public enableDefaultPlayer(): void {
+    enableDefaultPlayer(): void {
         let paused = true;
         let currentTime = 0;
 
@@ -677,7 +398,7 @@ class Player {
         });
     }
 
-    public async loadAd(src: string | string[]): Promise<void> {
+    async loadAd(src: string | string[]): Promise<void> {
         try {
             if (this.isAd()) {
                 this.getAd().destroy();
@@ -694,11 +415,6 @@ class Player {
         }
     }
 
-    /**
-     * Set a Source object to the current media.
-     *
-     * @memberof Player
-     */
     set src(media) {
         if (this.#media instanceof Media) {
             this.#media.mediaFiles = [];
@@ -709,7 +425,7 @@ class Player {
             media.forEach((m) => {
                 const source = document.createElement('source');
                 source.src = m.src;
-                source.type = m.type || predictType(m.src, this.#element);
+                source.type = m.type || predictMimeType(m.src, this.#element);
                 this.#element.appendChild(source);
             });
         } else if (typeof media === 'object') {
@@ -717,37 +433,14 @@ class Player {
         }
     }
 
-    /**
-     * Retrieve the current Source list associated with the player.
-     *
-     * @type Source[]
-     * @memberof Player
-     * @readonly
-     */
     get src(): Source[] {
         return this.#media.src;
     }
 
-    /**
-     * Retrieve current player's unique identifier.
-     *
-     * @type string
-     * @memberof Player
-     * @readonly
-     */
     get id(): string {
         return this.#uid;
     }
 
-    /**
-     * Check if the element passed in the constructor is a valid video/audio tag
-     * with 'op-player__media' class (at the very least, since `op-player` works
-     * for automatic instantiation)
-     *
-     * @private
-     * @memberof Player
-     * @return {boolean}
-     */
     private _isValid(): boolean {
         const el = this.#element;
 
@@ -766,13 +459,6 @@ class Player {
         return true;
     }
 
-    /**
-     * Wrap media instance within a DIV tag.
-     *
-     * It detects also whether the user is using a mouse, or TAB for accessibility purposes.
-     * @private
-     * @memberof Player
-     */
     private _wrapInstance(): void {
         const wrapper = document.createElement('div');
         wrapper.className = 'op-player op-player__keyboard--inactive';
@@ -847,11 +533,6 @@ class Player {
         }
     }
 
-    /**
-     * Build HTML markup for media controls.
-     *
-     * @memberof Player
-     */
     private _createControls(): void {
         if (IS_IPHONE && isVideo(this.#element)) {
             this.getContainer().classList.add('op-player__ios--iphone');
@@ -860,12 +541,6 @@ class Player {
         this.#controls.create();
     }
 
-    /**
-     * Generate a unique identifier for the current player instance, if no `id` attribute was detected.
-     *
-     * @private
-     * @memberof Player
-     */
     private _createUID(): void {
         if (this.#element.id) {
             this.#uid = this.#element.id;
@@ -883,12 +558,6 @@ class Player {
         }
     }
 
-    /**
-     * Create a Play button in the main player's container.
-     *
-     * Also, it creates a loader element, that will be displayed when seeking/waiting for media.
-     * @memberof Player
-     */
     private _createPlayButton(): void {
         if (isAudio(this.#element)) {
             return;
@@ -897,8 +566,8 @@ class Player {
         this.playBtn = document.createElement('button');
         this.playBtn.className = 'op-player__play';
         this.playBtn.tabIndex = 0;
-        this.playBtn.title = this.#options.labels.play;
-        this.playBtn.innerHTML = `<span>${this.#options.labels.play}</span>`;
+        this.playBtn.title = this.#options.labels?.play || '';
+        this.playBtn.innerHTML = `<span>${this.#options.labels?.play || ''}</span>`;
         this.playBtn.setAttribute('aria-pressed', 'false');
         this.playBtn.setAttribute('aria-hidden', 'false');
 
@@ -928,13 +597,6 @@ class Player {
         );
     }
 
-    /**
-     * Set events to show/hide play button and loader element, and to use the player using keyboard
-     * for accessibility purposes.
-     *
-     * @private
-     * @memberof Player
-     */
     private _setEvents(): void {
         if (isVideo(this.#element)) {
             this.#events.loadedmetadata = (): void => {
@@ -972,7 +634,7 @@ class Player {
             };
             this.#events.play = (): void => {
                 this.playBtn.classList.add('op-player__play--paused');
-                this.playBtn.title = this.#options.labels.pause;
+                this.playBtn.title = this.#options.labels?.pause || '';
                 this.loader.setAttribute('aria-hidden', 'true');
                 if (this.#options.showLoaderOnInit) {
                     this.playBtn.setAttribute('aria-hidden', 'true');
@@ -989,7 +651,7 @@ class Player {
             this.#events.pause = (): void => {
                 const el = this.activeElement();
                 this.playBtn.classList.remove('op-player__play--paused');
-                this.playBtn.title = this.#options.labels.play;
+                this.playBtn.title = this.#options.labels?.play || '';
 
                 if (this.#options.showLoaderOnInit && Math.round(el.currentTime) === 0) {
                     this.playBtn.setAttribute('aria-hidden', 'true');
@@ -1012,15 +674,6 @@ class Player {
         this.getContainer().addEventListener('keydown', this._enableKeyBindings, EVENT_OPTIONS);
     }
 
-    /**
-     * Attempt to autoplay media depending on browser's capabilities.
-     *
-     * It does not consider auto playing Ads since that workflow is established already as part
-     * of that object.
-     * @see [[Ads.constructor]]
-     * @private
-     * @memberof Player
-     */
     private _autoplay(): void {
         if (!this.#processedAutoplay) {
             this.#processedAutoplay = true;
@@ -1045,7 +698,7 @@ class Player {
 
                         // Insert element to unmute if browser allows autoplay with muted media
                         const volumeEl = document.createElement('div');
-                        const action = IS_IOS || IS_ANDROID ? this.#options.labels.tap : this.#options.labels.click;
+                        const action = IS_IOS || IS_ANDROID ? this.#options.labels?.tap : this.#options.labels?.click;
                         volumeEl.className = 'op-player__unmute';
                         volumeEl.innerHTML = `<span>${action}</span>`;
                         volumeEl.tabIndex = 0;
@@ -1059,7 +712,7 @@ class Player {
                                 const event = addEvent('volumechange');
                                 this.#element.dispatchEvent(event);
 
-                                removeElement(volumeEl);
+                                volumeEl.remove();
                             },
                             EVENT_OPTIONS
                         );
@@ -1082,29 +735,31 @@ class Player {
         }
     }
 
-    /**
-     * Merge user's configuration with default configuration.
-     *
-     * It deals with complex config elements, like `labels` and `controls`.
-     * @param playerOptions
-     * @private
-     * @memberof Player
-     */
     private _mergeOptions(playerOptions?: PlayerOptions): void {
-        this.#options = { ...this.#defaultOptions, ...playerOptions };
-        if (playerOptions) {
-            const objectElements = ['labels', 'controls'];
-            objectElements.forEach((item) => {
-                if (item === 'labels' && playerOptions[item]) {
-                    Object.keys(playerOptions[item]).forEach((key) => {
-                        playerOptions[item][key] = sanitize(playerOptions[item][key]);
+        this.#options = { ...this.#defaultOptions, ...(playerOptions || {}) };
+        if (playerOptions?.controls && Object.keys(playerOptions.controls).length) {
+            this.#options.controls = { ...this.#defaultOptions.controls, ...playerOptions.controls };
+        }
+        if (playerOptions?.labels) {
+            const { labels } = playerOptions || {};
+            const keys = labels ? Object.keys(labels) : [];
+            let sanitizedLabels: PlayerLabels = {};
+
+            keys.forEach((key) => {
+                const current = labels ? labels[key as keyof PlayerLabels] : null;
+                if (current && typeof current === 'object' && key === 'lang') {
+                    Object.keys(current).forEach((k) => {
+                        const lang = current ? (current as Languages)[k] : null;
+                        if (lang) {
+                            sanitizedLabels = { ...sanitizedLabels, lang: { ...sanitizedLabels.lang, [k]: sanitize(lang as string) } };
+                        }
                     });
+                } else if (current) {
+                    sanitizedLabels = { ...sanitizedLabels, [key]: sanitize(current as string) };
                 }
-                this.#options[item] =
-                    playerOptions[item] && Object.keys(playerOptions[item]).length
-                        ? { ...this.#defaultOptions[item], ...playerOptions[item] }
-                        : this.#defaultOptions[item];
             });
+
+            this.#options.labels = { ...this.#defaultOptions.labels, ...sanitizedLabels };
         }
     }
 
@@ -1166,7 +821,7 @@ class Player {
                     } else if (key === 74 || key === 76) {
                         newStep = 10;
                     }
-                    const step = el.duration !== Infinity ? newStep : this.getOptions().progress.duration;
+                    const step = el.duration !== Infinity ? newStep : this.getOptions().progress?.duration || 0;
                     el.currentTime += key === 37 || key === 74 ? step * -1 : step;
                     if (el.currentTime < 0) {
                         el.currentTime = 0;
@@ -1246,9 +901,16 @@ class Player {
 
 export default Player;
 
+declare global {
+    interface Window {
+        OpenPlayerJS: typeof Player;
+        OpenPlayer: typeof Player;
+    }
+}
+
 // Expose element globally.
 if (typeof window !== 'undefined') {
-    (window as any).OpenPlayer = Player;
-    (window as any).OpenPlayerJS = Player;
+    window.OpenPlayer = Player;
+    window.OpenPlayerJS = Player;
     Player.init();
 }

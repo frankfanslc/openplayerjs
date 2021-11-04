@@ -1,87 +1,22 @@
-import PlayerComponent from '../interfaces/component';
-import EventsList from '../interfaces/events-list';
+import { EventsList, PlayerComponent } from '../interfaces';
 import Player from '../player';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
-import { hasClass, isAudio, offset, removeElement } from '../utils/general';
+import { isAudio, offset } from '../utils/general';
 import { formatTime } from '../utils/time';
 
-/**
- * Progress bar element.
- *
- * @description This class creates a progress bar to track how much time media has been played,
- * downloaded and its current time, using `semantic markup`, such as input range and progress elements.
- * @see https://codepen.io/mi-lee/post/an-overview-of-html5-semantics
- * @see https://developer.mozilla.org/en-US/Apps/Fundamentals/Audio_and_video_delivery/cross_browser_video_player#Progress
- * @see https://developer.mozilla.org/en-US/Apps/Fundamentals/Audio_and_video_delivery/buffering_seeking_time_ranges
- * @class Progress
- * @implements PlayerComponent
- */
 class Progress implements PlayerComponent {
-    /**
-     * Instance of OpenPlayer.
-     *
-     * @private
-     * @type Player
-     * @memberof Progress
-     */
     #player: Player;
 
-    /**
-     * Container for progress bar elements (buffered, played and slider input).
-     *
-     * @private
-     * @type HTMLDivElement
-     * @memberof Progress
-     */
     #progress: HTMLDivElement;
 
-    /**
-     * Element that allows changing media's current position (time).
-     *
-     * @private
-     * @type HTMLInputElement
-     * @memberof Progress
-     */
     #slider: HTMLInputElement;
 
-    /**
-     * Element that displays the media's downloaded amount.
-     *
-     * @private
-     * @type HTMLProgressElement
-     * @memberof Progress
-     */
     #buffer: HTMLProgressElement;
 
-    /**
-     * Element that displays the media's played time.
-     *
-     * @private
-     * @type HTMLProgressElement
-     * @memberof Progress
-     */
     #played: HTMLProgressElement;
 
-    /**
-     * Element that displays the current media time when hovering in the progress bar.
-     *
-     * @private
-     * @type HTMLSpanElement
-     * @memberof Progress
-     */
     #tooltip: HTMLSpanElement;
 
-    /**
-     * Events that will be triggered in Progress element:
-     *  - container (to display tooltip when hovering in the progress bar)
-     *  - global (to hide tooltip once user moves out of the progress bar)
-     *  - media (to capture different states of the current time and duration in the time rail)
-     *  - slider (events to be triggered when clicking or sliding time rail)
-     *
-     * @private
-     * @type EventsList
-     * @memberof Progress
-     */
     #events: EventsList = {
         container: {},
         controls: {},
@@ -90,70 +25,27 @@ class Progress implements PlayerComponent {
         slider: {},
     };
 
-    /**
-     * Flag that pauses and then plays media properly (if media was played) when
-     * clicking in the progress bar.
-     *
-     * @private
-     * @type {boolean}
-     * @memberof Progress
-     */
-    #forcePause: boolean;
+    #forcePause = false;
 
-    /**
-     * Default labels from player's config
-     *
-     * @private
-     * @type object
-     * @memberof Progress
-     */
-    #labels: any;
+    #controlPosition: string;
 
-    /**
-     * Position of the button to be indicated as part of its class name
-     *
-     * @private
-     * @type {string}
-     * @memberof Progress
-     */
-    #position: string;
+    #controlLayer: string;
 
-    /**
-     * Layer where the control item will be placed
-     *
-     * @private
-     * @type {string}
-     * @memberof Captions
-     */
-    #layer: string;
-
-    /**
-     * Create an instance of Progress.
-     *
-     * @param {Player} player
-     * @returns {Progress}
-     * @memberof Progress
-     */
     constructor(player: Player, position: string, layer: string) {
         this.#player = player;
-        this.#labels = player.getOptions().labels;
-        this.#forcePause = false;
-        this.#position = position;
-        this.#layer = layer;
-        this._keydownEvent = this._keydownEvent.bind(this);
+        this.#controlPosition = position;
+        this.#controlLayer = layer;
+
+        this._enterSpaceKeyEvent = this._enterSpaceKeyEvent.bind(this);
         return this;
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof Progress
-     */
-    public create(): void {
+    create(): void {
+        const { labels } = this.#player.getOptions();
         this.#progress = document.createElement('div');
-        this.#progress.className = `op-controls__progress op-control__${this.#position}`;
+        this.#progress.className = `op-controls__progress op-control__${this.#controlPosition}`;
         this.#progress.tabIndex = 0;
-        this.#progress.setAttribute('aria-label', this.#labels.progressSlider);
+        this.#progress.setAttribute('aria-label', labels?.progressSlider || '');
         this.#progress.setAttribute('aria-valuemin', '0');
 
         this.#slider = document.createElement('input');
@@ -164,7 +56,7 @@ class Progress implements PlayerComponent {
         this.#slider.setAttribute('max', '0');
         this.#slider.setAttribute('step', '0.1');
         this.#slider.value = '0';
-        this.#slider.setAttribute('aria-label', this.#labels.progressRail);
+        this.#slider.setAttribute('aria-label', labels?.progressRail || '');
         this.#slider.setAttribute('role', 'slider');
 
         this.#buffer = document.createElement('progress');
@@ -211,13 +103,13 @@ class Progress implements PlayerComponent {
                 this.#played.value = 1;
                 this.#progress.setAttribute('aria-valuemax', '1');
                 this.#progress.setAttribute('aria-hidden', 'false');
-            } else if (!this.#player.getOptions().live.showProgress) {
+            } else if (!this.#player.getOptions().live?.showProgress) {
                 this.#progress.setAttribute('aria-hidden', 'true');
             }
         };
 
         let lastCurrentTime = 0;
-        const defaultDuration = this.#player.getOptions().progress.duration || 0;
+        const defaultDuration = this.#player.getOptions().progress?.duration || 0;
         const isAudioEl = isAudio(this.#player.getElement());
 
         this.#events.media.loadedmetadata = setInitialProgress.bind(this);
@@ -237,7 +129,7 @@ class Progress implements PlayerComponent {
             } else if (
                 !this.#player.getElement().getAttribute('op-dvr__enabled') &&
                 this.#progress.getAttribute('aria-hidden') === 'false' &&
-                !this.#player.getOptions().live.showProgress
+                !this.#player.getOptions().live?.showProgress
             ) {
                 this.#progress.setAttribute('aria-hidden', 'true');
             }
@@ -321,7 +213,7 @@ class Progress implements PlayerComponent {
             } else if (
                 !this.#player.getElement().getAttribute('op-dvr__enabled') &&
                 this.#progress.getAttribute('aria-hidden') === 'false' &&
-                !this.#player.getOptions().live.showProgress
+                !this.#player.getOptions().live?.showProgress
             ) {
                 this.#progress.setAttribute('aria-hidden', 'true');
             }
@@ -345,12 +237,8 @@ class Progress implements PlayerComponent {
             this.#played.value = 0;
         };
 
-        /**
-         *
-         * @private
-         */
-        const updateSlider = (e: any): void => {
-            if (hasClass(this.#slider, 'op-progress--pressed')) {
+        const updateSlider = (e: Event): void => {
+            if (this.#slider.classList.contains('op-progress--pressed')) {
                 return;
             }
             const target = e.target as HTMLInputElement;
@@ -375,10 +263,6 @@ class Progress implements PlayerComponent {
             this.#slider.classList.remove('.op-progress--pressed');
         };
 
-        /**
-         *
-         * @private
-         */
         const forcePause = (e: KeyboardEvent): void => {
             const el = this.#player.activeElement();
             // If current progress is not related to an Ad, manipulate current time
@@ -390,10 +274,6 @@ class Progress implements PlayerComponent {
             }
         };
 
-        /**
-         *
-         * @private
-         */
         const releasePause = (): void => {
             const el = this.#player.activeElement();
             if (this.#forcePause === true && this.#player.isMedia()) {
@@ -404,25 +284,21 @@ class Progress implements PlayerComponent {
             }
         };
 
-        /**
-         * When tapping on mobile, it will update the time and force pause
-         *
-         * @private
-         * @param {any} e Event to calculate new time when user taps on time rail
-         */
-        const mobileForcePause = (e: any): void => {
+        // When tapping on mobile, it will update the time and force pause
+        const mobileForcePause = (e: TouchEvent): void => {
             const el = this.#player.activeElement();
             if (el.duration !== Infinity) {
-                // Android devices (and maybe others) don't consider `originalEvent`. Check for the
-                // existence of them; otherwise, use the event's `changedTouches` element.
-                const changedTouches = e.originalEvent ? e.originalEvent.changedTouches : e.changedTouches;
-                const x = changedTouches ? changedTouches[0].pageX : e.pageX;
+                const { changedTouches } = e;
+                const x = changedTouches[0]?.pageX || 0;
                 const pos = x - offset(this.#progress).left;
                 const percentage = pos / this.#progress.offsetWidth;
                 const time = percentage * el.duration;
                 this.#slider.value = time.toString();
                 updateSlider(e);
-                forcePause(e);
+                if (!el.paused) {
+                    el.pause();
+                    this.#forcePause = true;
+                }
             }
         };
 
@@ -434,10 +310,10 @@ class Progress implements PlayerComponent {
         this.#events.slider.touchend = releasePause.bind(this);
 
         if (!IS_IOS && !IS_ANDROID) {
-            this.#events.container.mousemove = (e: any): void => {
+            this.#events.container.mousemove = (e: MouseEvent): void => {
                 const el = this.#player.activeElement();
                 if (el.duration !== Infinity && !this.#player.isAd()) {
-                    const x = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageX : e.pageX;
+                    const x = e.pageX;
 
                     let pos = x - offset(this.#progress).left;
                     const half = this.#tooltip.offsetWidth / 2;
@@ -482,23 +358,18 @@ class Progress implements PlayerComponent {
         this.#progress.addEventListener('keydown', this.#player.getEvents().keydown, EVENT_OPTIONS);
         this.#progress.addEventListener('mousemove', this.#events.container.mousemove, EVENT_OPTIONS);
         document.addEventListener('mousemove', this.#events.global.mousemove, EVENT_OPTIONS);
-        this.#player.getContainer().addEventListener('keydown', this._keydownEvent, EVENT_OPTIONS);
+        this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         this.#player
             .getControls()
             .getContainer()
             .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
         this.#player
             .getControls()
-            .getLayer(this.#layer)
+            .getLayer(this.#controlLayer)
             .appendChild(this.#progress);
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof Progress
-     */
-    public destroy(): void {
+    destroy(): void {
         Object.keys(this.#events).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events[event]);
         });
@@ -512,32 +383,26 @@ class Progress implements PlayerComponent {
 
         document.removeEventListener('mousemove', this.#events.global.mousemove);
 
-        this.#player.getContainer().removeEventListener('keydown', this._keydownEvent);
+        this.#player.getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
         this.#player
             .getControls()
             .getContainer()
             .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
-        removeElement(this.#buffer);
-        removeElement(this.#played);
-        removeElement(this.#slider);
+        this.#buffer.remove();
+        this.#played.remove();
+        this.#slider.remove();
         if (!IS_IOS && !IS_ANDROID) {
-            removeElement(this.#tooltip);
+            this.#tooltip.remove();
         }
-        removeElement(this.#progress);
+        this.#progress.remove();
     }
 
-    /**
-     * Use the 0-9 keys to manipulate current media time to set media to the 0% to 90% of duration.
-     *
-     * @private
-     * @param {KeyboardEvent} e
-     * @memberof Progress
-     */
-    private _keydownEvent(e: KeyboardEvent): void {
+    private _enterSpaceKeyEvent(e: KeyboardEvent): void {
         const el = this.#player.activeElement();
         const isAd = this.#player.isAd();
         const key = e.which || e.keyCode || 0;
+        // Use the 0-9 keys to manipulate current media time to set media (not Ads) to the 0% to 90% of duration.
         if (!isAd && key >= 48 && key <= 57 && el.duration !== Infinity) {
             let step = 0;
             for (let i = 48, limit = 57; i <= limit; i++) {

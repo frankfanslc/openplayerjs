@@ -224,8 +224,8 @@ describe('player', (): void => {
         });
         await videoPlayer.init();
 
-        return new Promise<void>(resolve => {
-            const checkForAds = () => {
+        return new Promise<void>((resolve) => {
+            const checkForAds = (): void => {
                 setTimeout(() => {
                     expect(videoPlayer.getElement().closest('.op-ads--active')).to.not.be(null);
                     videoPlayer.getElement().removeEventListener('play', checkForAds);
@@ -239,7 +239,7 @@ describe('player', (): void => {
         });
     });
 
-    it.skip('allows to play an Ad in a loop setting them up from the configuration', async function (done) {
+    it.skip('allows to play an Ad in a loop setting them up from the configuration', async function x(done) {
         this.timeout(30000);
         videoPlayer = new OpenPlayerJS('video', {
             ads: {
@@ -254,7 +254,6 @@ describe('player', (): void => {
 
         setTimeout(() => {
             expect(videoPlayer.getElement().closest('.op-ads--active')).to.not.be(null);
-            console.log('aaaaa');
             done();
         }, 5000);
     });
