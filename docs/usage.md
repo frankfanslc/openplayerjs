@@ -46,7 +46,7 @@ import OpenPlayerJS from 'openplayerjs';
 Sometimes you need more flexibility instantiating the player; for example, adding cache busting to the VAST/VPAID URL, having a list of Ads URLs, adding new controls, etc. So, for that case, remove the `op-player` class from the video/audio tag (leaving `op-player__media` to preserve styles), and, with Javascript, use the following options (the ones presented are the default values):
 
 ```javascript
-var player = new OpenPlayerJS('[player ID]', {
+const player = new OpenPlayerJS('[player ID]', {
     controls: {
         alwaysVisible: false,
         layers: {
@@ -147,7 +147,7 @@ player.init();
 | `ads.sdkPath` |Custom path/URL to IMA SDK. By default, `https://imasdk.googleapis.com/js/sdkloader/ima3.js`. |
 | `ads.customClick` |Options to allow IMA SDK to use a custom clickable element for mobile devices; otherwise, IMA SDK will show a `Learn more` layer. |
 | `ads.customClick.enabled` |By default, `false`. |
-| `ads.label` |The message to display in the custom click element. |
+| `ads.customClick.label` |The message to display in the custom click element. |
 | `ads.sessionId` |A temporary UUID used for frequency capping. |
 | `ads.vpaidMode` |Enable/disable VPAID capabilities (default: 'enabled'). Possible values: 'enabled', 'disabled' and 'insecure'. |
 | `ads.publisherId` | The Publisher provider ID |
@@ -182,6 +182,30 @@ import dashjs from 'dashjs';
 import flvJs from 'flv.js';
 
 import OpenPlayerJS from 'openplayerjs';
+```
+
+If you need to use any custom methods that any of these libraries offer, you can invoke `getMedia().instance` to do so.
+
+**IMPORTANT**: Just make sure these libraries are fully loaded, so either **use this within an event, after waiting for `init()`, or after waiting for `load()`**
+
+```javascript
+const player = new OpenPlayerJS('[player ID]', {
+    hls: {
+        // all configuration for HLS.js
+    }
+});
+await player.init();
+
+player.getElement().addEventListener('hlsManifestParsed', () => {
+    player.getMedia().instance.startLoad(3);
+});
+
+player.getElement().addEventListener('ended', async () => {
+    player.src = 'https://example.com/test.mpd';
+    await player.load();
+    player.getMedia().instance.attachTTMLRenderingDiv(document.querySelector("#ttml-rendering-div"));
+});
+
 ```
 
 ## React/Next.js
@@ -235,3 +259,98 @@ app.mount('#app');
 ```
 
 Check the [OpenPlayerJS with Vue.js](https://codepen.io/rafa8626/pen/JjWPLeo) sample for more information. **You can use all the configuration elements listed in the [Configuration options](#configuration-options) listed above**.
+
+## Special user-case scenarios
+
+Since OpenPlayerJS uses the native Media API, there are certain considerations to be taken when configuring the HTML tag with the player's configuration.
+
+### Save bandwidth
+
+OpenPlayerJS has configured the third-party libraries within the code to be as optimized in its use as possible, but when using HTML5 sources (MP3, MP4, OGG, etc.), the best way to save bandwidth is to
+set the `preload` attribute as `none` in the video/audio tag.
+
+The only side-effect of using this, is that the duration reflected in the control bar will always be zero until the user starts playing the media.
+
+If you want to set the duration to improve the UI experience (knowing it ahead of time, in seconds), you can use the `duration` configuration under the `progress` element.
+
+```javascript
+const player = new OpenPlayerJS('video', {
+    progress: {
+        duration: 315 // Around 12:14 minutes of duration
+    },
+});
+player.init();
+```
+
+### CORS (Cross-Origin Resource Sharing)
+
+Specially when using Ads and closed captioning, this is a common issue that has a very easy solution.
+
+Generally speaking, the error will look like this:
+
+`Access to XMLHttpRequest at '[WEBSITE DOMAIN]' from origin '[OTHER DOMAIN]' has been blocked by CORS policy`
+
+And this can be solved by setting in the server side the proper permission headers (specially if you are using `localhost` for it):
+
+```
+Access-Control-Allow-Origin: [origin header value, or * to allow all sites]
+Access-Control-Allow-Credentials: true
+```
+
+### Ads: a "complex" setup
+
+Given that Ads can vary from VAST, VPAID and VMAP, each one has its own unique requirements.
+
+For this sake, OpenPlayerJS integrated IMA SDK to help with this titanic task, but this means that you need to know how to configure IMA for your own scenario. Below are some of the most complex scenarios that we have encountered using Ads (aside from the known CORS issue described above).
+
+#### Translate the UI
+
+Given that the IMA SDK library does not allow for a lot of UI customizations, the only way to translate the UI elements within the Ad (Skip button, custom click button, counters, etc.), is to setting up the language of the Ads being played.
+
+This is achieved by using the `language` configuration, setting the desired country code. The available country codes are listed [here](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/localization?hl=en).
+
+```javascript
+const player = new OpenPlayerJS('video', {
+    ads: {
+        src: [YOUR AD SOURCE(S)]
+        language: 'en-US
+    }
+});
+player.init();
+```
+
+#### Personalize the Custom Click button
+
+When personalizing the custom click button, this is sometimes desired since, by default, it has a Learn More legend and a specific color. When its needed a different label, we can leverage the `customClick` configuration set:
+
+```javascript
+const player = new OpenPlayerJS('video', {
+    ads: {
+        src: [YOUR AD SOURCE(S)]
+        customClick: {
+            enabled: true,
+            label: [YOUR LABEL],
+        }
+    }
+});
+player.init();
+```
+
+Just keep in mind that, whatever label you set there, it will be used as is with no possibility of translation.
+
+#### VPAID not playing due to 901 error
+
+VPAID Ads are known for using iframes that sometimes represent a security concern. IMA SDK has 2 different modes to deal with them. OpenPlayerJS always enables them in a secure way, but that
+sometimes lead to 901 errors. The way to solve this is by using the `vpaidMode` configuration and setting it as `insecure`.
+
+```javascript
+const player = new OpenPlayerJS('video', {
+    ads: {
+        src: [YOUR AD SOURCE(S)]
+        vpaidMode: 'insecure',
+    }
+});
+player.init();
+```
+
+For more information about this topic, read [here](https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/vpaid2js).
