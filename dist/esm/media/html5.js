@@ -11,8 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _HTML5Media_currentLevel, _HTML5Media_levelList, _HTML5Media_isStreaming, _HTML5Media_retryCount, _HTML5Media_started, _HTML5Media_timer;
 import { DVR_THRESHOLD, EVENT_OPTIONS } from '../utils/constants';
-import { addEvent } from '../utils/events';
-import { isAudio, isVideo } from '../utils/general';
+import { addEvent, isAudio, isVideo } from '../utils/general';
 import { isHlsSource } from '../utils/media';
 import Native from './native';
 class HTML5Media extends Native {

@@ -11,8 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _HlsMedia_player, _HlsMedia_events, _HlsMedia_recoverDecodingErrorDate, _HlsMedia_recoverSwapAudioCodecDate, _HlsMedia_options, _HlsMedia_autoplay;
 import { DVR_THRESHOLD, EVENT_OPTIONS, SUPPORTS_HLS } from '../utils/constants';
-import { addEvent } from '../utils/events';
-import { loadScript } from '../utils/general';
+import { addEvent, loadScript } from '../utils/general';
 import { isHlsSource } from '../utils/media';
 import Native from './native';
 class HlsMedia extends Native {

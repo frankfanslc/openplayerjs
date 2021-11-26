@@ -14,8 +14,8 @@
     min-height: 30px;
     position: relative;
     -webkit-text-size-adjust: 100%;
-               -moz-text-size-adjust: 100%;
-            text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 .op-player__video {
     overflow: hidden;
@@ -93,7 +93,7 @@
 .op-settings__back,
 .op-controls button {
     -webkit-appearance: button;
-            appearance: button;
+    appearance: button;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -150,7 +150,7 @@
     border: 0;
     clip: rect(0, 0, 0, 0);
     -webkit-clip-path: inset(50%);
-            clip-path: inset(50%);
+    clip-path: inset(50%);
     height: 1px;
     overflow: hidden;
     padding: 0;
@@ -279,7 +279,7 @@
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
     transition: right 0.2s ease;
     -webkit-user-select: none;
-            user-select: none;
+    user-select: none;
     will-change: width, height;
     z-index: 4;
 }
@@ -356,7 +356,7 @@
 .op-controls input[type='range'],
 .op-controls progress {
     -webkit-appearance: none;
-            appearance: none;
+    appearance: none;
     border: 0;
     height: 5px;
     left: 0;
@@ -386,7 +386,7 @@
     cursor: pointer;
     height: 8px;
     -webkit-user-select: none;
-            user-select: none;
+    user-select: none;
 }
 .op-controls input[type='range']::-moz-range-track {
     background: 0 0;
@@ -404,7 +404,7 @@
 }
 .op-controls input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
-            appearance: none;
+    appearance: none;
     background: #fff;
     border: 2px solid transparent;
     border-radius: 100%;
@@ -617,7 +617,7 @@
 .op-status > span {
     background: rgba(0, 0, 0, 0.7);
     -webkit-box-decoration-break: clone;
-            box-decoration-break: clone;
+    box-decoration-break: clone;
     line-height: 150%;
     padding: 3px 10px;
 }
@@ -729,7 +729,7 @@
 .op-captions > span {
     background: rgba(0, 0, 0, 0.7);
     -webkit-box-decoration-break: clone;
-            box-decoration-break: clone;
+    box-decoration-break: clone;
     line-height: 150%;
     padding: 3px 10px;
 }
@@ -862,6 +862,10 @@ video:-webkit-media-text-track-display {
 
 .op-player__audio .op-ads {
     display: none;
+}
+
+.op-ads__skip {
+    color: #fff;
 }
 
 /* === Focus =================== */

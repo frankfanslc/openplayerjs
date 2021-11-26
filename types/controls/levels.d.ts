@@ -1,13 +1,5 @@
-import PlayerComponent from '../interfaces/component';
-import SettingsItem from '../interfaces/settings/item';
+import { PlayerComponent, SettingsItem } from '../interfaces';
 import Player from '../player';
-/**
- * Levels element.
- *
- * @description
- * @class Levels
- * @implements PlayerComponent
- */
 declare class Levels implements PlayerComponent {
     #private;
     /**
@@ -26,23 +18,8 @@ declare class Levels implements PlayerComponent {
      */
     create(): void;
     destroy(): void;
-    /**
-     * Add list of available captions in the `Settings` menu.
-     *
-     * @see [[Settings.addSettings]]
-     * @returns {SettingsItem|object}
-     * @memberof Captions
-     */
     addSettings(): SettingsItem | unknown;
     private _formatMenuItems;
-    /**
-     * Get the standard label of level depending of media's height.
-     *
-     * @see https://en.wikipedia.org/wiki/Computer_display_standard#Standards
-     * @private
-     * @returns {string}
-     * @memberof Levels
-     */
     private _getResolutionsLabel;
     private _gatherLevels;
     private _buildMenu;

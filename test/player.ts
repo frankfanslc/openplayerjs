@@ -202,7 +202,7 @@ describe('player', (): void => {
         });
     });
 
-    it.skip('handles attempts to play an invalid source', async (): Promise<void> => {
+    it('handles attempts to play an invalid source', async (): Promise<void> => {
         videoPlayer = new OpenPlayerJS('video');
         await videoPlayer.init();
         videoPlayer.src = 'https://non-existing.test/test.mp4';
@@ -256,6 +256,32 @@ describe('player', (): void => {
             expect(videoPlayer.getElement().closest('.op-ads--active')).to.not.be(null);
             done();
         }, 5000);
+    });
+
+    it.skip('allows to play media with Ads in loop', async function x() {
+        this.timeout(30000);
+        const media = document.getElementById('video') as HTMLMediaElement;
+        media.loop = true;
+
+        videoPlayer = new OpenPlayerJS('video', {
+            ads: {
+                loop: true,
+                src: 'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=',
+            },
+        });
+        await videoPlayer.init();
+
+        return new Promise<void>((resolve) => {
+            const play = videoPlayer.getControls().getContainer().querySelector('.op-controls__playpause') as HTMLButtonElement;
+            const e = new CustomEvent('click');
+            play.dispatchEvent(e);
+
+            setTimeout(() => {
+                expect(videoPlayer.getElement().closest('.op-ads--active')).to.not.be(null);
+                media.loop = false;
+                resolve();
+            }, 2000);
+        });
     });
 
     it('allows to set dynamically any sources (media and Ads) when no sources are detected in media (#283)', async () => {
@@ -325,6 +351,32 @@ describe('player', (): void => {
             } catch (err) {
                 throw new Error('error');
             }
+        });
+    });
+
+    it('allows user to add programmatically a new custom control, and remove it (#207)', async () => {
+        audioPlayer = new OpenPlayerJS('audio');
+        await audioPlayer.init();
+
+        const control = {
+            icon: 'https://banner2.cleanpng.com/20181210/syw/kisspng-computer-icons-scalable-vector-graphics-portable-n-browse-internet-network-svg-png-icon-free-download-5c0ee917c56041.3009306615444810478085.jpg',
+            id: 'switch',
+            title: 'Switch to source',
+            position: 'left',
+        };
+
+        return new Promise((resolve) => {
+            const controlsChangedEvent = (): void => {
+                expect(audioPlayer.getCustomControls().length).to.equal(1);
+                audioPlayer.getElement().removeEventListener('controlschanged', controlsChangedEvent);
+                audioPlayer.removeControl('switch');
+                setTimeout(() => {
+                    expect(audioPlayer.getCustomControls().length).to.equal(0);
+                    resolve();
+                }, 500);
+            };
+            audioPlayer.getElement().addEventListener('controlschanged', controlsChangedEvent);
+            audioPlayer.addControl(control);
         });
     });
 });

@@ -1,6 +1,6 @@
 import Controls from './controls';
 import Fullscreen from './controls/fullscreen';
-import { ControlItem, CustomMedia, EventsList, Languages, PlayerLabels, PlayerLayers, PlayerOptions, Source, Track } from './interfaces';
+import { ControlItem, CustomMedia, EventsList, Languages, PlayerLabels, PlayerOptions, Source, Track } from './interfaces';
 import Media from './media';
 import Ads from './media/ads';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from './utils/constants';
@@ -331,20 +331,6 @@ class Player {
     }
 
     removeControl(controlName: string): void {
-        const { layers } = this.getOptions().controls || {};
-        const keys = layers ? Object.keys(layers) : [];
-
-        keys.forEach((layer) => {
-            const current = layers ? layers[layer as keyof PlayerLayers] : [];
-            if (current) {
-                current.forEach((item: string, idx: number) => {
-                    if (item === controlName) {
-                        current.splice(idx, 1);
-                    }
-                });
-            }
-        });
-
         // Check custom controls and remove reference there as well
         this.#customControlItems.forEach((item: ControlItem, idx: number) => {
             if (item.id === controlName) {
@@ -665,6 +651,24 @@ class Player {
                 this.loader.setAttribute('aria-hidden', 'true');
                 this.playBtn.setAttribute('aria-hidden', 'true');
             };
+            // This workflow is needed when media is on a loop and post roll needs to be played.
+            // This happens because, when in loop, media never sends the `ended` event back;
+            // so, when media reaches a quarter of a second left before the end, Ads would be dispatched
+            // @see https://github.com/googleads/videojs-ima/issues/890
+            let postRollCalled = false;
+            this.#events.timeupdate = (): void => {
+                if (this.#element.loop && this.isMedia() && this.#adsInstance) {
+                    const el = this.getMedia();
+                    const remainingTime = el.duration - el.currentTime;
+                    if (remainingTime > 0 && remainingTime <= 0.25 && !postRollCalled) {
+                        postRollCalled = true;
+                        const e = addEvent('ended');
+                        this.#element.dispatchEvent(e);
+                    } else if (remainingTime === 0) {
+                        postRollCalled = false;
+                    }
+                }
+            };
         }
 
         Object.keys(this.#events).forEach((event) => {
@@ -901,16 +905,11 @@ class Player {
 
 export default Player;
 
-declare global {
-    interface Window {
-        OpenPlayerJS: typeof Player;
-        OpenPlayer: typeof Player;
-    }
-}
-
 // Expose element globally.
 if (typeof window !== 'undefined') {
-    window.OpenPlayer = Player;
-    window.OpenPlayerJS = Player;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).OpenPlayer = Player;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).OpenPlayerJS = Player;
     Player.init();
 }

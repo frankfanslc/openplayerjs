@@ -119,7 +119,7 @@ class Media {
         if (typeof media === 'string') {
             __classPrivateFieldGet(this, _Media_files, "f").push({
                 src: media,
-                type: source.predictType(media, __classPrivateFieldGet(this, _Media_element, "f")),
+                type: source.predictMimeType(media, __classPrivateFieldGet(this, _Media_element, "f")),
             });
         }
         else if (Array.isArray(media)) {
@@ -236,7 +236,7 @@ class Media {
         if (nodeSource) {
             mediaFiles.push({
                 src: nodeSource,
-                type: __classPrivateFieldGet(this, _Media_element, "f").getAttribute('type') || source.predictType(nodeSource, __classPrivateFieldGet(this, _Media_element, "f")),
+                type: __classPrivateFieldGet(this, _Media_element, "f").getAttribute('type') || source.predictMimeType(nodeSource, __classPrivateFieldGet(this, _Media_element, "f")),
             });
         }
         for (let i = 0, total = sourceTags.length; i < total; i++) {
@@ -244,7 +244,7 @@ class Media {
             const { src } = item;
             mediaFiles.push({
                 src,
-                type: item.getAttribute('type') || source.predictType(src, __classPrivateFieldGet(this, _Media_element, "f")),
+                type: item.getAttribute('type') || source.predictMimeType(src, __classPrivateFieldGet(this, _Media_element, "f")),
             });
             if (i === 0) {
                 const [file] = mediaFiles;
@@ -254,20 +254,25 @@ class Media {
         if (!mediaFiles.length) {
             mediaFiles.push({
                 src: '',
-                type: source.predictType('', __classPrivateFieldGet(this, _Media_element, "f")),
+                type: source.predictMimeType('', __classPrivateFieldGet(this, _Media_element, "f")),
             });
         }
         return mediaFiles;
     }
     _invoke(media) {
+        var _a, _b, _c;
         const playHLSNatively = __classPrivateFieldGet(this, _Media_element, "f").canPlayType('application/vnd.apple.mpegurl') || __classPrivateFieldGet(this, _Media_element, "f").canPlayType('application/x-mpegURL');
         __classPrivateFieldSet(this, _Media_currentSrc, media, "f");
+        const { layers } = __classPrivateFieldGet(this, _Media_options, "f").controls || {};
         let activeLevels = false;
-        Object.keys(__classPrivateFieldGet(this, _Media_options, "f").controls.layers).forEach((layer) => {
-            if (__classPrivateFieldGet(this, _Media_options, "f").controls.layers[layer].indexOf('levels') > -1) {
-                activeLevels = true;
-            }
-        });
+        if (layers) {
+            Object.keys(layers).forEach((layer) => {
+                const current = layers ? layers[layer] : null;
+                if (current && current.indexOf('levels') > -1) {
+                    activeLevels = true;
+                }
+            });
+        }
         if (Object.keys(__classPrivateFieldGet(this, _Media_customMedia, "f").media).length) {
             let customRef;
             __classPrivateFieldGet(this, _Media_customMedia, "f").rules.forEach((rule) => {
@@ -288,21 +293,19 @@ class Media {
             if (playHLSNatively && __classPrivateFieldGet(this, _Media_options, "f").forceNative && !activeLevels) {
                 return new HTML5Media(__classPrivateFieldGet(this, _Media_element, "f"), media);
             }
-            const hlsOptions = __classPrivateFieldGet(this, _Media_options, "f") && __classPrivateFieldGet(this, _Media_options, "f").hls ? __classPrivateFieldGet(this, _Media_options, "f").hls : undefined;
+            const hlsOptions = ((_a = __classPrivateFieldGet(this, _Media_options, "f")) === null || _a === void 0 ? void 0 : _a.hls) || undefined;
             return new HlsMedia(__classPrivateFieldGet(this, _Media_element, "f"), media, __classPrivateFieldGet(this, _Media_autoplay, "f"), hlsOptions);
         }
         if (source.isDashSource(media)) {
-            const dashOptions = __classPrivateFieldGet(this, _Media_options, "f") && __classPrivateFieldGet(this, _Media_options, "f").dash ? __classPrivateFieldGet(this, _Media_options, "f").dash : undefined;
+            const dashOptions = ((_b = __classPrivateFieldGet(this, _Media_options, "f")) === null || _b === void 0 ? void 0 : _b.dash) || undefined;
             return new DashMedia(__classPrivateFieldGet(this, _Media_element, "f"), media, dashOptions);
         }
         if (source.isFlvSource(media)) {
-            const flvOptions = __classPrivateFieldGet(this, _Media_options, "f") && __classPrivateFieldGet(this, _Media_options, "f").flv
-                ? __classPrivateFieldGet(this, _Media_options, "f").flv
-                : {
-                    debug: false,
-                    type: 'flv',
-                    url: media.src,
-                };
+            const flvOptions = ((_c = __classPrivateFieldGet(this, _Media_options, "f")) === null || _c === void 0 ? void 0 : _c.flv) || {
+                debug: false,
+                type: 'flv',
+                url: media.src,
+            };
             return new FlvMedia(__classPrivateFieldGet(this, _Media_element, "f"), media, flvOptions);
         }
         return new HTML5Media(__classPrivateFieldGet(this, _Media_element, "f"), media);

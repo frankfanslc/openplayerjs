@@ -9,9 +9,9 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Progress_player, _Progress_progress, _Progress_slider, _Progress_buffer, _Progress_played, _Progress_tooltip, _Progress_events, _Progress_forcePause, _Progress_labels, _Progress_position, _Progress_layer;
+var _Progress_player, _Progress_progress, _Progress_slider, _Progress_buffer, _Progress_played, _Progress_tooltip, _Progress_events, _Progress_forcePause, _Progress_controlPosition, _Progress_controlLayer;
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
-import { hasClass, isAudio, offset, removeElement } from '../utils/general';
+import { isAudio, offset } from '../utils/general';
 import { formatTime } from '../utils/time';
 class Progress {
     constructor(player, position, layer) {
@@ -28,23 +28,22 @@ class Progress {
             media: {},
             slider: {},
         });
-        _Progress_forcePause.set(this, void 0);
-        _Progress_labels.set(this, void 0);
-        _Progress_position.set(this, void 0);
-        _Progress_layer.set(this, void 0);
+        _Progress_forcePause.set(this, false);
+        _Progress_controlPosition.set(this, void 0);
+        _Progress_controlLayer.set(this, void 0);
         __classPrivateFieldSet(this, _Progress_player, player, "f");
-        __classPrivateFieldSet(this, _Progress_labels, player.getOptions().labels, "f");
-        __classPrivateFieldSet(this, _Progress_forcePause, false, "f");
-        __classPrivateFieldSet(this, _Progress_position, position, "f");
-        __classPrivateFieldSet(this, _Progress_layer, layer, "f");
-        this._keydownEvent = this._keydownEvent.bind(this);
+        __classPrivateFieldSet(this, _Progress_controlPosition, position, "f");
+        __classPrivateFieldSet(this, _Progress_controlLayer, layer, "f");
+        this._enterSpaceKeyEvent = this._enterSpaceKeyEvent.bind(this);
         return this;
     }
     create() {
+        var _a;
+        const { labels } = __classPrivateFieldGet(this, _Progress_player, "f").getOptions();
         __classPrivateFieldSet(this, _Progress_progress, document.createElement('div'), "f");
-        __classPrivateFieldGet(this, _Progress_progress, "f").className = `op-controls__progress op-control__${__classPrivateFieldGet(this, _Progress_position, "f")}`;
+        __classPrivateFieldGet(this, _Progress_progress, "f").className = `op-controls__progress op-control__${__classPrivateFieldGet(this, _Progress_controlPosition, "f")}`;
         __classPrivateFieldGet(this, _Progress_progress, "f").tabIndex = 0;
-        __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Progress_labels, "f").progressSlider);
+        __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-label', (labels === null || labels === void 0 ? void 0 : labels.progressSlider) || '');
         __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-valuemin', '0');
         __classPrivateFieldSet(this, _Progress_slider, document.createElement('input'), "f");
         __classPrivateFieldGet(this, _Progress_slider, "f").type = 'range';
@@ -54,7 +53,7 @@ class Progress {
         __classPrivateFieldGet(this, _Progress_slider, "f").setAttribute('max', '0');
         __classPrivateFieldGet(this, _Progress_slider, "f").setAttribute('step', '0.1');
         __classPrivateFieldGet(this, _Progress_slider, "f").value = '0';
-        __classPrivateFieldGet(this, _Progress_slider, "f").setAttribute('aria-label', __classPrivateFieldGet(this, _Progress_labels, "f").progressRail);
+        __classPrivateFieldGet(this, _Progress_slider, "f").setAttribute('aria-label', (labels === null || labels === void 0 ? void 0 : labels.progressRail) || '');
         __classPrivateFieldGet(this, _Progress_slider, "f").setAttribute('role', 'slider');
         __classPrivateFieldSet(this, _Progress_buffer, document.createElement('progress'), "f");
         __classPrivateFieldGet(this, _Progress_buffer, "f").className = 'op-controls__progress--buffer';
@@ -76,6 +75,7 @@ class Progress {
             __classPrivateFieldGet(this, _Progress_progress, "f").appendChild(__classPrivateFieldGet(this, _Progress_tooltip, "f"));
         }
         const setInitialProgress = () => {
+            var _a;
             if (__classPrivateFieldGet(this, _Progress_slider, "f").classList.contains('error')) {
                 __classPrivateFieldGet(this, _Progress_slider, "f").classList.remove('error');
             }
@@ -96,16 +96,17 @@ class Progress {
                 __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-valuemax', '1');
                 __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-hidden', 'false');
             }
-            else if (!__classPrivateFieldGet(this, _Progress_player, "f").getOptions().live.showProgress) {
+            else if (!((_a = __classPrivateFieldGet(this, _Progress_player, "f").getOptions().live) === null || _a === void 0 ? void 0 : _a.showProgress)) {
                 __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-hidden', 'true');
             }
         };
         let lastCurrentTime = 0;
-        const defaultDuration = __classPrivateFieldGet(this, _Progress_player, "f").getOptions().progress.duration || 0;
+        const defaultDuration = ((_a = __classPrivateFieldGet(this, _Progress_player, "f").getOptions().progress) === null || _a === void 0 ? void 0 : _a.duration) || 0;
         const isAudioEl = isAudio(__classPrivateFieldGet(this, _Progress_player, "f").getElement());
         __classPrivateFieldGet(this, _Progress_events, "f").media.loadedmetadata = setInitialProgress.bind(this);
         __classPrivateFieldGet(this, _Progress_events, "f").controls.controlschanged = setInitialProgress.bind(this);
         __classPrivateFieldGet(this, _Progress_events, "f").media.progress = (e) => {
+            var _a;
             const el = e.target;
             if (el.duration !== Infinity && !__classPrivateFieldGet(this, _Progress_player, "f").getElement().getAttribute('op-live__enabled')) {
                 if (el.duration > 0) {
@@ -119,7 +120,7 @@ class Progress {
             }
             else if (!__classPrivateFieldGet(this, _Progress_player, "f").getElement().getAttribute('op-dvr__enabled') &&
                 __classPrivateFieldGet(this, _Progress_progress, "f").getAttribute('aria-hidden') === 'false' &&
-                !__classPrivateFieldGet(this, _Progress_player, "f").getOptions().live.showProgress) {
+                !((_a = __classPrivateFieldGet(this, _Progress_player, "f").getOptions().live) === null || _a === void 0 ? void 0 : _a.showProgress)) {
                 __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-hidden', 'true');
             }
         };
@@ -168,6 +169,7 @@ class Progress {
             }
         };
         __classPrivateFieldGet(this, _Progress_events, "f").media.timeupdate = () => {
+            var _a;
             const el = __classPrivateFieldGet(this, _Progress_player, "f").activeElement();
             if (el.duration !== Infinity &&
                 (!__classPrivateFieldGet(this, _Progress_player, "f").getElement().getAttribute('op-live__enabled') || __classPrivateFieldGet(this, _Progress_player, "f").getElement().getAttribute('op-dvr__enabled'))) {
@@ -194,7 +196,7 @@ class Progress {
             }
             else if (!__classPrivateFieldGet(this, _Progress_player, "f").getElement().getAttribute('op-dvr__enabled') &&
                 __classPrivateFieldGet(this, _Progress_progress, "f").getAttribute('aria-hidden') === 'false' &&
-                !__classPrivateFieldGet(this, _Progress_player, "f").getOptions().live.showProgress) {
+                !((_a = __classPrivateFieldGet(this, _Progress_player, "f").getOptions().live) === null || _a === void 0 ? void 0 : _a.showProgress)) {
                 __classPrivateFieldGet(this, _Progress_progress, "f").setAttribute('aria-hidden', 'true');
             }
         };
@@ -215,7 +217,7 @@ class Progress {
             __classPrivateFieldGet(this, _Progress_played, "f").value = 0;
         };
         const updateSlider = (e) => {
-            if (hasClass(__classPrivateFieldGet(this, _Progress_slider, "f"), 'op-progress--pressed')) {
+            if (__classPrivateFieldGet(this, _Progress_slider, "f").classList.contains('op-progress--pressed')) {
                 return;
             }
             const target = e.target;
@@ -256,16 +258,20 @@ class Progress {
             }
         };
         const mobileForcePause = (e) => {
+            var _a;
             const el = __classPrivateFieldGet(this, _Progress_player, "f").activeElement();
             if (el.duration !== Infinity) {
-                const changedTouches = e.originalEvent ? e.originalEvent.changedTouches : e.changedTouches;
-                const x = changedTouches ? changedTouches[0].pageX : e.pageX;
+                const { changedTouches } = e;
+                const x = ((_a = changedTouches[0]) === null || _a === void 0 ? void 0 : _a.pageX) || 0;
                 const pos = x - offset(__classPrivateFieldGet(this, _Progress_progress, "f")).left;
                 const percentage = pos / __classPrivateFieldGet(this, _Progress_progress, "f").offsetWidth;
                 const time = percentage * el.duration;
                 __classPrivateFieldGet(this, _Progress_slider, "f").value = time.toString();
                 updateSlider(e);
-                forcePause(e);
+                if (!el.paused) {
+                    el.pause();
+                    __classPrivateFieldSet(this, _Progress_forcePause, true, "f");
+                }
             }
         };
         __classPrivateFieldGet(this, _Progress_events, "f").slider.input = updateSlider.bind(this);
@@ -278,7 +284,7 @@ class Progress {
             __classPrivateFieldGet(this, _Progress_events, "f").container.mousemove = (e) => {
                 const el = __classPrivateFieldGet(this, _Progress_player, "f").activeElement();
                 if (el.duration !== Infinity && !__classPrivateFieldGet(this, _Progress_player, "f").isAd()) {
-                    const x = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0].pageX : e.pageX;
+                    const x = e.pageX;
                     let pos = x - offset(__classPrivateFieldGet(this, _Progress_progress, "f")).left;
                     const half = __classPrivateFieldGet(this, _Progress_tooltip, "f").offsetWidth / 2;
                     const percentage = pos / __classPrivateFieldGet(this, _Progress_progress, "f").offsetWidth;
@@ -319,14 +325,14 @@ class Progress {
         __classPrivateFieldGet(this, _Progress_progress, "f").addEventListener('keydown', __classPrivateFieldGet(this, _Progress_player, "f").getEvents().keydown, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Progress_progress, "f").addEventListener('mousemove', __classPrivateFieldGet(this, _Progress_events, "f").container.mousemove, EVENT_OPTIONS);
         document.addEventListener('mousemove', __classPrivateFieldGet(this, _Progress_events, "f").global.mousemove, EVENT_OPTIONS);
-        __classPrivateFieldGet(this, _Progress_player, "f").getContainer().addEventListener('keydown', this._keydownEvent, EVENT_OPTIONS);
+        __classPrivateFieldGet(this, _Progress_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Progress_player, "f")
             .getControls()
             .getContainer()
             .addEventListener('controlschanged', __classPrivateFieldGet(this, _Progress_events, "f").controls.controlschanged, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Progress_player, "f")
             .getControls()
-            .getLayer(__classPrivateFieldGet(this, _Progress_layer, "f"))
+            .getLayer(__classPrivateFieldGet(this, _Progress_controlLayer, "f"))
             .appendChild(__classPrivateFieldGet(this, _Progress_progress, "f"));
     }
     destroy() {
@@ -339,20 +345,20 @@ class Progress {
         __classPrivateFieldGet(this, _Progress_progress, "f").removeEventListener('keydown', __classPrivateFieldGet(this, _Progress_player, "f").getEvents().keydown);
         __classPrivateFieldGet(this, _Progress_progress, "f").removeEventListener('mousemove', __classPrivateFieldGet(this, _Progress_events, "f").container.mousemove);
         document.removeEventListener('mousemove', __classPrivateFieldGet(this, _Progress_events, "f").global.mousemove);
-        __classPrivateFieldGet(this, _Progress_player, "f").getContainer().removeEventListener('keydown', this._keydownEvent);
+        __classPrivateFieldGet(this, _Progress_player, "f").getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
         __classPrivateFieldGet(this, _Progress_player, "f")
             .getControls()
             .getContainer()
             .removeEventListener('controlschanged', __classPrivateFieldGet(this, _Progress_events, "f").controls.controlschanged);
-        removeElement(__classPrivateFieldGet(this, _Progress_buffer, "f"));
-        removeElement(__classPrivateFieldGet(this, _Progress_played, "f"));
-        removeElement(__classPrivateFieldGet(this, _Progress_slider, "f"));
+        __classPrivateFieldGet(this, _Progress_buffer, "f").remove();
+        __classPrivateFieldGet(this, _Progress_played, "f").remove();
+        __classPrivateFieldGet(this, _Progress_slider, "f").remove();
         if (!IS_IOS && !IS_ANDROID) {
-            removeElement(__classPrivateFieldGet(this, _Progress_tooltip, "f"));
+            __classPrivateFieldGet(this, _Progress_tooltip, "f").remove();
         }
-        removeElement(__classPrivateFieldGet(this, _Progress_progress, "f"));
+        __classPrivateFieldGet(this, _Progress_progress, "f").remove();
     }
-    _keydownEvent(e) {
+    _enterSpaceKeyEvent(e) {
         const el = __classPrivateFieldGet(this, _Progress_player, "f").activeElement();
         const isAd = __classPrivateFieldGet(this, _Progress_player, "f").isAd();
         const key = e.which || e.keyCode || 0;
@@ -369,5 +375,5 @@ class Progress {
         }
     }
 }
-_Progress_player = new WeakMap(), _Progress_progress = new WeakMap(), _Progress_slider = new WeakMap(), _Progress_buffer = new WeakMap(), _Progress_played = new WeakMap(), _Progress_tooltip = new WeakMap(), _Progress_events = new WeakMap(), _Progress_forcePause = new WeakMap(), _Progress_labels = new WeakMap(), _Progress_position = new WeakMap(), _Progress_layer = new WeakMap();
+_Progress_player = new WeakMap(), _Progress_progress = new WeakMap(), _Progress_slider = new WeakMap(), _Progress_buffer = new WeakMap(), _Progress_played = new WeakMap(), _Progress_tooltip = new WeakMap(), _Progress_events = new WeakMap(), _Progress_forcePause = new WeakMap(), _Progress_controlPosition = new WeakMap(), _Progress_controlLayer = new WeakMap();
 export default Progress;

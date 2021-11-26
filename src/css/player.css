@@ -850,6 +850,10 @@ video:-webkit-media-text-track-display {
     display: none;
 }
 
+.op-ads__skip {
+    color: #fff;
+}
+
 /* === Focus =================== */
 .op-player:focus,
 .op-player__play:focus,

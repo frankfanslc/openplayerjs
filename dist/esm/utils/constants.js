@@ -5,7 +5,6 @@ export const IS_IPHONE = UA ? /iphone/i.test(UA) && !window.MSStream : false;
 export const IS_IPOD = UA ? /ipod/i.test(UA) && !window.MSStream : false;
 export const IS_IOS = UA ? /ipad|iphone|ipod/i.test(UA) && !window.MSStream : false;
 export const IS_ANDROID = UA ? /android/i.test(UA) : false;
-export const IS_IE = UA ? /(trident|microsoft)/i.test(NAV.appName) : false;
 export const IS_EDGE = NAV ? 'msLaunchUri' in NAV && !('documentMode' in document) : false;
 export const IS_CHROME = UA ? /chrome/i.test(UA) : false;
 export const IS_FIREFOX = UA ? /firefox/i.test(UA) : false;
@@ -28,4 +27,4 @@ export const SUPPORTS_HLS = () => {
     return !!isTypeSupported && !!sourceBufferValidAPI && !IS_SAFARI;
 };
 export const DVR_THRESHOLD = 120;
-export const EVENT_OPTIONS = IS_IE ? false : { passive: false };
+export const EVENT_OPTIONS = { passive: false };

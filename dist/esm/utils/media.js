@@ -19,7 +19,7 @@ export function isDashSource(media) {
 export function isFlvSource(media) {
     return /(^rtmp:\/\/|\.flv$)/i.test(media.src) || ['video/x-flv', 'video/flv'].indexOf(media.type) > -1;
 }
-export function predictType(url, element) {
+export function predictMimeType(url, element) {
     const extension = getExtension(url);
     if (!extension) {
         return isAudio(element) ? 'audio/mp3' : 'video/mp4';

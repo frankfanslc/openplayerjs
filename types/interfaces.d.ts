@@ -5,15 +5,12 @@ export interface Cue {
     readonly startTime: number;
     readonly text: string;
 }
-
 export interface CueList {
     [language: string]: Cue[];
 }
-
 export interface TrackURL {
     [code: string]: string;
 }
-
 export interface Track {
     readonly srclang: string;
     readonly src: string;
@@ -31,12 +28,10 @@ export interface Track {
     readonly default: boolean;
     readonly label: string;
 }
-
 export interface SettingsSubItem {
     key: string;
     label?: string;
 }
-
 export interface SettingsItem {
     /**
      * Specific class name to be used for:
@@ -63,16 +58,13 @@ export interface SettingsItem {
      */
     subitems?: SettingsSubItem[];
 }
-
 export interface SettingsSubMenu {
     [key: string]: string;
 }
-
 export interface Source {
     src: string;
     type: string;
 }
-
 export interface AdsOptions {
     readonly src: string | string[];
     readonly vpaidMode?: 'enabled' | 'disabled' | 'insecure';
@@ -96,7 +88,6 @@ export interface AdsOptions {
     sdkPath?: string;
     readonly sessionId?: string;
 }
-
 export interface PlayerComponent {
     custom?: boolean;
     /**
@@ -111,10 +102,8 @@ export interface PlayerComponent {
      * This method must include the removal of its previously set events.
      */
     destroy(): void;
-
     addSettings?: () => SettingsItem | unknown;
 }
-
 export interface ControlItem {
     readonly icon: string;
     readonly title: string;
@@ -124,7 +113,13 @@ export interface ControlItem {
     layer?: 'top' | 'center' | 'bottom' | 'main' | string;
     custom?: boolean;
     content?: string;
-    subitems?: { id: string; label: string; title?: string; icon?: string; click(): void }[];
+    subitems?: {
+        id: string;
+        label: string;
+        title?: string;
+        icon?: string;
+        click(): void;
+    }[];
     click(event: Event): void;
     init?(player: unknown): void;
     destroy?(player: unknown): void;
@@ -134,13 +129,11 @@ export interface ControlItem {
     blur?(event: Event): void;
     focus?(event: Event): void;
 }
-
 export interface CustomMedia {
     /**
      * Store all the native methods to play custom media
      */
     media: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [key: string]: any;
     };
     /**
@@ -154,12 +147,9 @@ export interface CustomMedia {
      */
     rules: ((mediaUrl: string) => string)[];
 }
-
 export interface EventsList {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
 }
-
 export interface Level {
     /**
      * Media's height to display level based on standards:
@@ -177,8 +167,7 @@ export interface Level {
     readonly id: string;
     readonly label: string;
 }
-
-export type PlayerLayers = {
+export declare type PlayerLayers = {
     left?: string[];
     middle?: string[];
     right?: string[];
@@ -190,12 +179,10 @@ export type PlayerLayers = {
     'bottom-middle'?: string[];
     'bottom-left'?: string[];
 };
-
-export type Languages = {
+export declare type Languages = {
     [key: string]: string;
 };
-
-export type PlayerLabels = {
+export declare type PlayerLabels = {
     auto?: string;
     captions?: string;
     click?: string;
@@ -220,7 +207,6 @@ export type PlayerLabels = {
     volumeControl?: string;
     volumeSlider?: string;
 };
-
 export interface PlayerOptions {
     dash?: unknown;
     hls?: unknown;
@@ -254,7 +240,6 @@ export interface PlayerOptions {
     width?: number | string;
     [key: string]: unknown;
 }
-
 export interface FullscreenDocument extends Document {
     mozFullScreenEnabled?: boolean;
     msFullscreenEnabled?: boolean;
@@ -265,7 +250,6 @@ export interface FullscreenDocument extends Document {
     webkitExitFullscreen?: () => void;
     webkitCancelFullScreen?: () => void;
 }
-
 export interface FullscreenElement extends HTMLElement {
     webkitRequestFullScreen?: () => void;
     msRequestFullscreen?: () => void;

@@ -14,10 +14,10 @@ export function formatTime(seconds, frameRate) {
     };
     m %= 60;
     s %= 60;
-    return `${h > 0 ? `${wrap(h)}:` : ''}${wrap(m)}:${wrap(s)}${(f ? `:${wrap(f)}` : '')}`;
+    return `${h > 0 ? `${wrap(h)}:` : ''}${wrap(m)}:${wrap(s)}${f ? `:${wrap(f)}` : ''}`;
 }
-export function timeToSeconds(timecode) {
-    const time = timecode.replace(/;/g, ':').split(':');
+export function timeToSeconds(timeCode) {
+    const time = timeCode.replace(/;/g, ':').split(':');
     let seconds = 0;
     if (time.length === 3) {
         seconds += parseFloat(time[0]) * 60 * 60;

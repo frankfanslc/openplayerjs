@@ -24,14 +24,14 @@ import Fullscreen from './controls/fullscreen';
 import Media from './media';
 import Ads from './media/ads';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, IS_IPHONE } from './utils/constants';
-import { addEvent } from './utils/events';
-import { isAudio, isVideo, removeElement, sanitize } from './utils/general';
-import { isAutoplaySupported, predictType } from './utils/media';
+import { addEvent, isAudio, isVideo, sanitize } from './utils/general';
+import { isAutoplaySupported, predictMimeType } from './utils/media';
 class Player {
     constructor(element, options) {
+        var _a;
+        this.proxy = null;
         _Player_controls.set(this, void 0);
         _Player_adsInstance.set(this, void 0);
-        this.proxy = null;
         _Player_uid.set(this, '');
         _Player_element.set(this, void 0);
         _Player_ads.set(this, void 0);
@@ -42,7 +42,7 @@ class Player {
         _Player_canAutoplay.set(this, false);
         _Player_canAutoplayMuted.set(this, false);
         _Player_processedAutoplay.set(this, false);
-        _Player_options.set(this, {});
+        _Player_options.set(this, void 0);
         _Player_customControlItems.set(this, []);
         _Player_fullscreen.set(this, void 0);
         _Player_defaultOptions.set(this, {
@@ -54,7 +54,7 @@ class Player {
                     right: ['captions', 'settings', 'fullscreen'],
                 },
             },
-            defaultLevel: null,
+            defaultLevel: undefined,
             detachMenus: false,
             forceNative: true,
             height: 0,
@@ -113,8 +113,8 @@ class Player {
             if (__classPrivateFieldGet(this, _Player_options, "f").ads && __classPrivateFieldGet(this, _Player_options, "f").ads.src) {
                 __classPrivateFieldSet(this, _Player_ads, __classPrivateFieldGet(this, _Player_options, "f").ads.src, "f");
             }
-            if (__classPrivateFieldGet(this, _Player_options, "f").startTime > 0) {
-                __classPrivateFieldGet(this, _Player_element, "f").currentTime = __classPrivateFieldGet(this, _Player_options, "f").startTime;
+            if ((((_a = __classPrivateFieldGet(this, _Player_options, "f")) === null || _a === void 0 ? void 0 : _a.startTime) || 0) > 0) {
+                __classPrivateFieldGet(this, _Player_element, "f").currentTime = __classPrivateFieldGet(this, _Player_options, "f").startTime || 0;
             }
             __classPrivateFieldSet(this, _Player_volume, __classPrivateFieldGet(this, _Player_element, "f").volume, "f");
         }
@@ -178,6 +178,7 @@ class Player {
         }
     }
     destroy() {
+        var _a;
         if (__classPrivateFieldGet(this, _Player_adsInstance, "f")) {
             __classPrivateFieldGet(this, _Player_adsInstance, "f").pause();
             __classPrivateFieldGet(this, _Player_adsInstance, "f").destroy();
@@ -200,10 +201,12 @@ class Player {
             __classPrivateFieldGet(this, _Player_controls, "f").destroy();
         }
         if (isVideo(__classPrivateFieldGet(this, _Player_element, "f"))) {
-            removeElement(this.playBtn);
-            removeElement(this.loader);
+            this.playBtn.remove();
+            this.loader.remove();
         }
-        __classPrivateFieldGet(this, _Player_element, "f").removeEventListener('playererror', __classPrivateFieldGet(this, _Player_options, "f").onError);
+        if ((_a = __classPrivateFieldGet(this, _Player_options, "f")) === null || _a === void 0 ? void 0 : _a.onError) {
+            __classPrivateFieldGet(this, _Player_element, "f").removeEventListener('playererror', __classPrivateFieldGet(this, _Player_options, "f").onError);
+        }
         el.controls = true;
         el.setAttribute('id', __classPrivateFieldGet(this, _Player_uid, "f"));
         el.removeAttribute('op-live__enabled');
@@ -282,14 +285,6 @@ class Player {
         __classPrivateFieldGet(this, _Player_element, "f").dispatchEvent(e);
     }
     removeControl(controlName) {
-        const { layers } = this.getOptions().controls;
-        Object.keys(layers).forEach((layer) => {
-            layers[layer].forEach((item, idx) => {
-                if (item === controlName) {
-                    layers[layer].splice(idx, 1);
-                }
-            });
-        });
         __classPrivateFieldGet(this, _Player_customControlItems, "f").forEach((item, idx) => {
             if (item.id === controlName) {
                 __classPrivateFieldGet(this, _Player_customControlItems, "f").splice(idx, 1);
@@ -299,9 +294,12 @@ class Player {
         __classPrivateFieldGet(this, _Player_element, "f").dispatchEvent(e);
     }
     _prepareMedia() {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                __classPrivateFieldGet(this, _Player_element, "f").addEventListener('playererror', __classPrivateFieldGet(this, _Player_options, "f").onError, EVENT_OPTIONS);
+                if ((_a = __classPrivateFieldGet(this, _Player_options, "f")) === null || _a === void 0 ? void 0 : _a.onError) {
+                    __classPrivateFieldGet(this, _Player_element, "f").addEventListener('playererror', __classPrivateFieldGet(this, _Player_options, "f").onError, EVENT_OPTIONS);
+                }
                 if (__classPrivateFieldGet(this, _Player_autoplay, "f") && isVideo(__classPrivateFieldGet(this, _Player_element, "f"))) {
                     __classPrivateFieldGet(this, _Player_element, "f").addEventListener('canplay', this._autoplay, EVENT_OPTIONS);
                 }
@@ -369,7 +367,7 @@ class Player {
             media.forEach((m) => {
                 const source = document.createElement('source');
                 source.src = m.src;
-                source.type = m.type || predictType(m.src, __classPrivateFieldGet(this, _Player_element, "f"));
+                source.type = m.type || predictMimeType(m.src, __classPrivateFieldGet(this, _Player_element, "f"));
                 __classPrivateFieldGet(this, _Player_element, "f").appendChild(source);
             });
         }
@@ -477,14 +475,15 @@ class Player {
         }
     }
     _createPlayButton() {
+        var _a, _b;
         if (isAudio(__classPrivateFieldGet(this, _Player_element, "f"))) {
             return;
         }
         this.playBtn = document.createElement('button');
         this.playBtn.className = 'op-player__play';
         this.playBtn.tabIndex = 0;
-        this.playBtn.title = __classPrivateFieldGet(this, _Player_options, "f").labels.play;
-        this.playBtn.innerHTML = `<span>${__classPrivateFieldGet(this, _Player_options, "f").labels.play}</span>`;
+        this.playBtn.title = ((_a = __classPrivateFieldGet(this, _Player_options, "f").labels) === null || _a === void 0 ? void 0 : _a.play) || '';
+        this.playBtn.innerHTML = `<span>${((_b = __classPrivateFieldGet(this, _Player_options, "f").labels) === null || _b === void 0 ? void 0 : _b.play) || ''}</span>`;
         this.playBtn.setAttribute('aria-pressed', 'false');
         this.playBtn.setAttribute('aria-hidden', 'false');
         this.loader = document.createElement('span');
@@ -545,8 +544,9 @@ class Player {
                 }
             };
             __classPrivateFieldGet(this, _Player_events, "f").play = () => {
+                var _a;
                 this.playBtn.classList.add('op-player__play--paused');
-                this.playBtn.title = __classPrivateFieldGet(this, _Player_options, "f").labels.pause;
+                this.playBtn.title = ((_a = __classPrivateFieldGet(this, _Player_options, "f").labels) === null || _a === void 0 ? void 0 : _a.pause) || '';
                 this.loader.setAttribute('aria-hidden', 'true');
                 if (__classPrivateFieldGet(this, _Player_options, "f").showLoaderOnInit) {
                     this.playBtn.setAttribute('aria-hidden', 'true');
@@ -562,9 +562,10 @@ class Player {
                 this.playBtn.setAttribute('aria-hidden', 'true');
             };
             __classPrivateFieldGet(this, _Player_events, "f").pause = () => {
+                var _a;
                 const el = this.activeElement();
                 this.playBtn.classList.remove('op-player__play--paused');
-                this.playBtn.title = __classPrivateFieldGet(this, _Player_options, "f").labels.play;
+                this.playBtn.title = ((_a = __classPrivateFieldGet(this, _Player_options, "f").labels) === null || _a === void 0 ? void 0 : _a.play) || '';
                 if (__classPrivateFieldGet(this, _Player_options, "f").showLoaderOnInit && Math.round(el.currentTime) === 0) {
                     this.playBtn.setAttribute('aria-hidden', 'true');
                     this.loader.setAttribute('aria-hidden', 'false');
@@ -577,6 +578,21 @@ class Player {
             __classPrivateFieldGet(this, _Player_events, "f").ended = () => {
                 this.loader.setAttribute('aria-hidden', 'true');
                 this.playBtn.setAttribute('aria-hidden', 'true');
+            };
+            let postRollCalled = false;
+            __classPrivateFieldGet(this, _Player_events, "f").timeupdate = () => {
+                if (__classPrivateFieldGet(this, _Player_element, "f").loop && this.isMedia() && __classPrivateFieldGet(this, _Player_adsInstance, "f")) {
+                    const el = this.getMedia();
+                    const remainingTime = el.duration - el.currentTime;
+                    if (remainingTime > 0 && remainingTime <= 0.25 && !postRollCalled) {
+                        postRollCalled = true;
+                        const e = addEvent('ended');
+                        __classPrivateFieldGet(this, _Player_element, "f").dispatchEvent(e);
+                    }
+                    else if (remainingTime === 0) {
+                        postRollCalled = false;
+                    }
+                }
             };
         }
         Object.keys(__classPrivateFieldGet(this, _Player_events, "f")).forEach((event) => {
@@ -593,13 +609,14 @@ class Player {
             }, (muted) => {
                 __classPrivateFieldSet(this, _Player_canAutoplayMuted, muted, "f");
             }, () => {
+                var _a, _b;
                 if (__classPrivateFieldGet(this, _Player_canAutoplayMuted, "f")) {
                     this.activeElement().muted = true;
                     this.activeElement().volume = 0;
                     const e = addEvent('volumechange');
                     __classPrivateFieldGet(this, _Player_element, "f").dispatchEvent(e);
                     const volumeEl = document.createElement('div');
-                    const action = IS_IOS || IS_ANDROID ? __classPrivateFieldGet(this, _Player_options, "f").labels.tap : __classPrivateFieldGet(this, _Player_options, "f").labels.click;
+                    const action = IS_IOS || IS_ANDROID ? (_a = __classPrivateFieldGet(this, _Player_options, "f").labels) === null || _a === void 0 ? void 0 : _a.tap : (_b = __classPrivateFieldGet(this, _Player_options, "f").labels) === null || _b === void 0 ? void 0 : _b.click;
                     volumeEl.className = 'op-player__unmute';
                     volumeEl.innerHTML = `<span>${action}</span>`;
                     volumeEl.tabIndex = 0;
@@ -608,7 +625,7 @@ class Player {
                         this.activeElement().volume = __classPrivateFieldGet(this, _Player_volume, "f");
                         const event = addEvent('volumechange');
                         __classPrivateFieldGet(this, _Player_element, "f").dispatchEvent(event);
-                        removeElement(volumeEl);
+                        volumeEl.remove();
                     }, EVENT_OPTIONS);
                     const target = this.getContainer();
                     target.insertBefore(volumeEl, target.firstChild);
@@ -628,23 +645,33 @@ class Player {
         }
     }
     _mergeOptions(playerOptions) {
-        __classPrivateFieldSet(this, _Player_options, Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f")), playerOptions), "f");
-        if (playerOptions) {
-            const objectElements = ['labels', 'controls'];
-            objectElements.forEach((item) => {
-                if (item === 'labels' && playerOptions[item]) {
-                    Object.keys(playerOptions[item]).forEach((key) => {
-                        playerOptions[item][key] = sanitize(playerOptions[item][key]);
+        __classPrivateFieldSet(this, _Player_options, Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f")), (playerOptions || {})), "f");
+        if ((playerOptions === null || playerOptions === void 0 ? void 0 : playerOptions.controls) && Object.keys(playerOptions.controls).length) {
+            __classPrivateFieldGet(this, _Player_options, "f").controls = Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f").controls), playerOptions.controls);
+        }
+        if (playerOptions === null || playerOptions === void 0 ? void 0 : playerOptions.labels) {
+            const { labels } = playerOptions || {};
+            const keys = labels ? Object.keys(labels) : [];
+            let sanitizedLabels = {};
+            keys.forEach((key) => {
+                const current = labels ? labels[key] : null;
+                if (current && typeof current === 'object' && key === 'lang') {
+                    Object.keys(current).forEach((k) => {
+                        const lang = current ? current[k] : null;
+                        if (lang) {
+                            sanitizedLabels = Object.assign(Object.assign({}, sanitizedLabels), { lang: Object.assign(Object.assign({}, sanitizedLabels.lang), { [k]: sanitize(lang) }) });
+                        }
                     });
                 }
-                __classPrivateFieldGet(this, _Player_options, "f")[item] =
-                    playerOptions[item] && Object.keys(playerOptions[item]).length
-                        ? Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f")[item]), playerOptions[item]) : __classPrivateFieldGet(this, _Player_defaultOptions, "f")[item];
+                else if (current) {
+                    sanitizedLabels = Object.assign(Object.assign({}, sanitizedLabels), { [key]: sanitize(current) });
+                }
             });
+            __classPrivateFieldGet(this, _Player_options, "f").labels = Object.assign(Object.assign({}, __classPrivateFieldGet(this, _Player_defaultOptions, "f").labels), sanitizedLabels);
         }
     }
     _enableKeyBindings(e) {
-        var _a;
+        var _a, _b;
         const key = e.which || e.keyCode || 0;
         const el = this.activeElement();
         const isAd = this.isAd();
@@ -699,7 +726,7 @@ class Player {
                     else if (key === 74 || key === 76) {
                         newStep = 10;
                     }
-                    const step = el.duration !== Infinity ? newStep : this.getOptions().progress.duration;
+                    const step = el.duration !== Infinity ? newStep : ((_b = this.getOptions().progress) === null || _b === void 0 ? void 0 : _b.duration) || 0;
                     el.currentTime += key === 37 || key === 74 ? step * -1 : step;
                     if (el.currentTime < 0) {
                         el.currentTime = 0;
