@@ -365,7 +365,7 @@ describe('player', (): void => {
             position: 'left',
         };
 
-        return new Promise((resolve) => {
+        return new Promise<void>((resolve) => {
             const controlsChangedEvent = (): void => {
                 expect(audioPlayer.getCustomControls().length).to.equal(1);
                 audioPlayer.getElement().removeEventListener('controlschanged', controlsChangedEvent);

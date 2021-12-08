@@ -23,6 +23,7 @@ module.exports = (config) => {
         },
         karmaTypescriptConfig: {
             bundlerOptions: {
+                validateSyntax: false,
                 sourceMap: true,
             },
             compilerOptions: {
@@ -39,7 +40,6 @@ module.exports = (config) => {
                     },
                 },
             },
-            exclude: ['node_modules'],
             reports: {
                 text: '.',
                 lcov: {
