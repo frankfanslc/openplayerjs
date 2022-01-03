@@ -69,13 +69,14 @@ class Settings {
             const { id, type } = e.detail;
             this.removeItem(id, type);
         };
+        this.clickEvent = this.clickEvent.bind(this);
+        this.hideEvent = this.hideEvent.bind(this);
+        this.removeEvent = this.removeEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_events, "f").media.controlshidden = this.hideEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_events, "f").media.settingremoved = this.removeEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_events, "f").media.play = this.hideEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_events, "f").media.pause = this.hideEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
-        this.clickEvent = this.clickEvent.bind(this);
-        this.hideEvent = this.hideEvent.bind(this);
         __classPrivateFieldGet(this, _Settings_events, "f").global.click = (e) => {
             const { target } = e;
             const current = target;

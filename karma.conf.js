@@ -23,8 +23,8 @@ module.exports = (config) => {
         },
         karmaTypescriptConfig: {
             bundlerOptions: {
-                validateSyntax: false,
                 sourceMap: true,
+                validateSyntax: false,
             },
             compilerOptions: {
                 target: 'es6',

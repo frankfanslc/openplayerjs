@@ -265,8 +265,9 @@ class Progress implements PlayerComponent {
 
         const forcePause = (e: KeyboardEvent): void => {
             const el = this.#player.activeElement();
+            const key = e.which || e.keyCode || 0;
             // If current progress is not related to an Ad, manipulate current time
-            if ((e.which === 1 || e.which === 0) && this.#player.isMedia()) {
+            if ((key === 1 || key === 0) && this.#player.isMedia()) {
                 if (!el.paused) {
                     el.pause();
                     this.#forcePause = true;

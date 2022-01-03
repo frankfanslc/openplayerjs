@@ -241,7 +241,8 @@ class Progress {
         };
         const forcePause = (e) => {
             const el = __classPrivateFieldGet(this, _Progress_player, "f").activeElement();
-            if ((e.which === 1 || e.which === 0) && __classPrivateFieldGet(this, _Progress_player, "f").isMedia()) {
+            const key = e.which || e.keyCode || 0;
+            if ((key === 1 || key === 0) && __classPrivateFieldGet(this, _Progress_player, "f").isMedia()) {
                 if (!el.paused) {
                     el.pause();
                     __classPrivateFieldSet(this, _Progress_forcePause, true, "f");

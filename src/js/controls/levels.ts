@@ -19,41 +19,12 @@ class Levels implements PlayerComponent {
 
     #levels: Level[] = [];
 
-    /**
-     * Initial level to be used as a default value in the `Settings` component.
-     *
-     * @see [[Levels.addSettings]]
-     * @private
-     * @type string
-     * @memberof Levels
-     */
-    #default = '';
+    #defaultLevel = '';
 
-    /**
-     * Position of the button to be indicated as part of its class name
-     *
-     * @private
-     * @type {string}
-     * @memberof Levels
-     */
     #controlPosition: string;
 
-    /**
-     * Layer where the control item will be placed
-     *
-     * @private
-     * @type {string}
-     * @memberof Captions
-     */
     #controlLayer: string;
 
-    /**
-     * Create an instance of Captions.
-     *
-     * @param {Player} player
-     * @memberof Levels
-     * @returns {Levels}
-     */
     constructor(player: Player, position: string, layer: string) {
         this.#player = player;
         this.#controlPosition = position;
@@ -61,18 +32,12 @@ class Levels implements PlayerComponent {
         return this;
     }
 
-    /**
-     * Create a button and a container to display levels (if any).
-     *
-     * @inheritDoc
-     * @memberof Levels
-     */
     create(): void {
         const { labels, defaultLevel: startLevel, detachMenus } = this.#player.getOptions();
         const initialLevel = startLevel !== null ? parseInt(startLevel || '0', 10) : this.#player.getMedia().level;
-        this.#default = `${initialLevel}`;
+        this.#defaultLevel = `${initialLevel}`;
         const menuItems = this._formatMenuItems();
-        const defaultLevel = menuItems.length ? menuItems.find((items) => items.key === this.#default) : null;
+        const defaultLevel = menuItems.length ? menuItems.find((items) => items.key === this.#defaultLevel) : null;
         const defaultLabel = defaultLevel ? defaultLevel.label : labels?.auto || '';
         let levelSet = false;
 
@@ -82,7 +47,7 @@ class Levels implements PlayerComponent {
         this.#button.title = labels?.mediaLevels || '';
         this.#button.setAttribute('aria-controls', this.#player.id);
         this.#button.setAttribute('aria-label', labels?.mediaLevels || '');
-        this.#button.setAttribute('data-active-level', this.#default);
+        this.#button.setAttribute('data-active-level', this.#defaultLevel);
         this.#button.innerHTML = `<span>${defaultLabel}</span>`;
 
         const loadLevelsEvent = (): void => {
@@ -159,7 +124,7 @@ class Levels implements PlayerComponent {
             if (option.closest(`#${this.#player.id}`) && option.classList.contains('op-levels__option')) {
                 const levelVal = option.getAttribute('data-value');
                 const level = parseInt(levelVal ? levelVal.replace('levels-', '') : '-1', 10);
-                this.#default = `${level}`;
+                this.#defaultLevel = `${level}`;
                 if (detachMenus) {
                     this.#button.setAttribute('data-active-level', `${level}`);
                     this.#button.innerHTML = `<span>${option.innerText}</span>`;
@@ -261,7 +226,7 @@ class Levels implements PlayerComponent {
         return subitems.length > 2
             ? {
                   className: 'op-levels__option',
-                  default: this.#default || '-1',
+                  default: this.#defaultLevel || '-1',
                   key: 'levels',
                   name: labels?.levels,
                   subitems,
@@ -351,7 +316,7 @@ class Levels implements PlayerComponent {
                     .map(
                         (item) => `
                 <div class="op-settings__submenu-item" tabindex="0" role="menuitemradio"
-                    aria-checked="${this.#default === item.key ? 'true' : 'false'}">
+                    aria-checked="${this.#defaultLevel === item.key ? 'true' : 'false'}">
                     <div class="op-settings__submenu-label ${className || ''}" data-value="levels-${item.key}">${item.label}</div>
                 </div>`
                     )

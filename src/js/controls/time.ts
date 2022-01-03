@@ -6,7 +6,7 @@ import { formatTime } from '../utils/time';
 class Time implements PlayerComponent {
     #player: Player;
 
-    #current: HTMLTimeElement;
+    #currentTime: HTMLTimeElement;
 
     #delimiter: HTMLSpanElement;
 
@@ -33,12 +33,12 @@ class Time implements PlayerComponent {
     create(): void {
         const { labels, progress } = this.#player.getOptions();
 
-        this.#current = document.createElement('time');
-        this.#current.className = 'op-controls__current';
-        this.#current.setAttribute('role', 'timer');
-        this.#current.setAttribute('aria-live', 'off');
-        this.#current.setAttribute('aria-hidden', 'false');
-        this.#current.innerText = '0:00';
+        this.#currentTime = document.createElement('time');
+        this.#currentTime.className = 'op-controls__current';
+        this.#currentTime.setAttribute('role', 'timer');
+        this.#currentTime.setAttribute('aria-live', 'off');
+        this.#currentTime.setAttribute('aria-hidden', 'false');
+        this.#currentTime.innerText = '0:00';
 
         const showOnlyCurrent = progress?.showCurrentTimeOnly || false;
 
@@ -57,7 +57,7 @@ class Time implements PlayerComponent {
         const controls = this.#player.getControls().getLayer(this.#controlLayer);
         this.#container = document.createElement('span');
         this.#container.className = `op-controls-time op-control__${this.#controlPosition}`;
-        this.#container.appendChild(this.#current);
+        this.#container.appendChild(this.#currentTime);
         if (!showOnlyCurrent) {
             this.#container.appendChild(this.#delimiter);
             this.#container.appendChild(this.#duration);
@@ -71,7 +71,7 @@ class Time implements PlayerComponent {
                     const duration = !Number.isNaN(el.duration) ? el.duration : this.#player.getOptions().progress?.duration || 0;
                     this.#duration.innerText = formatTime(duration);
                 }
-                this.#current.innerText = formatTime(el.currentTime);
+                this.#currentTime.innerText = formatTime(el.currentTime);
             } else if (!showOnlyCurrent) {
                 this.#duration.setAttribute('aria-hidden', 'true');
                 this.#delimiter.setAttribute('aria-hidden', 'true');
@@ -96,15 +96,15 @@ class Time implements PlayerComponent {
                     this.#duration.setAttribute('aria-hidden', 'false');
                     this.#delimiter.setAttribute('aria-hidden', 'false');
                 } else if (showOnlyCurrent || duration !== this.#duration.innerText) {
-                    this.#current.innerText = showLiveLabel ? labels?.live || '' : formatTime(el.currentTime);
+                    this.#currentTime.innerText = showLiveLabel ? labels?.live || '' : formatTime(el.currentTime);
                 }
-                this.#current.innerText = formatTime(el.currentTime);
+                this.#currentTime.innerText = formatTime(el.currentTime);
             } else if (this.#player.getElement().getAttribute('op-dvr__enabled')) {
                 if (!showOnlyCurrent) {
                     this.#duration.setAttribute('aria-hidden', 'true');
                     this.#delimiter.setAttribute('aria-hidden', 'true');
                 }
-                this.#current.innerText = formatTime(el.currentTime);
+                this.#currentTime.innerText = formatTime(el.currentTime);
             } else if (
                 showOnlyCurrent ||
                 (!this.#player.getElement().getAttribute('op-dvr__enabled') && this.#duration.getAttribute('aria-hidden') === 'false')
@@ -113,9 +113,9 @@ class Time implements PlayerComponent {
                     this.#duration.setAttribute('aria-hidden', 'true');
                     this.#delimiter.setAttribute('aria-hidden', 'true');
                 }
-                this.#current.innerText = showLiveLabel ? labels?.live || '' : formatTime(el.currentTime);
+                this.#currentTime.innerText = showLiveLabel ? labels?.live || '' : formatTime(el.currentTime);
             } else {
-                this.#current.innerText = showLiveLabel ? labels?.live || '' : formatTime(el.currentTime);
+                this.#currentTime.innerText = showLiveLabel ? labels?.live || '' : formatTime(el.currentTime);
             }
         };
         this.#events.media.ended = (): void => {
@@ -146,7 +146,7 @@ class Time implements PlayerComponent {
             .getContainer()
             .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
-        this.#current.remove();
+        this.#currentTime.remove();
         const { showCurrentTimeOnly } = this.#player.getOptions().progress || {};
         if (!showCurrentTimeOnly) {
             this.#delimiter.remove();

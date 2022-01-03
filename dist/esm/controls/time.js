@@ -9,13 +9,13 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Time_player, _Time_current, _Time_delimiter, _Time_duration, _Time_container, _Time_events, _Time_controlPosition, _Time_controlLayer;
+var _Time_player, _Time_currentTime, _Time_delimiter, _Time_duration, _Time_container, _Time_events, _Time_controlPosition, _Time_controlLayer;
 import { EVENT_OPTIONS } from '../utils/constants';
 import { formatTime } from '../utils/time';
 class Time {
     constructor(player, position, layer) {
         _Time_player.set(this, void 0);
-        _Time_current.set(this, void 0);
+        _Time_currentTime.set(this, void 0);
         _Time_delimiter.set(this, void 0);
         _Time_duration.set(this, void 0);
         _Time_container.set(this, void 0);
@@ -32,12 +32,12 @@ class Time {
     }
     create() {
         const { labels, progress } = __classPrivateFieldGet(this, _Time_player, "f").getOptions();
-        __classPrivateFieldSet(this, _Time_current, document.createElement('time'), "f");
-        __classPrivateFieldGet(this, _Time_current, "f").className = 'op-controls__current';
-        __classPrivateFieldGet(this, _Time_current, "f").setAttribute('role', 'timer');
-        __classPrivateFieldGet(this, _Time_current, "f").setAttribute('aria-live', 'off');
-        __classPrivateFieldGet(this, _Time_current, "f").setAttribute('aria-hidden', 'false');
-        __classPrivateFieldGet(this, _Time_current, "f").innerText = '0:00';
+        __classPrivateFieldSet(this, _Time_currentTime, document.createElement('time'), "f");
+        __classPrivateFieldGet(this, _Time_currentTime, "f").className = 'op-controls__current';
+        __classPrivateFieldGet(this, _Time_currentTime, "f").setAttribute('role', 'timer');
+        __classPrivateFieldGet(this, _Time_currentTime, "f").setAttribute('aria-live', 'off');
+        __classPrivateFieldGet(this, _Time_currentTime, "f").setAttribute('aria-hidden', 'false');
+        __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = '0:00';
         const showOnlyCurrent = (progress === null || progress === void 0 ? void 0 : progress.showCurrentTimeOnly) || false;
         if (!showOnlyCurrent) {
             __classPrivateFieldSet(this, _Time_delimiter, document.createElement('span'), "f");
@@ -52,7 +52,7 @@ class Time {
         const controls = __classPrivateFieldGet(this, _Time_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Time_controlLayer, "f"));
         __classPrivateFieldSet(this, _Time_container, document.createElement('span'), "f");
         __classPrivateFieldGet(this, _Time_container, "f").className = `op-controls-time op-control__${__classPrivateFieldGet(this, _Time_controlPosition, "f")}`;
-        __classPrivateFieldGet(this, _Time_container, "f").appendChild(__classPrivateFieldGet(this, _Time_current, "f"));
+        __classPrivateFieldGet(this, _Time_container, "f").appendChild(__classPrivateFieldGet(this, _Time_currentTime, "f"));
         if (!showOnlyCurrent) {
             __classPrivateFieldGet(this, _Time_container, "f").appendChild(__classPrivateFieldGet(this, _Time_delimiter, "f"));
             __classPrivateFieldGet(this, _Time_container, "f").appendChild(__classPrivateFieldGet(this, _Time_duration, "f"));
@@ -66,7 +66,7 @@ class Time {
                     const duration = !Number.isNaN(el.duration) ? el.duration : ((_a = __classPrivateFieldGet(this, _Time_player, "f").getOptions().progress) === null || _a === void 0 ? void 0 : _a.duration) || 0;
                     __classPrivateFieldGet(this, _Time_duration, "f").innerText = formatTime(duration);
                 }
-                __classPrivateFieldGet(this, _Time_current, "f").innerText = formatTime(el.currentTime);
+                __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = formatTime(el.currentTime);
             }
             else if (!showOnlyCurrent) {
                 __classPrivateFieldGet(this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
@@ -88,16 +88,16 @@ class Time {
                     __classPrivateFieldGet(this, _Time_delimiter, "f").setAttribute('aria-hidden', 'false');
                 }
                 else if (showOnlyCurrent || duration !== __classPrivateFieldGet(this, _Time_duration, "f").innerText) {
-                    __classPrivateFieldGet(this, _Time_current, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
+                    __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
                 }
-                __classPrivateFieldGet(this, _Time_current, "f").innerText = formatTime(el.currentTime);
+                __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = formatTime(el.currentTime);
             }
             else if (__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled')) {
                 if (!showOnlyCurrent) {
                     __classPrivateFieldGet(this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
                     __classPrivateFieldGet(this, _Time_delimiter, "f").setAttribute('aria-hidden', 'true');
                 }
-                __classPrivateFieldGet(this, _Time_current, "f").innerText = formatTime(el.currentTime);
+                __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = formatTime(el.currentTime);
             }
             else if (showOnlyCurrent ||
                 (!__classPrivateFieldGet(this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled') && __classPrivateFieldGet(this, _Time_duration, "f").getAttribute('aria-hidden') === 'false')) {
@@ -105,10 +105,10 @@ class Time {
                     __classPrivateFieldGet(this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
                     __classPrivateFieldGet(this, _Time_delimiter, "f").setAttribute('aria-hidden', 'true');
                 }
-                __classPrivateFieldGet(this, _Time_current, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
+                __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
             }
             else {
-                __classPrivateFieldGet(this, _Time_current, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
+                __classPrivateFieldGet(this, _Time_currentTime, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
             }
         };
         __classPrivateFieldGet(this, _Time_events, "f").media.ended = () => {
@@ -135,7 +135,7 @@ class Time {
             .getControls()
             .getContainer()
             .removeEventListener('controlschanged', __classPrivateFieldGet(this, _Time_events, "f").controls.controlschanged);
-        __classPrivateFieldGet(this, _Time_current, "f").remove();
+        __classPrivateFieldGet(this, _Time_currentTime, "f").remove();
         const { showCurrentTimeOnly } = __classPrivateFieldGet(this, _Time_player, "f").getOptions().progress || {};
         if (!showCurrentTimeOnly) {
             __classPrivateFieldGet(this, _Time_delimiter, "f").remove();
@@ -144,5 +144,5 @@ class Time {
         __classPrivateFieldGet(this, _Time_container, "f").remove();
     }
 }
-_Time_player = new WeakMap(), _Time_current = new WeakMap(), _Time_delimiter = new WeakMap(), _Time_duration = new WeakMap(), _Time_container = new WeakMap(), _Time_events = new WeakMap(), _Time_controlPosition = new WeakMap(), _Time_controlLayer = new WeakMap();
+_Time_player = new WeakMap(), _Time_currentTime = new WeakMap(), _Time_delimiter = new WeakMap(), _Time_duration = new WeakMap(), _Time_container = new WeakMap(), _Time_events = new WeakMap(), _Time_controlPosition = new WeakMap(), _Time_controlLayer = new WeakMap();
 export default Time;

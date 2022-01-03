@@ -35,11 +35,6 @@ class Volume implements PlayerComponent {
         return this;
     }
 
-    /**
-     *
-     * @inheritDoc
-     * @memberof Volume
-     */
     create(): void {
         const { labels } = this.#player.getOptions();
 

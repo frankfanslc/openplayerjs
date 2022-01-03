@@ -9,7 +9,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Levels_player, _Levels_button, _Levels_menu, _Levels_events, _Levels_levels, _Levels_default, _Levels_controlPosition, _Levels_controlLayer;
+var _Levels_player, _Levels_button, _Levels_menu, _Levels_events, _Levels_levels, _Levels_defaultLevel, _Levels_controlPosition, _Levels_controlLayer;
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, NAV } from '../utils/constants';
 import { addEvent } from '../utils/general';
 import { isDashSource, isHlsSource } from '../utils/media';
@@ -24,7 +24,7 @@ class Levels {
             media: {},
         });
         _Levels_levels.set(this, []);
-        _Levels_default.set(this, '');
+        _Levels_defaultLevel.set(this, '');
         _Levels_controlPosition.set(this, void 0);
         _Levels_controlLayer.set(this, void 0);
         __classPrivateFieldSet(this, _Levels_player, player, "f");
@@ -35,9 +35,9 @@ class Levels {
     create() {
         const { labels, defaultLevel: startLevel, detachMenus } = __classPrivateFieldGet(this, _Levels_player, "f").getOptions();
         const initialLevel = startLevel !== null ? parseInt(startLevel || '0', 10) : __classPrivateFieldGet(this, _Levels_player, "f").getMedia().level;
-        __classPrivateFieldSet(this, _Levels_default, `${initialLevel}`, "f");
+        __classPrivateFieldSet(this, _Levels_defaultLevel, `${initialLevel}`, "f");
         const menuItems = this._formatMenuItems();
-        const defaultLevel = menuItems.length ? menuItems.find((items) => items.key === __classPrivateFieldGet(this, _Levels_default, "f")) : null;
+        const defaultLevel = menuItems.length ? menuItems.find((items) => items.key === __classPrivateFieldGet(this, _Levels_defaultLevel, "f")) : null;
         const defaultLabel = defaultLevel ? defaultLevel.label : (labels === null || labels === void 0 ? void 0 : labels.auto) || '';
         let levelSet = false;
         __classPrivateFieldSet(this, _Levels_button, document.createElement('button'), "f");
@@ -46,7 +46,7 @@ class Levels {
         __classPrivateFieldGet(this, _Levels_button, "f").title = (labels === null || labels === void 0 ? void 0 : labels.mediaLevels) || '';
         __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('aria-controls', __classPrivateFieldGet(this, _Levels_player, "f").id);
         __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('aria-label', (labels === null || labels === void 0 ? void 0 : labels.mediaLevels) || '');
-        __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', __classPrivateFieldGet(this, _Levels_default, "f"));
+        __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', __classPrivateFieldGet(this, _Levels_defaultLevel, "f"));
         __classPrivateFieldGet(this, _Levels_button, "f").innerHTML = `<span>${defaultLabel}</span>`;
         const loadLevelsEvent = () => {
             if (!__classPrivateFieldGet(this, _Levels_levels, "f").length) {
@@ -120,7 +120,7 @@ class Levels {
             if (option.closest(`#${__classPrivateFieldGet(this, _Levels_player, "f").id}`) && option.classList.contains('op-levels__option')) {
                 const levelVal = option.getAttribute('data-value');
                 const level = parseInt(levelVal ? levelVal.replace('levels-', '') : '-1', 10);
-                __classPrivateFieldSet(this, _Levels_default, `${level}`, "f");
+                __classPrivateFieldSet(this, _Levels_defaultLevel, `${level}`, "f");
                 if (detachMenus) {
                     __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', `${level}`);
                     __classPrivateFieldGet(this, _Levels_button, "f").innerHTML = `<span>${option.innerText}</span>`;
@@ -205,15 +205,13 @@ class Levels {
             return {};
         }
         const subitems = this._formatMenuItems();
-        return subitems.length > 2
-            ? {
-                className: 'op-levels__option',
-                default: __classPrivateFieldGet(this, _Levels_default, "f") || '-1',
-                key: 'levels',
-                name: labels === null || labels === void 0 ? void 0 : labels.levels,
-                subitems,
-            }
-            : {};
+        return subitems.length > 2 ? {
+            className: 'op-levels__option',
+            default: __classPrivateFieldGet(this, _Levels_defaultLevel, "f") || '-1',
+            key: 'levels',
+            name: labels === null || labels === void 0 ? void 0 : labels.levels,
+            subitems,
+        } : {};
     }
     _formatMenuItems() {
         const { labels } = __classPrivateFieldGet(this, _Levels_player, "f").getOptions();
@@ -287,7 +285,7 @@ class Levels {
                 ${options
                 .map((item) => `
                 <div class="op-settings__submenu-item" tabindex="0" role="menuitemradio"
-                    aria-checked="${__classPrivateFieldGet(this, _Levels_default, "f") === item.key ? 'true' : 'false'}">
+                    aria-checked="${__classPrivateFieldGet(this, _Levels_defaultLevel, "f") === item.key ? 'true' : 'false'}">
                     <div class="op-settings__submenu-label ${className || ''}" data-value="levels-${item.key}">${item.label}</div>
                 </div>`)
                 .join('')}
@@ -304,5 +302,5 @@ class Levels {
         }
     }
 }
-_Levels_player = new WeakMap(), _Levels_button = new WeakMap(), _Levels_menu = new WeakMap(), _Levels_events = new WeakMap(), _Levels_levels = new WeakMap(), _Levels_default = new WeakMap(), _Levels_controlPosition = new WeakMap(), _Levels_controlLayer = new WeakMap();
+_Levels_player = new WeakMap(), _Levels_button = new WeakMap(), _Levels_menu = new WeakMap(), _Levels_events = new WeakMap(), _Levels_levels = new WeakMap(), _Levels_defaultLevel = new WeakMap(), _Levels_controlPosition = new WeakMap(), _Levels_controlLayer = new WeakMap();
 export default Levels;

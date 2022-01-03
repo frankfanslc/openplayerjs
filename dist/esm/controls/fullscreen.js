@@ -36,6 +36,8 @@ class Fullscreen {
         this._enterSpaceKeyEvent = this._enterSpaceKeyEvent.bind(this);
         this._resize = this._resize.bind(this);
         this._fullscreenChange = this._fullscreenChange.bind(this);
+        this._setFullscreen = this._setFullscreen.bind(this);
+        this._unsetFullscreen = this._unsetFullscreen.bind(this);
         __classPrivateFieldSet(this, _Fullscreen_fullscreenEvents, ['fullscreenchange', 'mozfullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'], "f");
         __classPrivateFieldGet(this, _Fullscreen_fullscreenEvents, "f").forEach((event) => {
             document.addEventListener(event, this._fullscreenChange, EVENT_OPTIONS);
@@ -43,16 +45,8 @@ class Fullscreen {
         this._setFullscreenData(false);
         __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         if (IS_IPHONE) {
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitbeginfullscreen', () => {
-                __classPrivateFieldSet(this, _Fullscreen_isFullscreen, true, "f");
-                this._setFullscreenData(true);
-                document.body.classList.add('op-fullscreen__on');
-            }, EVENT_OPTIONS);
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitendfullscreen', () => {
-                __classPrivateFieldSet(this, _Fullscreen_isFullscreen, false, "f");
-                this._setFullscreenData(false);
-                document.body.classList.remove('op-fullscreen__on');
-            }, EVENT_OPTIONS);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
         }
         return this;
     }
@@ -83,16 +77,8 @@ class Fullscreen {
             document.removeEventListener(event, this._fullscreenChange);
         });
         if (IS_IPHONE) {
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitbeginfullscreen', () => {
-                __classPrivateFieldSet(this, _Fullscreen_isFullscreen, true, "f");
-                this._setFullscreenData(false);
-                document.body.classList.add('op-fullscreen__on');
-            });
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitendfullscreen', () => {
-                __classPrivateFieldSet(this, _Fullscreen_isFullscreen, false, "f");
-                this._setFullscreenData(true);
-                document.body.classList.remove('op-fullscreen__on');
-            });
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
         }
         __classPrivateFieldGet(this, _Fullscreen_button, "f").removeEventListener('click', __classPrivateFieldGet(this, _Fullscreen_clickEvent, "f"));
         __classPrivateFieldGet(this, _Fullscreen_button, "f").remove();
@@ -143,10 +129,8 @@ class Fullscreen {
         }
         if (typeof window !== 'undefined' && (IS_ANDROID || IS_IPHONE)) {
             const { screen } = window;
-            if (screen.orientation) {
-                if (!__classPrivateFieldGet(this, _Fullscreen_isFullscreen, "f")) {
-                    screen.orientation.lock('landscape');
-                }
+            if (screen.orientation && !__classPrivateFieldGet(this, _Fullscreen_isFullscreen, "f")) {
+                screen.orientation.lock('landscape');
             }
         }
     }
@@ -221,6 +205,16 @@ class Fullscreen {
             e.preventDefault();
             e.stopPropagation();
         }
+    }
+    _setFullscreen() {
+        __classPrivateFieldSet(this, _Fullscreen_isFullscreen, true, "f");
+        this._setFullscreenData(true);
+        document.body.classList.add('op-fullscreen__on');
+    }
+    _unsetFullscreen() {
+        __classPrivateFieldSet(this, _Fullscreen_isFullscreen, false, "f");
+        this._setFullscreenData(false);
+        document.body.classList.remove('op-fullscreen__on');
     }
 }
 _Fullscreen_player = new WeakMap(), _Fullscreen_isFullscreen = new WeakMap(), _Fullscreen_button = new WeakMap(), _Fullscreen_fullscreenEvents = new WeakMap(), _Fullscreen_fullscreenWidth = new WeakMap(), _Fullscreen_fullscreenHeight = new WeakMap(), _Fullscreen_clickEvent = new WeakMap(), _Fullscreen_controlPosition = new WeakMap(), _Fullscreen_controlLayer = new WeakMap();

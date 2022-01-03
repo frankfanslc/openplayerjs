@@ -44,6 +44,8 @@ class Fullscreen implements PlayerComponent {
         this._enterSpaceKeyEvent = this._enterSpaceKeyEvent.bind(this);
         this._resize = this._resize.bind(this);
         this._fullscreenChange = this._fullscreenChange.bind(this);
+        this._setFullscreen = this._setFullscreen.bind(this);
+        this._unsetFullscreen = this._unsetFullscreen.bind(this);
 
         this.#fullscreenEvents = ['fullscreenchange', 'mozfullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'];
 
@@ -56,24 +58,8 @@ class Fullscreen implements PlayerComponent {
 
         // Since iPhone still doesn't accept the regular Fullscreen API, use the following events
         if (IS_IPHONE) {
-            this.#player.getElement().addEventListener(
-                'webkitbeginfullscreen',
-                (): void => {
-                    this.#isFullscreen = true;
-                    this._setFullscreenData(true);
-                    document.body.classList.add('op-fullscreen__on');
-                },
-                EVENT_OPTIONS
-            );
-            this.#player.getElement().addEventListener(
-                'webkitendfullscreen',
-                (): void => {
-                    this.#isFullscreen = false;
-                    this._setFullscreenData(false);
-                    document.body.classList.remove('op-fullscreen__on');
-                },
-                EVENT_OPTIONS
-            );
+            this.#player.getElement().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
+            this.#player.getElement().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
         }
         return this;
     }
@@ -111,16 +97,8 @@ class Fullscreen implements PlayerComponent {
             document.removeEventListener(event, this._fullscreenChange);
         });
         if (IS_IPHONE) {
-            this.#player.getElement().removeEventListener('webkitbeginfullscreen', (): void => {
-                this.#isFullscreen = true;
-                this._setFullscreenData(false);
-                document.body.classList.add('op-fullscreen__on');
-            });
-            this.#player.getElement().removeEventListener('webkitendfullscreen', (): void => {
-                this.#isFullscreen = false;
-                this._setFullscreenData(true);
-                document.body.classList.remove('op-fullscreen__on');
-            });
+            this.#player.getElement().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
+            this.#player.getElement().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
         }
         this.#button.removeEventListener('click', this.#clickEvent);
         this.#button.remove();
@@ -167,10 +145,8 @@ class Fullscreen implements PlayerComponent {
 
         if (typeof window !== 'undefined' && (IS_ANDROID || IS_IPHONE)) {
             const { screen } = window;
-            if (screen.orientation) {
-                if (!this.#isFullscreen) {
-                    screen.orientation.lock('landscape');
-                }
+            if (screen.orientation && !this.#isFullscreen) {
+                screen.orientation.lock('landscape');
             }
         }
     }
@@ -245,6 +221,18 @@ class Fullscreen implements PlayerComponent {
             e.preventDefault();
             e.stopPropagation();
         }
+    }
+
+    private _setFullscreen(): void {
+        this.#isFullscreen = true;
+        this._setFullscreenData(true);
+        document.body.classList.add('op-fullscreen__on');
+    }
+
+    private _unsetFullscreen(): void {
+        this.#isFullscreen = false;
+        this._setFullscreenData(false);
+        document.body.classList.remove('op-fullscreen__on');
     }
 }
 

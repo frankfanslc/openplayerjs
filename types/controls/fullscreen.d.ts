@@ -11,5 +11,7 @@ declare class Fullscreen implements PlayerComponent {
     private _setFullscreenData;
     private _resize;
     private _enterSpaceKeyEvent;
+    private _setFullscreen;
+    private _unsetFullscreen;
 }
 export default Fullscreen;

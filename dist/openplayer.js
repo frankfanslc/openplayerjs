@@ -2037,6 +2037,8 @@ var Fullscreen = function () {
     this._enterSpaceKeyEvent = this._enterSpaceKeyEvent.bind(this);
     this._resize = this._resize.bind(this);
     this._fullscreenChange = this._fullscreenChange.bind(this);
+    this._setFullscreen = this._setFullscreen.bind(this);
+    this._unsetFullscreen = this._unsetFullscreen.bind(this);
 
     fullscreen_classPrivateFieldSet(this, _Fullscreen_fullscreenEvents, ['fullscreenchange', 'mozfullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'], "f");
 
@@ -2049,21 +2051,9 @@ var Fullscreen = function () {
     fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
 
     if (IS_IPHONE) {
-      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitbeginfullscreen', function () {
-        fullscreen_classPrivateFieldSet(_this, _Fullscreen_isFullscreen, true, "f");
+      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
 
-        _this._setFullscreenData(true);
-
-        document.body.classList.add('op-fullscreen__on');
-      }, EVENT_OPTIONS);
-
-      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitendfullscreen', function () {
-        fullscreen_classPrivateFieldSet(_this, _Fullscreen_isFullscreen, false, "f");
-
-        _this._setFullscreenData(false);
-
-        document.body.classList.remove('op-fullscreen__on');
-      }, EVENT_OPTIONS);
+      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
     }
 
     return this;
@@ -2114,21 +2104,9 @@ var Fullscreen = function () {
       });
 
       if (IS_IPHONE) {
-        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitbeginfullscreen', function () {
-          fullscreen_classPrivateFieldSet(_this3, _Fullscreen_isFullscreen, true, "f");
+        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
 
-          _this3._setFullscreenData(false);
-
-          document.body.classList.add('op-fullscreen__on');
-        });
-
-        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitendfullscreen', function () {
-          fullscreen_classPrivateFieldSet(_this3, _Fullscreen_isFullscreen, false, "f");
-
-          _this3._setFullscreenData(true);
-
-          document.body.classList.remove('op-fullscreen__on');
-        });
+        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
       }
 
       fullscreen_classPrivateFieldGet(this, _Fullscreen_button, "f").removeEventListener('click', fullscreen_classPrivateFieldGet(this, _Fullscreen_clickEvent, "f"));
@@ -2182,10 +2160,8 @@ var Fullscreen = function () {
         var _window = window,
             screen = _window.screen;
 
-        if (screen.orientation) {
-          if (!fullscreen_classPrivateFieldGet(this, _Fullscreen_isFullscreen, "f")) {
-            screen.orientation.lock('landscape');
-          }
+        if (screen.orientation && !fullscreen_classPrivateFieldGet(this, _Fullscreen_isFullscreen, "f")) {
+          screen.orientation.lock('landscape');
         }
       }
     }
@@ -2276,6 +2252,24 @@ var Fullscreen = function () {
         e.preventDefault();
         e.stopPropagation();
       }
+    }
+  }, {
+    key: "_setFullscreen",
+    value: function _setFullscreen() {
+      fullscreen_classPrivateFieldSet(this, _Fullscreen_isFullscreen, true, "f");
+
+      this._setFullscreenData(true);
+
+      document.body.classList.add('op-fullscreen__on');
+    }
+  }, {
+    key: "_unsetFullscreen",
+    value: function _unsetFullscreen() {
+      fullscreen_classPrivateFieldSet(this, _Fullscreen_isFullscreen, false, "f");
+
+      this._setFullscreenData(false);
+
+      document.body.classList.remove('op-fullscreen__on');
     }
   }]);
 
@@ -2404,7 +2398,7 @@ var levels_classPrivateFieldGet = undefined && undefined.__classPrivateFieldGet 
   return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 
-var _Levels_player, _Levels_button, _Levels_menu, _Levels_events, _Levels_levels, _Levels_default, _Levels_controlPosition, _Levels_controlLayer;
+var _Levels_player, _Levels_button, _Levels_menu, _Levels_events, _Levels_levels, _Levels_defaultLevel, _Levels_controlPosition, _Levels_controlLayer;
 
 
 
@@ -2428,7 +2422,7 @@ var Levels = function () {
 
     _Levels_levels.set(this, []);
 
-    _Levels_default.set(this, '');
+    _Levels_defaultLevel.set(this, '');
 
     _Levels_controlPosition.set(this, void 0);
 
@@ -2455,12 +2449,12 @@ var Levels = function () {
 
       var initialLevel = startLevel !== null ? parseInt(startLevel || '0', 10) : levels_classPrivateFieldGet(this, _Levels_player, "f").getMedia().level;
 
-      levels_classPrivateFieldSet(this, _Levels_default, "".concat(initialLevel), "f");
+      levels_classPrivateFieldSet(this, _Levels_defaultLevel, "".concat(initialLevel), "f");
 
       var menuItems = this._formatMenuItems();
 
       var defaultLevel = menuItems.length ? menuItems.find(function (items) {
-        return items.key === levels_classPrivateFieldGet(_this, _Levels_default, "f");
+        return items.key === levels_classPrivateFieldGet(_this, _Levels_defaultLevel, "f");
       }) : null;
       var defaultLabel = defaultLevel ? defaultLevel.label : (labels === null || labels === void 0 ? void 0 : labels.auto) || '';
       var levelSet = false;
@@ -2475,7 +2469,7 @@ var Levels = function () {
 
       levels_classPrivateFieldGet(this, _Levels_button, "f").setAttribute('aria-label', (labels === null || labels === void 0 ? void 0 : labels.mediaLevels) || '');
 
-      levels_classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', levels_classPrivateFieldGet(this, _Levels_default, "f"));
+      levels_classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', levels_classPrivateFieldGet(this, _Levels_defaultLevel, "f"));
 
       levels_classPrivateFieldGet(this, _Levels_button, "f").innerHTML = "<span>".concat(defaultLabel, "</span>");
 
@@ -2573,7 +2567,7 @@ var Levels = function () {
           var levelVal = option.getAttribute('data-value');
           var level = parseInt(levelVal ? levelVal.replace('levels-', '') : '-1', 10);
 
-          levels_classPrivateFieldSet(_this, _Levels_default, "".concat(level), "f");
+          levels_classPrivateFieldSet(_this, _Levels_defaultLevel, "".concat(level), "f");
 
           if (detachMenus) {
             levels_classPrivateFieldGet(_this, _Levels_button, "f").setAttribute('data-active-level', "".concat(level));
@@ -2709,7 +2703,7 @@ var Levels = function () {
 
       return subitems.length > 2 ? {
         className: 'op-levels__option',
-        default: levels_classPrivateFieldGet(this, _Levels_default, "f") || '-1',
+        default: levels_classPrivateFieldGet(this, _Levels_defaultLevel, "f") || '-1',
         key: 'levels',
         name: labels === null || labels === void 0 ? void 0 : labels.levels,
         subitems: subitems
@@ -2839,7 +2833,7 @@ var Levels = function () {
         var options = this._formatMenuItems();
 
         var menu = "<div class=\"op-settings__menu\" role=\"menu\" id=\"menu-item-levels\">\n                ".concat(options.map(function (item) {
-          return "\n                <div class=\"op-settings__submenu-item\" tabindex=\"0\" role=\"menuitemradio\"\n                    aria-checked=\"".concat(levels_classPrivateFieldGet(_this4, _Levels_default, "f") === item.key ? 'true' : 'false', "\">\n                    <div class=\"op-settings__submenu-label ").concat(className || '', "\" data-value=\"levels-").concat(item.key, "\">").concat(item.label, "</div>\n                </div>");
+          return "\n                <div class=\"op-settings__submenu-item\" tabindex=\"0\" role=\"menuitemradio\"\n                    aria-checked=\"".concat(levels_classPrivateFieldGet(_this4, _Levels_defaultLevel, "f") === item.key ? 'true' : 'false', "\">\n                    <div class=\"op-settings__submenu-label ").concat(className || '', "\" data-value=\"levels-").concat(item.key, "\">").concat(item.label, "</div>\n                </div>");
         }).join(''), "\n            </div>");
         levels_classPrivateFieldGet(this, _Levels_menu, "f").innerHTML = menu;
         var itemContainer = document.createElement('div');
@@ -2855,7 +2849,7 @@ var Levels = function () {
   return Levels;
 }();
 
-_Levels_player = new WeakMap(), _Levels_button = new WeakMap(), _Levels_menu = new WeakMap(), _Levels_events = new WeakMap(), _Levels_levels = new WeakMap(), _Levels_default = new WeakMap(), _Levels_controlPosition = new WeakMap(), _Levels_controlLayer = new WeakMap();
+_Levels_player = new WeakMap(), _Levels_button = new WeakMap(), _Levels_menu = new WeakMap(), _Levels_events = new WeakMap(), _Levels_levels = new WeakMap(), _Levels_defaultLevel = new WeakMap(), _Levels_controlPosition = new WeakMap(), _Levels_controlLayer = new WeakMap();
 /* harmony default export */ const levels = (Levels);
 ;// CONCATENATED MODULE: ./src/js/controls/play.ts
 
@@ -3441,7 +3435,9 @@ var Progress = function () {
       var forcePause = function forcePause(e) {
         var el = progress_classPrivateFieldGet(_this, _Progress_player, "f").activeElement();
 
-        if ((e.which === 1 || e.which === 0) && progress_classPrivateFieldGet(_this, _Progress_player, "f").isMedia()) {
+        var key = e.which || e.keyCode || 0;
+
+        if ((key === 1 || key === 0) && progress_classPrivateFieldGet(_this, _Progress_player, "f").isMedia()) {
           if (!el.paused) {
             el.pause();
 
@@ -3739,15 +3735,15 @@ var Settings = function () {
         _this.removeItem(id, type);
       };
 
+      this.clickEvent = this.clickEvent.bind(this);
+      this.hideEvent = this.hideEvent.bind(this);
+      this.removeEvent = this.removeEvent.bind(this);
       settings_classPrivateFieldGet(this, _Settings_events, "f").media.controlshidden = this.hideEvent.bind(this);
       settings_classPrivateFieldGet(this, _Settings_events, "f").media.settingremoved = this.removeEvent.bind(this);
       settings_classPrivateFieldGet(this, _Settings_events, "f").media.play = this.hideEvent.bind(this);
       settings_classPrivateFieldGet(this, _Settings_events, "f").media.pause = this.hideEvent.bind(this);
 
       settings_classPrivateFieldGet(this, _Settings_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
-
-      this.clickEvent = this.clickEvent.bind(this);
-      this.hideEvent = this.hideEvent.bind(this);
 
       settings_classPrivateFieldGet(this, _Settings_events, "f").global.click = function (e) {
         var target = e.target;
@@ -4034,7 +4030,7 @@ var time_classPrivateFieldGet = undefined && undefined.__classPrivateFieldGet ||
   return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 
-var _Time_player, _Time_current, _Time_delimiter, _Time_duration, _Time_container, _Time_events, _Time_controlPosition, _Time_controlLayer;
+var _Time_player, _Time_currentTime, _Time_delimiter, _Time_duration, _Time_container, _Time_events, _Time_controlPosition, _Time_controlLayer;
 
 
 
@@ -4045,7 +4041,7 @@ var Time = function () {
 
     _Time_player.set(this, void 0);
 
-    _Time_current.set(this, void 0);
+    _Time_currentTime.set(this, void 0);
 
     _Time_delimiter.set(this, void 0);
 
@@ -4080,17 +4076,17 @@ var Time = function () {
           labels = _classPrivateFieldGe.labels,
           progress = _classPrivateFieldGe.progress;
 
-      time_classPrivateFieldSet(this, _Time_current, document.createElement('time'), "f");
+      time_classPrivateFieldSet(this, _Time_currentTime, document.createElement('time'), "f");
 
-      time_classPrivateFieldGet(this, _Time_current, "f").className = 'op-controls__current';
+      time_classPrivateFieldGet(this, _Time_currentTime, "f").className = 'op-controls__current';
 
-      time_classPrivateFieldGet(this, _Time_current, "f").setAttribute('role', 'timer');
+      time_classPrivateFieldGet(this, _Time_currentTime, "f").setAttribute('role', 'timer');
 
-      time_classPrivateFieldGet(this, _Time_current, "f").setAttribute('aria-live', 'off');
+      time_classPrivateFieldGet(this, _Time_currentTime, "f").setAttribute('aria-live', 'off');
 
-      time_classPrivateFieldGet(this, _Time_current, "f").setAttribute('aria-hidden', 'false');
+      time_classPrivateFieldGet(this, _Time_currentTime, "f").setAttribute('aria-hidden', 'false');
 
-      time_classPrivateFieldGet(this, _Time_current, "f").innerText = '0:00';
+      time_classPrivateFieldGet(this, _Time_currentTime, "f").innerText = '0:00';
       var showOnlyCurrent = (progress === null || progress === void 0 ? void 0 : progress.showCurrentTimeOnly) || false;
 
       if (!showOnlyCurrent) {
@@ -4117,7 +4113,7 @@ var Time = function () {
 
       time_classPrivateFieldGet(this, _Time_container, "f").className = "op-controls-time op-control__".concat(time_classPrivateFieldGet(this, _Time_controlPosition, "f"));
 
-      time_classPrivateFieldGet(this, _Time_container, "f").appendChild(time_classPrivateFieldGet(this, _Time_current, "f"));
+      time_classPrivateFieldGet(this, _Time_container, "f").appendChild(time_classPrivateFieldGet(this, _Time_currentTime, "f"));
 
       if (!showOnlyCurrent) {
         time_classPrivateFieldGet(this, _Time_container, "f").appendChild(time_classPrivateFieldGet(this, _Time_delimiter, "f"));
@@ -4138,7 +4134,7 @@ var Time = function () {
             time_classPrivateFieldGet(_this, _Time_duration, "f").innerText = formatTime(duration);
           }
 
-          time_classPrivateFieldGet(_this, _Time_current, "f").innerText = formatTime(el.currentTime);
+          time_classPrivateFieldGet(_this, _Time_currentTime, "f").innerText = formatTime(el.currentTime);
         } else if (!showOnlyCurrent) {
           time_classPrivateFieldGet(_this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
 
@@ -4165,10 +4161,10 @@ var Time = function () {
 
             time_classPrivateFieldGet(_this, _Time_delimiter, "f").setAttribute('aria-hidden', 'false');
           } else if (showOnlyCurrent || duration !== time_classPrivateFieldGet(_this, _Time_duration, "f").innerText) {
-            time_classPrivateFieldGet(_this, _Time_current, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
+            time_classPrivateFieldGet(_this, _Time_currentTime, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
           }
 
-          time_classPrivateFieldGet(_this, _Time_current, "f").innerText = formatTime(el.currentTime);
+          time_classPrivateFieldGet(_this, _Time_currentTime, "f").innerText = formatTime(el.currentTime);
         } else if (time_classPrivateFieldGet(_this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled')) {
           if (!showOnlyCurrent) {
             time_classPrivateFieldGet(_this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
@@ -4176,7 +4172,7 @@ var Time = function () {
             time_classPrivateFieldGet(_this, _Time_delimiter, "f").setAttribute('aria-hidden', 'true');
           }
 
-          time_classPrivateFieldGet(_this, _Time_current, "f").innerText = formatTime(el.currentTime);
+          time_classPrivateFieldGet(_this, _Time_currentTime, "f").innerText = formatTime(el.currentTime);
         } else if (showOnlyCurrent || !time_classPrivateFieldGet(_this, _Time_player, "f").getElement().getAttribute('op-dvr__enabled') && time_classPrivateFieldGet(_this, _Time_duration, "f").getAttribute('aria-hidden') === 'false') {
           if (!showOnlyCurrent) {
             time_classPrivateFieldGet(_this, _Time_duration, "f").setAttribute('aria-hidden', 'true');
@@ -4184,9 +4180,9 @@ var Time = function () {
             time_classPrivateFieldGet(_this, _Time_delimiter, "f").setAttribute('aria-hidden', 'true');
           }
 
-          time_classPrivateFieldGet(_this, _Time_current, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
+          time_classPrivateFieldGet(_this, _Time_currentTime, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
         } else {
-          time_classPrivateFieldGet(_this, _Time_current, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
+          time_classPrivateFieldGet(_this, _Time_currentTime, "f").innerText = showLiveLabel ? (labels === null || labels === void 0 ? void 0 : labels.live) || '' : formatTime(el.currentTime);
         }
       };
 
@@ -4219,7 +4215,7 @@ var Time = function () {
 
       time_classPrivateFieldGet(this, _Time_player, "f").getControls().getContainer().removeEventListener('controlschanged', time_classPrivateFieldGet(this, _Time_events, "f").controls.controlschanged);
 
-      time_classPrivateFieldGet(this, _Time_current, "f").remove();
+      time_classPrivateFieldGet(this, _Time_currentTime, "f").remove();
 
       var _ref2 = time_classPrivateFieldGet(this, _Time_player, "f").getOptions().progress || {},
           showCurrentTimeOnly = _ref2.showCurrentTimeOnly;
@@ -4237,7 +4233,7 @@ var Time = function () {
   return Time;
 }();
 
-_Time_player = new WeakMap(), _Time_current = new WeakMap(), _Time_delimiter = new WeakMap(), _Time_duration = new WeakMap(), _Time_container = new WeakMap(), _Time_events = new WeakMap(), _Time_controlPosition = new WeakMap(), _Time_controlLayer = new WeakMap();
+_Time_player = new WeakMap(), _Time_currentTime = new WeakMap(), _Time_delimiter = new WeakMap(), _Time_duration = new WeakMap(), _Time_container = new WeakMap(), _Time_events = new WeakMap(), _Time_controlPosition = new WeakMap(), _Time_controlLayer = new WeakMap();
 /* harmony default export */ const time = (Time);
 ;// CONCATENATED MODULE: ./src/js/controls/volume.ts
 

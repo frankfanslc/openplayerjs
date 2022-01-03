@@ -82,15 +82,16 @@ class Settings implements PlayerComponent {
             this.removeItem(id, type);
         };
 
+        this.clickEvent = this.clickEvent.bind(this);
+        this.hideEvent = this.hideEvent.bind(this);
+        this.removeEvent = this.removeEvent.bind(this);
+
         this.#events.media.controlshidden = this.hideEvent.bind(this);
         this.#events.media.settingremoved = this.removeEvent.bind(this);
         this.#events.media.play = this.hideEvent.bind(this);
         this.#events.media.pause = this.hideEvent.bind(this);
 
         this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
-
-        this.clickEvent = this.clickEvent.bind(this);
-        this.hideEvent = this.hideEvent.bind(this);
 
         this.#events.global.click = (e: Event): void => {
             const { target } = e;
