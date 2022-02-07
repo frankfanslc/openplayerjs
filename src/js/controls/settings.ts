@@ -1,6 +1,7 @@
 import { EventsList, PlayerComponent, SettingsItem, SettingsSubItem, SettingsSubMenu } from '../interfaces';
 import Player from '../player';
 import { EVENT_OPTIONS } from '../utils/constants';
+import { sanitize } from '../utils/general';
 
 class Settings implements PlayerComponent {
     #player: Player;
@@ -168,11 +169,12 @@ class Settings implements PlayerComponent {
 
     addItem(name: string, key: string, defaultValue: string, submenu?: SettingsSubItem[], className?: string): void {
         // Build the menu entry first
+        const dataValue = `${key}-${sanitize(defaultValue, true)}`;
         const menuItem = document.createElement('div');
         menuItem.className = 'op-settings__menu-item';
         menuItem.tabIndex = 0;
         menuItem.setAttribute('role', 'menuitemradio');
-        menuItem.innerHTML = `<div class="op-settings__menu-label" data-value="${key}-${defaultValue}">${name}</div>`;
+        menuItem.innerHTML = `<div class="op-settings__menu-label" data-value="${dataValue}">${name}</div>`;
 
         const submenuMatch = submenu ? submenu.find((x) => x.key === defaultValue) : null;
         if (submenuMatch) {
@@ -256,7 +258,7 @@ class Settings implements PlayerComponent {
                             if (prev) {
                                 prev.setAttribute('data-value', `${current}`);
                                 if (prev.nextElementSibling) {
-                                    prev.nextElementSibling.innerHTML = label;
+                                    prev.nextElementSibling.textContent = label;
                                 }
                             }
                             defaultValue = value;

@@ -127,6 +127,7 @@ class Player {
         startTime: 0,
         startVolume: 1,
         step: 0,
+        useDeviceVolume: true,
         width: 0,
     };
 
@@ -532,9 +533,11 @@ class Player {
             this.#uid = this.#element.id;
             this.#element.removeAttribute('id');
         } else {
+            const encryption =
+                typeof (crypto as any).getRandomBytes === 'function' ? (crypto as any).getRandomBytes : crypto.getRandomValues;
             let uid;
             do {
-                uid = `op_${Math.random().toString(36).substr(2, 9)}`;
+                uid = `op_${encryption(new Uint32Array(1))[0].toString(36).substr(2, 9)}`;
             } while (Player.instances[uid] !== undefined);
             this.#uid = uid;
         }

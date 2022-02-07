@@ -162,7 +162,7 @@ class Volume implements PlayerComponent {
 
         this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
 
-        if (!IS_ANDROID && !IS_IOS) {
+        if ((!IS_ANDROID && !IS_IOS) || !this.#player.getOptions().useDeviceVolume) {
             const controls = this.#player.getControls().getLayer(this.#controlLayer);
             controls.appendChild(this.#button);
             controls.appendChild(this.#container);

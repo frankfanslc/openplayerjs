@@ -1,7 +1,7 @@
 import { EventsList, Level, PlayerComponent, SettingsItem, SettingsSubItem } from '../interfaces';
 import Player from '../player';
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, NAV } from '../utils/constants';
-import { addEvent } from '../utils/general';
+import { addEvent, sanitize } from '../utils/general';
 import { isDashSource, isHlsSource } from '../utils/media';
 
 class Levels implements PlayerComponent {
@@ -127,7 +127,7 @@ class Levels implements PlayerComponent {
                 this.#defaultLevel = `${level}`;
                 if (detachMenus) {
                     this.#button.setAttribute('data-active-level', `${level}`);
-                    this.#button.innerHTML = `<span>${option.innerText}</span>`;
+                    this.#button.innerHTML = `<span>${sanitize(option.innerText, true)}</span>`;
                     const levels =
                         option.parentElement && option.parentElement.parentElement
                             ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item')

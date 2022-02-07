@@ -2572,7 +2572,7 @@ var Levels = function () {
           if (detachMenus) {
             levels_classPrivateFieldGet(_this, _Levels_button, "f").setAttribute('data-active-level', "".concat(level));
 
-            levels_classPrivateFieldGet(_this, _Levels_button, "f").innerHTML = "<span>".concat(option.innerText, "</span>");
+            levels_classPrivateFieldGet(_this, _Levels_button, "f").innerHTML = "<span>".concat(sanitize(option.innerText, true), "</span>");
             var levels = option.parentElement && option.parentElement.parentElement ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item') : [];
 
             for (var i = 0, total = levels.length; i < total; ++i) {
@@ -2924,7 +2924,7 @@ var Play = function () {
 
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getLayer(play_classPrivateFieldGet(this, _Play_controlLayer, "f")).appendChild(play_classPrivateFieldGet(this, _Play_button, "f"));
 
-      play_classPrivateFieldGet(this, _Play_events, "f").media.click = function (e) {
+      play_classPrivateFieldGet(this, _Play_events, "f").button = function (e) {
         play_classPrivateFieldGet(_this, _Play_button, "f").setAttribute('aria-pressed', 'true');
 
         var el = play_classPrivateFieldGet(_this, _Play_player, "f").activeElement();
@@ -3065,11 +3065,15 @@ var Play = function () {
         element.addEventListener(event, play_classPrivateFieldGet(_this, _Play_events, "f").media[event], EVENT_OPTIONS);
       });
 
+      if (!IS_ANDROID && !IS_IOS) {
+        element.addEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
+      }
+
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().addEventListener('controlschanged', play_classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
 
       play_classPrivateFieldGet(this, _Play_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
 
-      play_classPrivateFieldGet(this, _Play_button, "f").addEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").media.click, EVENT_OPTIONS);
+      play_classPrivateFieldGet(this, _Play_button, "f").addEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
     }
   }, {
     key: "destroy",
@@ -3080,11 +3084,15 @@ var Play = function () {
         play_classPrivateFieldGet(_this2, _Play_player, "f").getElement().removeEventListener(event, play_classPrivateFieldGet(_this2, _Play_events, "f").media[event]);
       });
 
+      if (!IS_ANDROID && !IS_IOS) {
+        play_classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button);
+      }
+
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().removeEventListener('controlschanged', play_classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
 
       play_classPrivateFieldGet(this, _Play_player, "f").getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
 
-      play_classPrivateFieldGet(this, _Play_button, "f").removeEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").media.click);
+      play_classPrivateFieldGet(this, _Play_button, "f").removeEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button);
 
       play_classPrivateFieldGet(this, _Play_button, "f").remove();
     }
@@ -3097,7 +3105,7 @@ var Play = function () {
       var playBtnFocused = (_a = document === null || document === void 0 ? void 0 : document.activeElement) === null || _a === void 0 ? void 0 : _a.classList.contains('op-controls__playpause');
 
       if (playBtnFocused && (key === 13 || key === 32)) {
-        play_classPrivateFieldGet(this, _Play_events, "f").media.click(e);
+        play_classPrivateFieldGet(this, _Play_events, "f").button(e);
       }
     }
   }]);
@@ -3636,6 +3644,7 @@ var _Settings_player, _Settings_submenu, _Settings_button, _Settings_menu, _Sett
 
 
 
+
 var Settings = function () {
   function Settings(player, position, layer) {
     classCallCheck_default()(this, Settings);
@@ -3850,11 +3859,12 @@ var Settings = function () {
     value: function addItem(name, key, defaultValue, submenu, className) {
       var _this3 = this;
 
+      var dataValue = "".concat(key, "-").concat(sanitize(defaultValue, true));
       var menuItem = document.createElement('div');
       menuItem.className = 'op-settings__menu-item';
       menuItem.tabIndex = 0;
       menuItem.setAttribute('role', 'menuitemradio');
-      menuItem.innerHTML = "<div class=\"op-settings__menu-label\" data-value=\"".concat(key, "-").concat(defaultValue, "\">").concat(name, "</div>");
+      menuItem.innerHTML = "<div class=\"op-settings__menu-label\" data-value=\"".concat(dataValue, "\">").concat(name, "</div>");
       var submenuMatch = submenu ? submenu.find(function (x) {
         return x.key === defaultValue;
       }) : null;
@@ -3937,7 +3947,7 @@ var Settings = function () {
                   prev.setAttribute('data-value', "".concat(_current));
 
                   if (prev.nextElementSibling) {
-                    prev.nextElementSibling.innerHTML = _label;
+                    prev.nextElementSibling.textContent = _label;
                   }
                 }
 
@@ -4468,7 +4478,7 @@ var Volume = function () {
 
       volume_classPrivateFieldGet(this, _Volume_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
 
-      if (!IS_ANDROID && !IS_IOS) {
+      if (!IS_ANDROID && !IS_IOS || !volume_classPrivateFieldGet(this, _Volume_player, "f").getOptions().useDeviceVolume) {
         var controls = volume_classPrivateFieldGet(this, _Volume_player, "f").getControls().getLayer(volume_classPrivateFieldGet(this, _Volume_controlLayer, "f"));
 
         controls.appendChild(volume_classPrivateFieldGet(this, _Volume_button, "f"));
@@ -8213,6 +8223,7 @@ var Player = function () {
       startTime: 0,
       startVolume: 1,
       step: 0,
+      useDeviceVolume: true,
       width: 0
     });
 
@@ -8760,10 +8771,11 @@ var Player = function () {
 
         player_classPrivateFieldGet(this, _Player_element, "f").removeAttribute('id');
       } else {
+        var encryption = typeof crypto.getRandomBytes === 'function' ? crypto.getRandomBytes : crypto.getRandomValues;
         var uid;
 
         do {
-          uid = "op_".concat(Math.random().toString(36).substr(2, 9));
+          uid = "op_".concat(encryption(new Uint32Array(1))[0].toString(36).substr(2, 9));
         } while (Player.instances[uid] !== undefined);
 
         player_classPrivateFieldSet(this, _Player_uid, uid, "f");

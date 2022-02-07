@@ -1,6 +1,6 @@
 import { EventsList, PlayerComponent } from '../interfaces';
 import Player from '../player';
-import { EVENT_OPTIONS } from '../utils/constants';
+import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
 import { addEvent, isAudio } from '../utils/general';
 
 class Play implements PlayerComponent {
@@ -42,7 +42,7 @@ class Play implements PlayerComponent {
             .getLayer(this.#controlLayer)
             .appendChild(this.#button);
 
-        this.#events.media.click = (e: Event): void => {
+        this.#events.button = (e: Event): void => {
             this.#button.setAttribute('aria-pressed', 'true');
             const el = this.#player.activeElement();
             if (el.paused || el.ended) {
@@ -151,14 +151,17 @@ class Play implements PlayerComponent {
             element.addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
+        if (!IS_ANDROID && !IS_IOS) {
+            element.addEventListener('click', this.#events.button, EVENT_OPTIONS);
+        }
+
         this.#player
             .getControls()
             .getContainer()
             .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
 
         this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
-
-        this.#button.addEventListener('click', this.#events.media.click, EVENT_OPTIONS);
+        this.#button.addEventListener('click', this.#events.button, EVENT_OPTIONS);
     }
 
     destroy(): void {
@@ -166,14 +169,17 @@ class Play implements PlayerComponent {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
 
+        if (!IS_ANDROID && !IS_IOS) {
+            this.#player.getElement().removeEventListener('click', this.#events.button);
+        }
+
         this.#player
             .getControls()
             .getContainer()
             .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
         this.#player.getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
-
-        this.#button.removeEventListener('click', this.#events.media.click);
+        this.#button.removeEventListener('click', this.#events.button);
         this.#button.remove();
     }
 
@@ -181,7 +187,7 @@ class Play implements PlayerComponent {
         const key = e.which || e.keyCode || 0;
         const playBtnFocused = document?.activeElement?.classList.contains('op-controls__playpause');
         if (playBtnFocused && (key === 13 || key === 32)) {
-            this.#events.media.click(e);
+            this.#events.button(e);
         }
     }
 }

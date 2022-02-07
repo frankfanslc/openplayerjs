@@ -11,6 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _Settings_player, _Settings_submenu, _Settings_button, _Settings_menu, _Settings_events, _Settings_originalOutput, _Settings_controlPosition, _Settings_controlLayer;
 import { EVENT_OPTIONS } from '../utils/constants';
+import { sanitize } from '../utils/general';
 class Settings {
     constructor(player, position, layer) {
         _Settings_player.set(this, void 0);
@@ -143,11 +144,12 @@ class Settings {
         };
     }
     addItem(name, key, defaultValue, submenu, className) {
+        const dataValue = `${key}-${sanitize(defaultValue, true)}`;
         const menuItem = document.createElement('div');
         menuItem.className = 'op-settings__menu-item';
         menuItem.tabIndex = 0;
         menuItem.setAttribute('role', 'menuitemradio');
-        menuItem.innerHTML = `<div class="op-settings__menu-label" data-value="${key}-${defaultValue}">${name}</div>`;
+        menuItem.innerHTML = `<div class="op-settings__menu-label" data-value="${dataValue}">${name}</div>`;
         const submenuMatch = submenu ? submenu.find((x) => x.key === defaultValue) : null;
         if (submenuMatch) {
             menuItem.innerHTML += `<div class="op-settings__menu-content" tabindex="0">${submenuMatch.label}</div>`;
@@ -218,7 +220,7 @@ class Settings {
                             if (prev) {
                                 prev.setAttribute('data-value', `${current}`);
                                 if (prev.nextElementSibling) {
-                                    prev.nextElementSibling.innerHTML = label;
+                                    prev.nextElementSibling.textContent = label;
                                 }
                             }
                             defaultValue = value;

@@ -145,7 +145,7 @@ class Volume {
             __classPrivateFieldGet(this, _Volume_slider, "f").addEventListener(event, __classPrivateFieldGet(this, _Volume_events, "f").slider[event], EVENT_OPTIONS);
         });
         __classPrivateFieldGet(this, _Volume_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
-        if (!IS_ANDROID && !IS_IOS) {
+        if ((!IS_ANDROID && !IS_IOS) || !__classPrivateFieldGet(this, _Volume_player, "f").getOptions().useDeviceVolume) {
             const controls = __classPrivateFieldGet(this, _Volume_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Volume_controlLayer, "f"));
             controls.appendChild(__classPrivateFieldGet(this, _Volume_button, "f"));
             controls.appendChild(__classPrivateFieldGet(this, _Volume_container, "f"));

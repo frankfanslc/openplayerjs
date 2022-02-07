@@ -11,7 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _Levels_player, _Levels_button, _Levels_menu, _Levels_events, _Levels_levels, _Levels_defaultLevel, _Levels_controlPosition, _Levels_controlLayer;
 import { EVENT_OPTIONS, IS_ANDROID, IS_IOS, NAV } from '../utils/constants';
-import { addEvent } from '../utils/general';
+import { addEvent, sanitize } from '../utils/general';
 import { isDashSource, isHlsSource } from '../utils/media';
 class Levels {
     constructor(player, position, layer) {
@@ -123,7 +123,7 @@ class Levels {
                 __classPrivateFieldSet(this, _Levels_defaultLevel, `${level}`, "f");
                 if (detachMenus) {
                     __classPrivateFieldGet(this, _Levels_button, "f").setAttribute('data-active-level', `${level}`);
-                    __classPrivateFieldGet(this, _Levels_button, "f").innerHTML = `<span>${option.innerText}</span>`;
+                    __classPrivateFieldGet(this, _Levels_button, "f").innerHTML = `<span>${sanitize(option.innerText, true)}</span>`;
                     const levels = option.parentElement && option.parentElement.parentElement
                         ? option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item')
                         : [];
@@ -205,13 +205,15 @@ class Levels {
             return {};
         }
         const subitems = this._formatMenuItems();
-        return subitems.length > 2 ? {
-            className: 'op-levels__option',
-            default: __classPrivateFieldGet(this, _Levels_defaultLevel, "f") || '-1',
-            key: 'levels',
-            name: labels === null || labels === void 0 ? void 0 : labels.levels,
-            subitems,
-        } : {};
+        return subitems.length > 2
+            ? {
+                className: 'op-levels__option',
+                default: __classPrivateFieldGet(this, _Levels_defaultLevel, "f") || '-1',
+                key: 'levels',
+                name: labels === null || labels === void 0 ? void 0 : labels.levels,
+                subitems,
+            }
+            : {};
     }
     _formatMenuItems() {
         const { labels } = __classPrivateFieldGet(this, _Levels_player, "f").getOptions();

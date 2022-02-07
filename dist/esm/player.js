@@ -101,6 +101,7 @@ class Player {
             startTime: 0,
             startVolume: 1,
             step: 0,
+            useDeviceVolume: true,
             width: 0,
         });
         __classPrivateFieldSet(this, _Player_element, element instanceof HTMLMediaElement ? element : document.getElementById(element), "f");
@@ -464,9 +465,11 @@ class Player {
             __classPrivateFieldGet(this, _Player_element, "f").removeAttribute('id');
         }
         else {
+            const encryption = typeof crypto.getRandomBytes === 'function' ?
+                crypto.getRandomBytes : crypto.getRandomValues;
             let uid;
             do {
-                uid = `op_${Math.random().toString(36).substr(2, 9)}`;
+                uid = `op_${encryption(new Uint32Array(1))[0].toString(36).substr(2, 9)}`;
             } while (Player.instances[uid] !== undefined);
             __classPrivateFieldSet(this, _Player_uid, uid, "f");
         }
