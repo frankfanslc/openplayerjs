@@ -465,8 +465,7 @@ class Player {
             __classPrivateFieldGet(this, _Player_element, "f").removeAttribute('id');
         }
         else {
-            const encryption = typeof crypto.getRandomBytes === 'function' ?
-                crypto.getRandomBytes : crypto.getRandomValues;
+            const encryption = typeof crypto.getRandomBytes === 'function' ? crypto.getRandomBytes : crypto.getRandomValues;
             let uid;
             do {
                 uid = `op_${encryption(new Uint32Array(1))[0].toString(36).substr(2, 9)}`;

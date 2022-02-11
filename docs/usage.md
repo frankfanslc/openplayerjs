@@ -154,6 +154,7 @@ player.init();
 | `progress` |Configuration related to the progress bar. |
 | `progress.duration` |The default duration in seconds to show while loading the media (default: `0`). This is to improve some of the UX when the player hasn't detected the metadata of the media yet, but you don't want to show a 00:00 duration. |
 | `progress.showCurrentTimeOnly` |Flag to show only current time, or show both time and duration. By default, `false`. |
+| `useDeviceVolume` | When this option is `false`, the Volume/Mute elements will be displayed in mobile devices  |
 
 **NOTE**: In order to use this setup, the video/audio tag(s) **must** have a unique ID.
 
