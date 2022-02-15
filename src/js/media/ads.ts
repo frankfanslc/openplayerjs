@@ -332,6 +332,8 @@ class Ads {
             this.#loader.removeEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this._loaded);
         }
 
+        // eslint-disable-next-line no-console
+        console.log(this.#currentIndex, this.#ads.length);
         const destroy = !Array.isArray(this.#ads) || this.#currentIndex > this.#ads.length;
         if (this.#manager && destroy) {
             this.#manager.destroy();
@@ -834,7 +836,7 @@ class Ads {
                 this.#playTriggered = true;
                 this.#started = true;
                 this.#done = false;
-                this._requestAds();
+                this.load(true);
             } else {
                 if (!this.#options.autoPlayAdBreaks) {
                     this._resetAdsAfterManualBreak();

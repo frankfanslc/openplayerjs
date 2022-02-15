@@ -280,6 +280,7 @@ class Ads {
             __classPrivateFieldGet(this, _Ads_loader, "f").removeEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error);
             __classPrivateFieldGet(this, _Ads_loader, "f").removeEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this._loaded);
         }
+        console.log(__classPrivateFieldGet(this, _Ads_currentIndex, "f"), __classPrivateFieldGet(this, _Ads_ads, "f").length);
         const destroy = !Array.isArray(__classPrivateFieldGet(this, _Ads_ads, "f")) || __classPrivateFieldGet(this, _Ads_currentIndex, "f") > __classPrivateFieldGet(this, _Ads_ads, "f").length;
         if (__classPrivateFieldGet(this, _Ads_manager, "f") && destroy) {
             __classPrivateFieldGet(this, _Ads_manager, "f").destroy();
@@ -729,7 +730,7 @@ class Ads {
                 __classPrivateFieldSet(this, _Ads_playTriggered, true, "f");
                 __classPrivateFieldSet(this, _Ads_started, true, "f");
                 __classPrivateFieldSet(this, _Ads_done, false, "f");
-                this._requestAds();
+                this.load(true);
             }
             else {
                 if (!__classPrivateFieldGet(this, _Ads_options, "f").autoPlayAdBreaks) {

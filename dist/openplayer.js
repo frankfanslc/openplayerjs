@@ -7318,6 +7318,8 @@ var Ads = function () {
         ads_classPrivateFieldGet(this, _Ads_loader, "f").removeEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this._loaded);
       }
 
+      console.log(ads_classPrivateFieldGet(this, _Ads_currentIndex, "f"), ads_classPrivateFieldGet(this, _Ads_ads, "f").length);
+
       var destroy = !Array.isArray(ads_classPrivateFieldGet(this, _Ads_ads, "f")) || ads_classPrivateFieldGet(this, _Ads_currentIndex, "f") > ads_classPrivateFieldGet(this, _Ads_ads, "f").length;
 
       if (ads_classPrivateFieldGet(this, _Ads_manager, "f") && destroy) {
@@ -7915,7 +7917,7 @@ var Ads = function () {
 
           ads_classPrivateFieldSet(this, _Ads_done, false, "f");
 
-          this._requestAds();
+          this.load(true);
         } else {
           if (!ads_classPrivateFieldGet(this, _Ads_options, "f").autoPlayAdBreaks) {
             this._resetAdsAfterManualBreak();
