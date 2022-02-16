@@ -35,6 +35,16 @@ class Captions {
         __classPrivateFieldSet(this, _Captions_player, player, "f");
         __classPrivateFieldSet(this, _Captions_controlPosition, position, "f");
         __classPrivateFieldSet(this, _Captions_controlLayer, layer, "f");
+        this._getCuesFromText = this._getCuesFromText.bind(this);
+        this._getNativeCues = this._getNativeCues.bind(this);
+        this._displayCaptions = this._displayCaptions.bind(this);
+        this._hideCaptions = this._hideCaptions.bind(this);
+        this._search = this._search.bind(this);
+        this._prepareTrack = this._prepareTrack.bind(this);
+        this._formatMenuItems = this._formatMenuItems.bind(this);
+        return this;
+    }
+    create() {
         const trackList = __classPrivateFieldGet(this, _Captions_player, "f").getElement().textTracks;
         const tracks = [];
         for (let i = 0, total = trackList.length; i < total; i++) {
@@ -54,9 +64,6 @@ class Captions {
         }
         __classPrivateFieldSet(this, _Captions_mediaTrackList, tracks, "f");
         __classPrivateFieldSet(this, _Captions_hasTracks, !!__classPrivateFieldGet(this, _Captions_mediaTrackList, "f").length, "f");
-        return this;
-    }
-    create() {
         if (!__classPrivateFieldGet(this, _Captions_hasTracks, "f")) {
             return;
         }
@@ -80,8 +87,8 @@ class Captions {
                 </div>
             </div>`;
         }
-        for (let i = 0, tracks = __classPrivateFieldGet(this, _Captions_player, "f").getElement().querySelectorAll('track'), total = tracks.length; i < total; i++) {
-            const element = tracks[i];
+        for (let i = 0, trackItems = __classPrivateFieldGet(this, _Captions_player, "f").getElement().querySelectorAll('track'), total = trackItems.length; i < total; i++) {
+            const element = trackItems[i];
             if (element.kind === 'subtitles' || element.kind === 'captions') {
                 if (element.default) {
                     __classPrivateFieldSet(this, _Captions_default, element.srclang, "f");
@@ -218,16 +225,10 @@ class Captions {
                 itemContainer.className = `op-controls__container op-control__${__classPrivateFieldGet(this, _Captions_controlPosition, "f")}`;
                 itemContainer.appendChild(__classPrivateFieldGet(this, _Captions_button, "f"));
                 itemContainer.appendChild(__classPrivateFieldGet(this, _Captions_menu, "f"));
-                __classPrivateFieldGet(this, _Captions_player, "f")
-                    .getControls()
-                    .getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f"))
-                    .appendChild(itemContainer);
+                __classPrivateFieldGet(this, _Captions_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f")).appendChild(itemContainer);
             }
             else {
-                __classPrivateFieldGet(this, _Captions_player, "f")
-                    .getControls()
-                    .getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f"))
-                    .appendChild(__classPrivateFieldGet(this, _Captions_button, "f"));
+                __classPrivateFieldGet(this, _Captions_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f")).appendChild(__classPrivateFieldGet(this, _Captions_button, "f"));
             }
             __classPrivateFieldGet(this, _Captions_button, "f").addEventListener('click', __classPrivateFieldGet(this, _Captions_events, "f").button.click, EVENT_OPTIONS);
         }

@@ -42,8 +42,8 @@ So, please consider this before upgrading to any of the 3.x.x version going forw
 
 | | | |
 |--|--|--|
-|[<img width="120" alt="MedSims" src="https://img.medscapestatic.com/pi/global/icons/icon-medsims-logo@2x.png" />](https://www.medscape.org/simulation) | [<img width="120" alt="Arrow Classic Rock" src="https://player.arrow.nl/tmp/images/logo.1507670326.jpg" />](https://player.arrow.nl/ad.html) | [<img width="120" alt="Uttlesford District Council" src="https://uttlesford.moderngov.co.uk/SiteSpecific/res/img/uttlesfordlogo.png" />](https://uttlesford.moderngov.co.uk/ieListDocuments.aspx?CId=159&MId=5501)|
-|[<img width="120" alt="LectureTube" src="https://live.video.tuwien.ac.at/room/assets/lecturetube_landscape.svg" />](https://live.video.tuwien.ac.at/room/heart0/player.html)| [Servicio Online](https://40152354.servicio-online.net//INDEX.html)| |
+|[![MedSims](https://img.medscapestatic.com/pi/global/icons/icon-medsims-logo@2x.png)](https://www.medscape.org/simulation) | [![Arrow Classic Rock](https://player.arrow.nl/tmp/images/logo.1507670326.jpg)](https://player.arrow.nl/ad.html) | [![Uttlesford District Council](https://uttlesford.moderngov.co.uk/SiteSpecific/res/img/uttlesfordlogo.png)](https://uttlesford.moderngov.co.uk/ieListDocuments.aspx?CId=159&MId=5501)|
+|[![LectureTube](https://live.video.tuwien.ac.at/room/assets/lecturetube_landscape.svg)](https://live.video.tuwien.ac.at/room/heart0/player.html)| [Servicio Online](https://40152354.servicio-online.net//INDEX.html)| |
 
 ## Migrating from older version to new ones
 

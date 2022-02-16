@@ -226,6 +226,9 @@ export interface PlayerOptions {
         showLabel?: boolean;
         showProgress?: boolean;
     };
+    media?: {
+        pauseOnClick?: boolean;
+    };
     mode?: 'responsive' | 'fill' | 'fit';
     onError?: (e: unknown) => void;
     pauseOthers?: boolean;

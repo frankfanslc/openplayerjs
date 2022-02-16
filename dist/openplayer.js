@@ -1412,30 +1412,13 @@ var Captions = function () {
 
     __classPrivateFieldSet(this, _Captions_controlLayer, layer, "f");
 
-    var trackList = __classPrivateFieldGet(this, _Captions_player, "f").getElement().textTracks;
-
-    var tracks = [];
-
-    for (var i = 0, total = trackList.length; i < total; i++) {
-      var selector = ["track[kind=\"subtitles\"][srclang=\"".concat(trackList[i].language, "\"][label=\"").concat(trackList[i].label, "\"]"), "track[kind=\"captions\"][srclang=\"".concat(trackList[i].language, "\"][label=\"").concat(trackList[i].label, "\"]")];
-
-      var tag = __classPrivateFieldGet(this, _Captions_player, "f").getElement().querySelector(selector.join(', '));
-
-      if (tag) {
-        tracks.push(trackList[i]);
-      }
-    }
-
-    if (!tracks.length) {
-      for (var _i = 0, _total = trackList.length; _i < _total; _i++) {
-        tracks.push(trackList[_i]);
-      }
-    }
-
-    __classPrivateFieldSet(this, _Captions_mediaTrackList, tracks, "f");
-
-    __classPrivateFieldSet(this, _Captions_hasTracks, !!__classPrivateFieldGet(this, _Captions_mediaTrackList, "f").length, "f");
-
+    this._getCuesFromText = this._getCuesFromText.bind(this);
+    this._getNativeCues = this._getNativeCues.bind(this);
+    this._displayCaptions = this._displayCaptions.bind(this);
+    this._hideCaptions = this._hideCaptions.bind(this);
+    this._search = this._search.bind(this);
+    this._prepareTrack = this._prepareTrack.bind(this);
+    this._formatMenuItems = this._formatMenuItems.bind(this);
     return this;
   }
 
@@ -1443,6 +1426,30 @@ var Captions = function () {
     key: "create",
     value: function create() {
       var _this = this;
+
+      var trackList = __classPrivateFieldGet(this, _Captions_player, "f").getElement().textTracks;
+
+      var tracks = [];
+
+      for (var i = 0, total = trackList.length; i < total; i++) {
+        var selector = ["track[kind=\"subtitles\"][srclang=\"".concat(trackList[i].language, "\"][label=\"").concat(trackList[i].label, "\"]"), "track[kind=\"captions\"][srclang=\"".concat(trackList[i].language, "\"][label=\"").concat(trackList[i].label, "\"]")];
+
+        var tag = __classPrivateFieldGet(this, _Captions_player, "f").getElement().querySelector(selector.join(', '));
+
+        if (tag) {
+          tracks.push(trackList[i]);
+        }
+      }
+
+      if (!tracks.length) {
+        for (var _i = 0, _total = trackList.length; _i < _total; _i++) {
+          tracks.push(trackList[_i]);
+        }
+      }
+
+      __classPrivateFieldSet(this, _Captions_mediaTrackList, tracks, "f");
+
+      __classPrivateFieldSet(this, _Captions_hasTracks, !!__classPrivateFieldGet(this, _Captions_mediaTrackList, "f").length, "f");
 
       if (!__classPrivateFieldGet(this, _Captions_hasTracks, "f")) {
         return;
@@ -1478,8 +1485,8 @@ var Captions = function () {
         __classPrivateFieldGet(this, _Captions_menu, "f").innerHTML = "<div class=\"op-settings__menu\" role=\"menu\" id=\"menu-item-captions\">\n                <div class=\"op-settings__submenu-item\" tabindex=\"0\" role=\"menuitemradio\" aria-checked=\"".concat(__classPrivateFieldGet(this, _Captions_default, "f") === 'off' ? 'true' : 'false', "\">\n                    <div class=\"op-settings__submenu-label op-subtitles__option\" data-value=\"captions-off\">").concat(labels === null || labels === void 0 ? void 0 : labels.off, "</div>\n                </div>\n            </div>");
       }
 
-      var _loop = function _loop(i, tracks, total) {
-        var element = tracks[i];
+      var _loop = function _loop(trackItems, _i2, _total2) {
+        var element = trackItems[_i2];
 
         if (element.kind === 'subtitles' || element.kind === 'captions') {
           if (element.default) {
@@ -1490,13 +1497,13 @@ var Captions = function () {
 
           var trackUrl = getAbsoluteUrl(element.src);
 
-          var currTrack = __classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i];
+          var currTrack = __classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2];
 
           if (currTrack && currTrack.language === element.srclang) {
             if (currTrack.cues && currTrack.cues.length > 0) {
-              __classPrivateFieldGet(_this, _Captions_langTracks, "f")[element.srclang] = _this._getNativeCues(__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i]);
+              __classPrivateFieldGet(_this, _Captions_langTracks, "f")[element.srclang] = _this._getNativeCues(__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2]);
 
-              _this._prepareTrack(i, element.srclang, trackUrl, element.default || false);
+              _this._prepareTrack(_i2, element.srclang, trackUrl, element.default || false);
             } else {
               fetch(trackUrl).then(function (response) {
                 if (!response.ok) {
@@ -1507,18 +1514,18 @@ var Captions = function () {
               }).then(function (d) {
                 __classPrivateFieldGet(_this, _Captions_langTracks, "f")[element.srclang] = _this._getCuesFromText(d);
 
-                _this._prepareTrack(i, element.srclang, trackUrl, element.default || false);
+                _this._prepareTrack(_i2, element.srclang, trackUrl, element.default || false);
 
-                var selector = ".op-subtitles__option[data-value=\"captions-".concat(__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i].language, "\"]");
+                var selector = ".op-subtitles__option[data-value=\"captions-".concat(__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2].language, "\"]");
 
                 if (__classPrivateFieldGet(_this, _Captions_menu, "f") && !__classPrivateFieldGet(_this, _Captions_menu, "f").querySelector(selector)) {
                   var item = document.createElement('div');
-                  var label = (labels === null || labels === void 0 ? void 0 : labels.lang) ? labels.lang[__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i].language] : null;
+                  var label = (labels === null || labels === void 0 ? void 0 : labels.lang) ? labels.lang[__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2].language] : null;
                   item.className = 'op-settings__submenu-item';
                   item.tabIndex = 0;
                   item.setAttribute('role', 'menuitemradio');
-                  item.setAttribute('aria-checked', __classPrivateFieldGet(_this, _Captions_default, "f") === __classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i].language ? 'true' : 'false');
-                  item.innerHTML = "<div class=\"op-settings__submenu-label op-subtitles__option\"\n                                        data-value=\"captions-".concat(__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i].language, "\">\n                                        ").concat(label || __classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[i].label, "\n                                    </div>");
+                  item.setAttribute('aria-checked', __classPrivateFieldGet(_this, _Captions_default, "f") === __classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2].language ? 'true' : 'false');
+                  item.innerHTML = "<div class=\"op-settings__submenu-label op-subtitles__option\"\n                                        data-value=\"captions-".concat(__classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2].language, "\">\n                                        ").concat(label || __classPrivateFieldGet(_this, _Captions_mediaTrackList, "f")[_i2].label, "\n                                    </div>");
 
                   __classPrivateFieldGet(_this, _Captions_menu, "f").appendChild(item);
                 }
@@ -1528,8 +1535,8 @@ var Captions = function () {
         }
       };
 
-      for (var i = 0, tracks = __classPrivateFieldGet(this, _Captions_player, "f").getElement().querySelectorAll('track'), total = tracks.length; i < total; i++) {
-        _loop(i, tracks, total);
+      for (var _i2 = 0, trackItems = __classPrivateFieldGet(this, _Captions_player, "f").getElement().querySelectorAll('track'), _total2 = trackItems.length; _i2 < _total2; _i2++) {
+        _loop(trackItems, _i2, _total2);
       }
 
       __classPrivateFieldSet(this, _Captions_captions, document.createElement('div'), "f");
@@ -1571,9 +1578,9 @@ var Captions = function () {
         if (detachMenus) {
           var menus = __classPrivateFieldGet(_this, _Captions_player, "f").getContainer().querySelectorAll('.op-settings');
 
-          for (var _i2 = 0, _total2 = menus.length; _i2 < _total2; ++_i2) {
-            if (menus[_i2] !== __classPrivateFieldGet(_this, _Captions_menu, "f")) {
-              menus[_i2].setAttribute('aria-hidden', 'true');
+          for (var _i3 = 0, _total3 = menus.length; _i3 < _total3; ++_i3) {
+            if (menus[_i3] !== __classPrivateFieldGet(_this, _Captions_menu, "f")) {
+              menus[_i3].setAttribute('aria-hidden', 'true');
             }
           }
 
@@ -1611,9 +1618,9 @@ var Captions = function () {
         if (!IS_IOS && !IS_ANDROID && detachMenus) {
           var menus = __classPrivateFieldGet(_this, _Captions_player, "f").getContainer().querySelectorAll('.op-settings');
 
-          for (var _i3 = 0, _total3 = menus.length; _i3 < _total3; ++_i3) {
-            if (menus[_i3] !== __classPrivateFieldGet(_this, _Captions_menu, "f")) {
-              menus[_i3].setAttribute('aria-hidden', 'true');
+          for (var _i4 = 0, _total4 = menus.length; _i4 < _total4; ++_i4) {
+            if (menus[_i4] !== __classPrivateFieldGet(_this, _Captions_menu, "f")) {
+              menus[_i4].setAttribute('aria-hidden', 'true');
             }
           }
 
@@ -1627,8 +1634,8 @@ var Captions = function () {
         if (!IS_IOS && !IS_ANDROID && detachMenus) {
           var menus = __classPrivateFieldGet(_this, _Captions_player, "f").getContainer().querySelectorAll('.op-settings');
 
-          for (var _i4 = 0, _total4 = menus.length; _i4 < _total4; ++_i4) {
-            menus[_i4].setAttribute('aria-hidden', 'true');
+          for (var _i5 = 0, _total5 = menus.length; _i5 < _total5; ++_i5) {
+            menus[_i5].setAttribute('aria-hidden', 'true');
           }
 
           if (__classPrivateFieldGet(_this, _Captions_menu, "f").getAttribute('aria-hidden') === 'false') {
@@ -1690,8 +1697,8 @@ var Captions = function () {
             if (option.parentElement && option.parentElement.parentElement) {
               var captions = option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item');
 
-              for (var _i5 = 0, _total5 = captions.length; _i5 < _total5; ++_i5) {
-                captions[_i5].setAttribute('aria-checked', 'false');
+              for (var _i6 = 0, _total6 = captions.length; _i6 < _total6; ++_i6) {
+                captions[_i6].setAttribute('aria-checked', 'false');
               }
             }
 
@@ -2884,6 +2891,8 @@ var Play = function () {
     value: function create() {
       var _this = this;
 
+      var _a;
+
       var _classPrivateFieldGe = play_classPrivateFieldGet(this, _Play_player, "f").getOptions(),
           labels = _classPrivateFieldGe.labels;
 
@@ -3043,6 +3052,10 @@ var Play = function () {
         element.addEventListener(event, play_classPrivateFieldGet(_this, _Play_events, "f").media[event], EVENT_OPTIONS);
       });
 
+      if ((_a = play_classPrivateFieldGet(this, _Play_player, "f").getOptions().media) === null || _a === void 0 ? void 0 : _a.pauseOnClick) {
+        element.addEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
+      }
+
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().addEventListener('controlschanged', play_classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
 
       play_classPrivateFieldGet(this, _Play_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
@@ -3054,9 +3067,15 @@ var Play = function () {
     value: function destroy() {
       var _this2 = this;
 
+      var _a;
+
       Object.keys(play_classPrivateFieldGet(this, _Play_events, "f").media).forEach(function (event) {
         play_classPrivateFieldGet(_this2, _Play_player, "f").getElement().removeEventListener(event, play_classPrivateFieldGet(_this2, _Play_events, "f").media[event]);
       });
+
+      if ((_a = play_classPrivateFieldGet(this, _Play_player, "f").getOptions().media) === null || _a === void 0 ? void 0 : _a.pauseOnClick) {
+        play_classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button);
+      }
 
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().removeEventListener('controlschanged', play_classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
 
@@ -7275,8 +7294,6 @@ var Ads = function () {
         ads_classPrivateFieldGet(this, _Ads_loader, "f").removeEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this._loaded);
       }
 
-      console.log(ads_classPrivateFieldGet(this, _Ads_currentIndex, "f"), ads_classPrivateFieldGet(this, _Ads_ads, "f").length);
-
       var destroy = !Array.isArray(ads_classPrivateFieldGet(this, _Ads_ads, "f")) || ads_classPrivateFieldGet(this, _Ads_currentIndex, "f") > ads_classPrivateFieldGet(this, _Ads_ads, "f").length;
 
       if (ads_classPrivateFieldGet(this, _Ads_manager, "f") && destroy) {
@@ -8168,6 +8185,9 @@ var Player = function () {
       live: {
         showLabel: true,
         showProgress: false
+      },
+      media: {
+        pauseOnClick: false
       },
       mode: 'responsive',
       onError: function onError(e) {

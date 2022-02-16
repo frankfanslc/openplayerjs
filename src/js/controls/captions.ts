@@ -39,6 +39,19 @@ class Captions implements PlayerComponent {
         this.#player = player;
         this.#controlPosition = position;
         this.#controlLayer = layer;
+
+        this._getCuesFromText = this._getCuesFromText.bind(this);
+        this._getNativeCues = this._getNativeCues.bind(this);
+        this._displayCaptions = this._displayCaptions.bind(this);
+        this._hideCaptions = this._hideCaptions.bind(this);
+        this._search = this._search.bind(this);
+        this._prepareTrack = this._prepareTrack.bind(this);
+        this._formatMenuItems = this._formatMenuItems.bind(this);
+
+        return this;
+    }
+
+    create(): void {
         const trackList = this.#player.getElement().textTracks;
 
         // Check that `trackList` matches with track tags (if any)
@@ -61,10 +74,7 @@ class Captions implements PlayerComponent {
         }
         this.#mediaTrackList = tracks;
         this.#hasTracks = !!this.#mediaTrackList.length;
-        return this;
-    }
 
-    create(): void {
         if (!this.#hasTracks) {
             return;
         }
@@ -97,8 +107,8 @@ class Captions implements PlayerComponent {
 
         // Determine if tracks are valid (have valid URLs and contain cues); if so include them in the list of available tracks.
         // Otherwise, remove the markup associated with them
-        for (let i = 0, tracks = this.#player.getElement().querySelectorAll('track'), total = tracks.length; i < total; i++) {
-            const element = tracks[i] as HTMLTrackElement;
+        for (let i = 0, trackItems = this.#player.getElement().querySelectorAll('track'), total = trackItems.length; i < total; i++) {
+            const element = trackItems[i] as HTMLTrackElement;
             if (element.kind === 'subtitles' || element.kind === 'captions') {
                 if (element.default) {
                     this.#default = element.srclang;
@@ -239,15 +249,9 @@ class Captions implements PlayerComponent {
                 itemContainer.className = `op-controls__container op-control__${this.#controlPosition}`;
                 itemContainer.appendChild(this.#button);
                 itemContainer.appendChild(this.#menu);
-                this.#player
-                    .getControls()
-                    .getLayer(this.#controlLayer)
-                    .appendChild(itemContainer);
+                this.#player.getControls().getLayer(this.#controlLayer).appendChild(itemContainer);
             } else {
-                this.#player
-                    .getControls()
-                    .getLayer(this.#controlLayer)
-                    .appendChild(this.#button);
+                this.#player.getControls().getLayer(this.#controlLayer).appendChild(this.#button);
             }
             this.#button.addEventListener('click', this.#events.button.click, EVENT_OPTIONS);
         }

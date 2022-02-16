@@ -30,6 +30,7 @@ class Play {
         return this;
     }
     create() {
+        var _a;
         const { labels } = __classPrivateFieldGet(this, _Play_player, "f").getOptions();
         __classPrivateFieldSet(this, _Play_button, document.createElement('button'), "f");
         __classPrivateFieldGet(this, _Play_button, "f").type = 'button';
@@ -39,10 +40,7 @@ class Play {
         __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-controls', __classPrivateFieldGet(this, _Play_player, "f").id);
         __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-pressed', 'false');
         __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-label', (labels === null || labels === void 0 ? void 0 : labels.play) || '');
-        __classPrivateFieldGet(this, _Play_player, "f")
-            .getControls()
-            .getLayer(__classPrivateFieldGet(this, _Play_controlLayer, "f"))
-            .appendChild(__classPrivateFieldGet(this, _Play_button, "f"));
+        __classPrivateFieldGet(this, _Play_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Play_controlLayer, "f")).appendChild(__classPrivateFieldGet(this, _Play_button, "f"));
         __classPrivateFieldGet(this, _Play_events, "f").button = (e) => {
             __classPrivateFieldGet(this, _Play_button, "f").setAttribute('aria-pressed', 'true');
             const el = __classPrivateFieldGet(this, _Play_player, "f").activeElement();
@@ -148,21 +146,22 @@ class Play {
         Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach((event) => {
             element.addEventListener(event, __classPrivateFieldGet(this, _Play_events, "f").media[event], EVENT_OPTIONS);
         });
-        __classPrivateFieldGet(this, _Play_player, "f")
-            .getControls()
-            .getContainer()
-            .addEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
+        if ((_a = __classPrivateFieldGet(this, _Play_player, "f").getOptions().media) === null || _a === void 0 ? void 0 : _a.pauseOnClick) {
+            element.addEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
+        }
+        __classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().addEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Play_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         __classPrivateFieldGet(this, _Play_button, "f").addEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
     }
     destroy() {
+        var _a;
         Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Play_events, "f").media[event]);
         });
-        __classPrivateFieldGet(this, _Play_player, "f")
-            .getControls()
-            .getContainer()
-            .removeEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
+        if ((_a = __classPrivateFieldGet(this, _Play_player, "f").getOptions().media) === null || _a === void 0 ? void 0 : _a.pauseOnClick) {
+            __classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").button);
+        }
+        __classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().removeEventListener('controlschanged', __classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
         __classPrivateFieldGet(this, _Play_player, "f").getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
         __classPrivateFieldGet(this, _Play_button, "f").removeEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").button);
         __classPrivateFieldGet(this, _Play_button, "f").remove();

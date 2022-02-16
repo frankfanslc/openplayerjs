@@ -90,6 +90,9 @@ class Player {
                 showLabel: true,
                 showProgress: false,
             },
+            media: {
+                pauseOnClick: false,
+            },
             mode: 'responsive',
             onError: (e) => console.error(e),
             pauseOthers: true,

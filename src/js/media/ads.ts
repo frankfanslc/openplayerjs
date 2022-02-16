@@ -213,10 +213,7 @@ class Ads {
             } else {
                 this.#skipElement = document.createElement('button');
                 this.#skipElement.className = 'op-ads__skip hidden';
-                this.#player
-                    .getControls()
-                    .getContainer()
-                    .appendChild(this.#skipElement);
+                this.#player.getControls().getContainer().appendChild(this.#skipElement);
             }
             if (this.#skipElement) {
                 this.#skipElement.addEventListener('click', this._handleSkipAds, EVENT_OPTIONS);
@@ -332,8 +329,6 @@ class Ads {
             this.#loader.removeEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this._loaded);
         }
 
-        // eslint-disable-next-line no-console
-        console.log(this.#currentIndex, this.#ads.length);
         const destroy = !Array.isArray(this.#ads) || this.#currentIndex > this.#ads.length;
         if (this.#manager && destroy) {
             this.#manager.destroy();

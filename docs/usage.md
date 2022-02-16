@@ -294,7 +294,7 @@ Generally speaking, the error will look like this:
 
 And this can be solved by setting in the server side the proper permission headers (specially if you are using `localhost` for it):
 
-```
+```text
 Access-Control-Allow-Origin: [origin header value, or * to allow all sites]
 Access-Control-Allow-Credentials: true
 ```
