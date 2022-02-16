@@ -1,6 +1,6 @@
 import { EventsList, PlayerComponent } from '../interfaces';
 import Player from '../player';
-import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
+import { EVENT_OPTIONS } from '../utils/constants';
 import { addEvent, isAudio } from '../utils/general';
 
 class Play implements PlayerComponent {
@@ -151,10 +151,6 @@ class Play implements PlayerComponent {
             element.addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
-        if (!IS_ANDROID && !IS_IOS) {
-            element.addEventListener('click', this.#events.button, EVENT_OPTIONS);
-        }
-
         this.#player
             .getControls()
             .getContainer()
@@ -168,10 +164,6 @@ class Play implements PlayerComponent {
         Object.keys(this.#events.media).forEach((event) => {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
-
-        if (!IS_ANDROID && !IS_IOS) {
-            this.#player.getElement().removeEventListener('click', this.#events.button);
-        }
 
         this.#player
             .getControls()

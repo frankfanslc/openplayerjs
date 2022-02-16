@@ -3065,10 +3065,6 @@ var Play = function () {
         element.addEventListener(event, play_classPrivateFieldGet(_this, _Play_events, "f").media[event], EVENT_OPTIONS);
       });
 
-      if (!IS_ANDROID && !IS_IOS) {
-        element.addEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
-      }
-
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().addEventListener('controlschanged', play_classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged, EVENT_OPTIONS);
 
       play_classPrivateFieldGet(this, _Play_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
@@ -3083,10 +3079,6 @@ var Play = function () {
       Object.keys(play_classPrivateFieldGet(this, _Play_events, "f").media).forEach(function (event) {
         play_classPrivateFieldGet(_this2, _Play_player, "f").getElement().removeEventListener(event, play_classPrivateFieldGet(_this2, _Play_events, "f").media[event]);
       });
-
-      if (!IS_ANDROID && !IS_IOS) {
-        play_classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener('click', play_classPrivateFieldGet(this, _Play_events, "f").button);
-      }
 
       play_classPrivateFieldGet(this, _Play_player, "f").getControls().getContainer().removeEventListener('controlschanged', play_classPrivateFieldGet(this, _Play_events, "f").controls.controlschanged);
 

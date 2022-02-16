@@ -11,7 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 };
 var _Play_player, _Play_button, _Play_events, _Play_controlPosition, _Play_controlLayer;
 import Player from '../player';
-import { EVENT_OPTIONS, IS_ANDROID, IS_IOS } from '../utils/constants';
+import { EVENT_OPTIONS } from '../utils/constants';
 import { addEvent, isAudio } from '../utils/general';
 class Play {
     constructor(player, position, layer) {
@@ -148,9 +148,6 @@ class Play {
         Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach((event) => {
             element.addEventListener(event, __classPrivateFieldGet(this, _Play_events, "f").media[event], EVENT_OPTIONS);
         });
-        if (!IS_ANDROID && !IS_IOS) {
-            element.addEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").button, EVENT_OPTIONS);
-        }
         __classPrivateFieldGet(this, _Play_player, "f")
             .getControls()
             .getContainer()
@@ -162,9 +159,6 @@ class Play {
         Object.keys(__classPrivateFieldGet(this, _Play_events, "f").media).forEach((event) => {
             __classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener(event, __classPrivateFieldGet(this, _Play_events, "f").media[event]);
         });
-        if (!IS_ANDROID && !IS_IOS) {
-            __classPrivateFieldGet(this, _Play_player, "f").getElement().removeEventListener('click', __classPrivateFieldGet(this, _Play_events, "f").button);
-        }
         __classPrivateFieldGet(this, _Play_player, "f")
             .getControls()
             .getContainer()
