@@ -12,6 +12,5 @@ declare class FlvMedia extends Native {
     get level(): number;
     private _create;
     private _assign;
-    private _revoke;
 }
 export default FlvMedia;

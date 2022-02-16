@@ -12,7 +12,6 @@ declare class HlsMedia extends Native {
     get level(): number;
     private _create;
     private _assign;
-    private _revoke;
     private _play;
     private _pause;
 }

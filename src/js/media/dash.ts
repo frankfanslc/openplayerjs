@@ -20,6 +20,9 @@ class DashMedia extends Native {
         super(element, mediaSource);
         this.#options = options;
 
+        this._assign = this._assign.bind(this);
+        this._preparePlayer = this._preparePlayer.bind(this);
+
         this.promise =
             typeof dashjs === 'undefined'
                 ? // Ever-green script
@@ -28,7 +31,6 @@ class DashMedia extends Native {
                       resolve({});
                   });
 
-        this._assign = this._assign.bind(this);
         this.promise.then(() => {
             this.#player = dashjs.MediaPlayer().create();
             this.instance = this.#player;
@@ -57,12 +59,18 @@ class DashMedia extends Native {
     }
 
     destroy(): void {
-        this._revoke();
+        if (this.#events) {
+            Object.keys(this.#events).forEach((event) => {
+                this.#player.off(this.#events[event], this._assign);
+            });
+            this.#events = [];
+        }
+        this.#player.reset();
     }
 
     set src(media: Source) {
         if (isDashSource(media)) {
-            this._revoke();
+            this.destroy();
             this.#player = dashjs.MediaPlayer().create();
             this._preparePlayer();
             this.#player.attachSource(media.src);
@@ -123,16 +131,6 @@ class DashMedia extends Native {
             const e = addEvent(event.type, { detail: event });
             this.element.dispatchEvent(e);
         }
-    }
-
-    private _revoke(): void {
-        if (this.#events) {
-            Object.keys(this.#events).forEach((event) => {
-                this.#player.off(this.#events[event], this._assign);
-            });
-            this.#events = [];
-        }
-        this.#player.reset();
     }
 
     private _preparePlayer(): void {

@@ -29,6 +29,12 @@ class HlsMedia extends Native {
         this.element = element;
         this.media = mediaSource;
         this.#autoplay = autoplay;
+
+        this._create = this._create.bind(this);
+        this._play = this._play.bind(this);
+        this._pause = this._pause.bind(this);
+        this._assign = this._assign.bind(this);
+
         this.promise =
             typeof Hls === 'undefined'
                 ? // Ever-green script
@@ -37,10 +43,6 @@ class HlsMedia extends Native {
                       resolve({});
                   });
 
-        this._create = this._create.bind(this);
-        this._revoke = this._revoke.bind(this);
-        this._play = this._play.bind(this);
-        this._pause = this._pause.bind(this);
         this.promise.then(this._create);
         return this;
     }
@@ -68,12 +70,25 @@ class HlsMedia extends Native {
     }
 
     destroy(): void {
-        this._revoke();
+        if (this.#player) {
+            this.#player.stopLoad();
+        }
+        if (this.#events) {
+            Object.keys(this.#events).forEach((event) => {
+                this.#player.off(this.#events[event], (...args: Record<string, unknown>[]) => this._assign(this.#events[event], args));
+            });
+        }
+        this.element.removeEventListener('play', this._play);
+        this.element.removeEventListener('pause', this._pause);
+        if (this.#player) {
+            this.#player.destroy();
+            this.#player = null;
+        }
     }
 
     set src(media: Source) {
         if (isHlsSource(media)) {
-            this._revoke();
+            this.destroy();
             this.#player = new Hls(this.#options);
             this.#player.loadSource(media.src);
             this.#player.attachMedia(this.element);
@@ -197,23 +212,6 @@ class HlsMedia extends Native {
             }
             const e = addEvent(event, { detail: { data: data[1] } });
             this.element.dispatchEvent(e);
-        }
-    }
-
-    private _revoke(): void {
-        if (this.#player) {
-            this.#player.stopLoad();
-        }
-        if (this.#events) {
-            Object.keys(this.#events).forEach((event) => {
-                this.#player.off(this.#events[event], (...args: Record<string, unknown>[]) => this._assign(this.#events[event], args));
-            });
-        }
-        this.element.removeEventListener('play', this._play);
-        this.element.removeEventListener('pause', this._pause);
-        if (this.#player) {
-            this.#player.destroy();
-            this.#player = null;
         }
     }
 

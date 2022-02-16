@@ -5272,10 +5272,11 @@ var DashMedia = function (_Native) {
 
     dash_classPrivateFieldSet(assertThisInitialized_default()(_this), _DashMedia_options, options, "f");
 
+    _this._assign = _this._assign.bind(assertThisInitialized_default()(_this));
+    _this._preparePlayer = _this._preparePlayer.bind(assertThisInitialized_default()(_this));
     _this.promise = typeof dashjs === 'undefined' ? loadScript('https://cdn.dashjs.org/latest/dash.all.min.js') : new Promise(function (resolve) {
       resolve({});
     });
-    _this._assign = _this._assign.bind(assertThisInitialized_default()(_this));
 
     _this.promise.then(function () {
       dash_classPrivateFieldSet(assertThisInitialized_default()(_this), _DashMedia_player, dashjs.MediaPlayer().create(), "f");
@@ -5314,15 +5315,25 @@ var DashMedia = function (_Native) {
   }, {
     key: "destroy",
     value: function destroy() {
-      this._revoke();
+      var _this3 = this;
+
+      if (dash_classPrivateFieldGet(this, _DashMedia_events, "f")) {
+        Object.keys(dash_classPrivateFieldGet(this, _DashMedia_events, "f")).forEach(function (event) {
+          dash_classPrivateFieldGet(_this3, _DashMedia_player, "f").off(dash_classPrivateFieldGet(_this3, _DashMedia_events, "f")[event], _this3._assign);
+        });
+
+        dash_classPrivateFieldSet(this, _DashMedia_events, [], "f");
+      }
+
+      dash_classPrivateFieldGet(this, _DashMedia_player, "f").reset();
     }
   }, {
     key: "src",
     set: function set(media) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (isDashSource(media)) {
-        this._revoke();
+        this.destroy();
 
         dash_classPrivateFieldSet(this, _DashMedia_player, dashjs.MediaPlayer().create(), "f");
 
@@ -5333,7 +5344,7 @@ var DashMedia = function (_Native) {
         dash_classPrivateFieldSet(this, _DashMedia_events, dashjs.MediaPlayer.events, "f");
 
         Object.keys(dash_classPrivateFieldGet(this, _DashMedia_events, "f")).forEach(function (event) {
-          dash_classPrivateFieldGet(_this3, _DashMedia_player, "f").on(dash_classPrivateFieldGet(_this3, _DashMedia_events, "f")[event], _this3._assign);
+          dash_classPrivateFieldGet(_this4, _DashMedia_player, "f").on(dash_classPrivateFieldGet(_this4, _DashMedia_events, "f")[event], _this4._assign);
         });
       }
     }
@@ -5396,21 +5407,6 @@ var DashMedia = function (_Native) {
         });
         this.element.dispatchEvent(e);
       }
-    }
-  }, {
-    key: "_revoke",
-    value: function _revoke() {
-      var _this4 = this;
-
-      if (dash_classPrivateFieldGet(this, _DashMedia_events, "f")) {
-        Object.keys(dash_classPrivateFieldGet(this, _DashMedia_events, "f")).forEach(function (event) {
-          dash_classPrivateFieldGet(_this4, _DashMedia_player, "f").off(dash_classPrivateFieldGet(_this4, _DashMedia_events, "f")[event], _this4._assign);
-        });
-
-        dash_classPrivateFieldSet(this, _DashMedia_events, [], "f");
-      }
-
-      dash_classPrivateFieldGet(this, _DashMedia_player, "f").reset();
     }
   }, {
     key: "_preparePlayer",
@@ -5505,10 +5501,11 @@ var FlvMedia = function (_Native) {
 
     _this.element = element;
     _this.media = mediaSource;
+    _this._create = _this._create.bind(assertThisInitialized_default()(_this));
+    _this._assign = _this._assign.bind(assertThisInitialized_default()(_this));
     _this.promise = typeof flvjs === 'undefined' ? loadScript('https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js') : new Promise(function (resolve) {
       resolve({});
     });
-    _this._create = _this._create.bind(assertThisInitialized_default()(_this));
 
     _this.promise.then(_this._create);
 
@@ -5553,13 +5550,15 @@ var FlvMedia = function (_Native) {
   }, {
     key: "destroy",
     value: function destroy() {
-      this._revoke();
+      flv_classPrivateFieldGet(this, _FlvMedia_player, "f").destroy();
+
+      flv_classPrivateFieldSet(this, _FlvMedia_player, null, "f");
     }
   }, {
     key: "src",
     set: function set(media) {
       if (isFlvSource(media)) {
-        this._revoke();
+        this.destroy();
 
         this._create();
       }
@@ -5652,13 +5651,6 @@ var FlvMedia = function (_Native) {
         this.element.dispatchEvent(e);
       }
     }
-  }, {
-    key: "_revoke",
-    value: function _revoke() {
-      flv_classPrivateFieldGet(this, _FlvMedia_player, "f").destroy();
-
-      flv_classPrivateFieldSet(this, _FlvMedia_player, null, "f");
-    }
   }]);
 
   return FlvMedia;
@@ -5732,13 +5724,13 @@ var HlsMedia = function (_Native) {
 
     hls_classPrivateFieldSet(assertThisInitialized_default()(_this), _HlsMedia_autoplay, autoplay, "f");
 
+    _this._create = _this._create.bind(assertThisInitialized_default()(_this));
+    _this._play = _this._play.bind(assertThisInitialized_default()(_this));
+    _this._pause = _this._pause.bind(assertThisInitialized_default()(_this));
+    _this._assign = _this._assign.bind(assertThisInitialized_default()(_this));
     _this.promise = typeof Hls === 'undefined' ? loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js') : new Promise(function (resolve) {
       resolve({});
     });
-    _this._create = _this._create.bind(assertThisInitialized_default()(_this));
-    _this._revoke = _this._revoke.bind(assertThisInitialized_default()(_this));
-    _this._play = _this._play.bind(assertThisInitialized_default()(_this));
-    _this._pause = _this._pause.bind(assertThisInitialized_default()(_this));
 
     _this.promise.then(_this._create);
 
@@ -5783,15 +5775,40 @@ var HlsMedia = function (_Native) {
   }, {
     key: "destroy",
     value: function destroy() {
-      this._revoke();
+      var _this3 = this;
+
+      if (hls_classPrivateFieldGet(this, _HlsMedia_player, "f")) {
+        hls_classPrivateFieldGet(this, _HlsMedia_player, "f").stopLoad();
+      }
+
+      if (hls_classPrivateFieldGet(this, _HlsMedia_events, "f")) {
+        Object.keys(hls_classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(function (event) {
+          hls_classPrivateFieldGet(_this3, _HlsMedia_player, "f").off(hls_classPrivateFieldGet(_this3, _HlsMedia_events, "f")[event], function () {
+            for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+              args[_key2] = arguments[_key2];
+            }
+
+            return _this3._assign(hls_classPrivateFieldGet(_this3, _HlsMedia_events, "f")[event], args);
+          });
+        });
+      }
+
+      this.element.removeEventListener('play', this._play);
+      this.element.removeEventListener('pause', this._pause);
+
+      if (hls_classPrivateFieldGet(this, _HlsMedia_player, "f")) {
+        hls_classPrivateFieldGet(this, _HlsMedia_player, "f").destroy();
+
+        hls_classPrivateFieldSet(this, _HlsMedia_player, null, "f");
+      }
     }
   }, {
     key: "src",
     set: function set(media) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (isHlsSource(media)) {
-        this._revoke();
+        this.destroy();
 
         hls_classPrivateFieldSet(this, _HlsMedia_player, new Hls(hls_classPrivateFieldGet(this, _HlsMedia_options, "f")), "f");
 
@@ -5802,12 +5819,12 @@ var HlsMedia = function (_Native) {
         hls_classPrivateFieldSet(this, _HlsMedia_events, Hls.Events, "f");
 
         Object.keys(hls_classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(function (event) {
-          hls_classPrivateFieldGet(_this3, _HlsMedia_player, "f").on(hls_classPrivateFieldGet(_this3, _HlsMedia_events, "f")[event], function () {
-            for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-              args[_key2] = arguments[_key2];
+          hls_classPrivateFieldGet(_this4, _HlsMedia_player, "f").on(hls_classPrivateFieldGet(_this4, _HlsMedia_events, "f")[event], function () {
+            for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+              args[_key3] = arguments[_key3];
             }
 
-            return _this3._assign(hls_classPrivateFieldGet(_this3, _HlsMedia_events, "f")[event], args);
+            return _this4._assign(hls_classPrivateFieldGet(_this4, _HlsMedia_events, "f")[event], args);
           });
         });
       }
@@ -5815,13 +5832,13 @@ var HlsMedia = function (_Native) {
   }, {
     key: "levels",
     get: function get() {
-      var _this4 = this;
+      var _this5 = this;
 
       var levels = [];
 
       if (hls_classPrivateFieldGet(this, _HlsMedia_player, "f") && hls_classPrivateFieldGet(this, _HlsMedia_player, "f").levels && hls_classPrivateFieldGet(this, _HlsMedia_player, "f").levels.length) {
         Object.keys(hls_classPrivateFieldGet(this, _HlsMedia_player, "f").levels).forEach(function (item) {
-          var _classPrivateFieldGe = hls_classPrivateFieldGet(_this4, _HlsMedia_player, "f").levels[item],
+          var _classPrivateFieldGe = hls_classPrivateFieldGet(_this5, _HlsMedia_player, "f").levels[item],
               height = _classPrivateFieldGe.height,
               name = _classPrivateFieldGe.name;
 
@@ -5847,7 +5864,7 @@ var HlsMedia = function (_Native) {
   }, {
     key: "_create",
     value: function _create() {
-      var _this5 = this;
+      var _this6 = this;
 
       var autoplay = !!(this.element.preload === 'auto' || hls_classPrivateFieldGet(this, _HlsMedia_autoplay, "f"));
       hls_classPrivateFieldGet(this, _HlsMedia_options, "f").autoStartLoad = autoplay;
@@ -5859,12 +5876,12 @@ var HlsMedia = function (_Native) {
       hls_classPrivateFieldSet(this, _HlsMedia_events, Hls.Events, "f");
 
       Object.keys(hls_classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(function (event) {
-        hls_classPrivateFieldGet(_this5, _HlsMedia_player, "f").on(hls_classPrivateFieldGet(_this5, _HlsMedia_events, "f")[event], function () {
-          for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-            args[_key3] = arguments[_key3];
+        hls_classPrivateFieldGet(_this6, _HlsMedia_player, "f").on(hls_classPrivateFieldGet(_this6, _HlsMedia_events, "f")[event], function () {
+          for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+            args[_key4] = arguments[_key4];
           }
 
-          return _this5._assign(hls_classPrivateFieldGet(_this5, _HlsMedia_events, "f")[event], args);
+          return _this6._assign(hls_classPrivateFieldGet(_this6, _HlsMedia_events, "f")[event], args);
         });
       });
 
@@ -5978,36 +5995,6 @@ var HlsMedia = function (_Native) {
           }
         });
         this.element.dispatchEvent(e);
-      }
-    }
-  }, {
-    key: "_revoke",
-    value: function _revoke() {
-      var _this6 = this;
-
-      if (hls_classPrivateFieldGet(this, _HlsMedia_player, "f")) {
-        hls_classPrivateFieldGet(this, _HlsMedia_player, "f").stopLoad();
-      }
-
-      if (hls_classPrivateFieldGet(this, _HlsMedia_events, "f")) {
-        Object.keys(hls_classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach(function (event) {
-          hls_classPrivateFieldGet(_this6, _HlsMedia_player, "f").off(hls_classPrivateFieldGet(_this6, _HlsMedia_events, "f")[event], function () {
-            for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-              args[_key4] = arguments[_key4];
-            }
-
-            return _this6._assign(hls_classPrivateFieldGet(_this6, _HlsMedia_events, "f")[event], args);
-          });
-        });
-      }
-
-      this.element.removeEventListener('play', this._play);
-      this.element.removeEventListener('pause', this._pause);
-
-      if (hls_classPrivateFieldGet(this, _HlsMedia_player, "f")) {
-        hls_classPrivateFieldGet(this, _HlsMedia_player, "f").destroy();
-
-        hls_classPrivateFieldSet(this, _HlsMedia_player, null, "f");
       }
     }
   }, {

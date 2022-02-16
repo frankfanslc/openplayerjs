@@ -34,6 +34,8 @@ class FlvMedia extends Native {
         __classPrivateFieldSet(this, _FlvMedia_options, options, "f");
         this.element = element;
         this.media = mediaSource;
+        this._create = this._create.bind(this);
+        this._assign = this._assign.bind(this);
         this.promise =
             typeof flvjs === 'undefined'
                 ?
@@ -41,7 +43,6 @@ class FlvMedia extends Native {
                 : new Promise((resolve) => {
                     resolve({});
                 });
-        this._create = this._create.bind(this);
         this.promise.then(this._create);
         return this;
     }
@@ -63,11 +64,12 @@ class FlvMedia extends Native {
         }
     }
     destroy() {
-        this._revoke();
+        __classPrivateFieldGet(this, _FlvMedia_player, "f").destroy();
+        __classPrivateFieldSet(this, _FlvMedia_player, null, "f");
     }
     set src(media) {
         if (isFlvSource(media)) {
-            this._revoke();
+            this.destroy();
             this._create();
         }
     }
@@ -122,10 +124,6 @@ class FlvMedia extends Native {
             const e = addEvent(event, { detail: { data } });
             this.element.dispatchEvent(e);
         }
-    }
-    _revoke() {
-        __classPrivateFieldGet(this, _FlvMedia_player, "f").destroy();
-        __classPrivateFieldSet(this, _FlvMedia_player, null, "f");
     }
 }
 _FlvMedia_player = new WeakMap(), _FlvMedia_events = new WeakMap(), _FlvMedia_options = new WeakMap();

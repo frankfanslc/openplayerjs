@@ -21,6 +21,8 @@ class DashMedia extends Native {
         _DashMedia_events.set(this, {});
         _DashMedia_options.set(this, {});
         __classPrivateFieldSet(this, _DashMedia_options, options, "f");
+        this._assign = this._assign.bind(this);
+        this._preparePlayer = this._preparePlayer.bind(this);
         this.promise =
             typeof dashjs === 'undefined'
                 ?
@@ -28,7 +30,6 @@ class DashMedia extends Native {
                 : new Promise((resolve) => {
                     resolve({});
                 });
-        this._assign = this._assign.bind(this);
         this.promise.then(() => {
             __classPrivateFieldSet(this, _DashMedia_player, dashjs.MediaPlayer().create(), "f");
             this.instance = __classPrivateFieldGet(this, _DashMedia_player, "f");
@@ -51,11 +52,17 @@ class DashMedia extends Native {
         }
     }
     destroy() {
-        this._revoke();
+        if (__classPrivateFieldGet(this, _DashMedia_events, "f")) {
+            Object.keys(__classPrivateFieldGet(this, _DashMedia_events, "f")).forEach((event) => {
+                __classPrivateFieldGet(this, _DashMedia_player, "f").off(__classPrivateFieldGet(this, _DashMedia_events, "f")[event], this._assign);
+            });
+            __classPrivateFieldSet(this, _DashMedia_events, [], "f");
+        }
+        __classPrivateFieldGet(this, _DashMedia_player, "f").reset();
     }
     set src(media) {
         if (isDashSource(media)) {
-            this._revoke();
+            this.destroy();
             __classPrivateFieldSet(this, _DashMedia_player, dashjs.MediaPlayer().create(), "f");
             this._preparePlayer();
             __classPrivateFieldGet(this, _DashMedia_player, "f").attachSource(media.src);
@@ -112,15 +119,6 @@ class DashMedia extends Native {
             const e = addEvent(event.type, { detail: event });
             this.element.dispatchEvent(e);
         }
-    }
-    _revoke() {
-        if (__classPrivateFieldGet(this, _DashMedia_events, "f")) {
-            Object.keys(__classPrivateFieldGet(this, _DashMedia_events, "f")).forEach((event) => {
-                __classPrivateFieldGet(this, _DashMedia_player, "f").off(__classPrivateFieldGet(this, _DashMedia_events, "f")[event], this._assign);
-            });
-            __classPrivateFieldSet(this, _DashMedia_events, [], "f");
-        }
-        __classPrivateFieldGet(this, _DashMedia_player, "f").reset();
     }
     _preparePlayer() {
         __classPrivateFieldGet(this, _DashMedia_player, "f").updateSettings(Object.assign({ debug: {

@@ -22,6 +22,10 @@ class FlvMedia extends Native {
         this.#options = options;
         this.element = element;
         this.media = mediaSource;
+
+        this._create = this._create.bind(this);
+        this._assign = this._assign.bind(this);
+
         this.promise =
             typeof flvjs === 'undefined'
                 ? // Ever-green script
@@ -30,7 +34,6 @@ class FlvMedia extends Native {
                       resolve({});
                   });
 
-        this._create = this._create.bind(this);
         this.promise.then(this._create);
         return this;
     }
@@ -57,12 +60,13 @@ class FlvMedia extends Native {
     }
 
     destroy(): void {
-        this._revoke();
+        this.#player.destroy();
+        this.#player = null;
     }
 
     set src(media: Source) {
         if (isFlvSource(media)) {
-            this._revoke();
+            this.destroy();
             this._create();
         }
     }
@@ -126,11 +130,6 @@ class FlvMedia extends Native {
             const e = addEvent(event, { detail: { data } });
             this.element.dispatchEvent(e);
         }
-    }
-
-    private _revoke(): void {
-        this.#player.destroy();
-        this.#player = null;
     }
 }
 

@@ -27,6 +27,10 @@ class HlsMedia extends Native {
         this.element = element;
         this.media = mediaSource;
         __classPrivateFieldSet(this, _HlsMedia_autoplay, autoplay, "f");
+        this._create = this._create.bind(this);
+        this._play = this._play.bind(this);
+        this._pause = this._pause.bind(this);
+        this._assign = this._assign.bind(this);
         this.promise =
             typeof Hls === 'undefined'
                 ?
@@ -34,10 +38,6 @@ class HlsMedia extends Native {
                 : new Promise((resolve) => {
                     resolve({});
                 });
-        this._create = this._create.bind(this);
-        this._revoke = this._revoke.bind(this);
-        this._play = this._play.bind(this);
-        this._pause = this._pause.bind(this);
         this.promise.then(this._create);
         return this;
     }
@@ -60,11 +60,24 @@ class HlsMedia extends Native {
         }
     }
     destroy() {
-        this._revoke();
+        if (__classPrivateFieldGet(this, _HlsMedia_player, "f")) {
+            __classPrivateFieldGet(this, _HlsMedia_player, "f").stopLoad();
+        }
+        if (__classPrivateFieldGet(this, _HlsMedia_events, "f")) {
+            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach((event) => {
+                __classPrivateFieldGet(this, _HlsMedia_player, "f").off(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], args));
+            });
+        }
+        this.element.removeEventListener('play', this._play);
+        this.element.removeEventListener('pause', this._pause);
+        if (__classPrivateFieldGet(this, _HlsMedia_player, "f")) {
+            __classPrivateFieldGet(this, _HlsMedia_player, "f").destroy();
+            __classPrivateFieldSet(this, _HlsMedia_player, null, "f");
+        }
     }
     set src(media) {
         if (isHlsSource(media)) {
-            this._revoke();
+            this.destroy();
             __classPrivateFieldSet(this, _HlsMedia_player, new Hls(__classPrivateFieldGet(this, _HlsMedia_options, "f")), "f");
             __classPrivateFieldGet(this, _HlsMedia_player, "f").loadSource(media.src);
             __classPrivateFieldGet(this, _HlsMedia_player, "f").attachMedia(this.element);
@@ -180,22 +193,6 @@ class HlsMedia extends Native {
             }
             const e = addEvent(event, { detail: { data: data[1] } });
             this.element.dispatchEvent(e);
-        }
-    }
-    _revoke() {
-        if (__classPrivateFieldGet(this, _HlsMedia_player, "f")) {
-            __classPrivateFieldGet(this, _HlsMedia_player, "f").stopLoad();
-        }
-        if (__classPrivateFieldGet(this, _HlsMedia_events, "f")) {
-            Object.keys(__classPrivateFieldGet(this, _HlsMedia_events, "f")).forEach((event) => {
-                __classPrivateFieldGet(this, _HlsMedia_player, "f").off(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], (...args) => this._assign(__classPrivateFieldGet(this, _HlsMedia_events, "f")[event], args));
-            });
-        }
-        this.element.removeEventListener('play', this._play);
-        this.element.removeEventListener('pause', this._pause);
-        if (__classPrivateFieldGet(this, _HlsMedia_player, "f")) {
-            __classPrivateFieldGet(this, _HlsMedia_player, "f").destroy();
-            __classPrivateFieldSet(this, _HlsMedia_player, null, "f");
         }
     }
     _play() {

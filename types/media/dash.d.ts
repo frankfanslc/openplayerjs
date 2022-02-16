@@ -11,7 +11,6 @@ declare class DashMedia extends Native {
     set level(level: number);
     get level(): number;
     private _assign;
-    private _revoke;
     private _preparePlayer;
 }
 export default DashMedia;
