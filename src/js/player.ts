@@ -116,6 +116,9 @@ class Player {
             showLabel: true,
             showProgress: false,
         },
+        media: {
+            pauseOnClick: false,
+        },
         mode: 'responsive', // or `fill` or `fit`
         onError: (e: unknown) => console.error(e),
         pauseOthers: true,
@@ -534,6 +537,7 @@ class Player {
             this.#element.removeAttribute('id');
         } else {
             const encryption =
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 typeof (crypto as any).getRandomBytes === 'function' ? (crypto as any).getRandomBytes : crypto.getRandomValues;
             let uid;
             do {

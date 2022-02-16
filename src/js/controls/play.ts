@@ -37,10 +37,7 @@ class Play implements PlayerComponent {
         this.#button.setAttribute('aria-pressed', 'false');
         this.#button.setAttribute('aria-label', labels?.play || '');
 
-        this.#player
-            .getControls()
-            .getLayer(this.#controlLayer)
-            .appendChild(this.#button);
+        this.#player.getControls().getLayer(this.#controlLayer).appendChild(this.#button);
 
         this.#events.button = (e: Event): void => {
             this.#button.setAttribute('aria-pressed', 'true');
@@ -151,10 +148,11 @@ class Play implements PlayerComponent {
             element.addEventListener(event, this.#events.media[event], EVENT_OPTIONS);
         });
 
-        this.#player
-            .getControls()
-            .getContainer()
-            .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
+        if (this.#player.getOptions().media?.pauseOnClick) {
+            element.addEventListener('click', this.#events.button, EVENT_OPTIONS);
+        }
+
+        this.#player.getControls().getContainer().addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
 
         this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         this.#button.addEventListener('click', this.#events.button, EVENT_OPTIONS);
@@ -165,10 +163,11 @@ class Play implements PlayerComponent {
             this.#player.getElement().removeEventListener(event, this.#events.media[event]);
         });
 
-        this.#player
-            .getControls()
-            .getContainer()
-            .removeEventListener('controlschanged', this.#events.controls.controlschanged);
+        if (this.#player.getOptions().media?.pauseOnClick) {
+            this.#player.getElement().removeEventListener('click', this.#events.button);
+        }
+
+        this.#player.getControls().getContainer().removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
         this.#player.getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
         this.#button.removeEventListener('click', this.#events.button);
