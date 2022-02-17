@@ -177,10 +177,7 @@ class Ads {
             else {
                 __classPrivateFieldSet(this, _Ads_skipElement, document.createElement('button'), "f");
                 __classPrivateFieldGet(this, _Ads_skipElement, "f").className = 'op-ads__skip hidden';
-                __classPrivateFieldGet(this, _Ads_player, "f")
-                    .getControls()
-                    .getContainer()
-                    .appendChild(__classPrivateFieldGet(this, _Ads_skipElement, "f"));
+                __classPrivateFieldGet(this, _Ads_player, "f").getControls().getContainer().appendChild(__classPrivateFieldGet(this, _Ads_skipElement, "f"));
             }
             if (__classPrivateFieldGet(this, _Ads_skipElement, "f")) {
                 __classPrivateFieldGet(this, _Ads_skipElement, "f").addEventListener('click', this._handleSkipAds, EVENT_OPTIONS);

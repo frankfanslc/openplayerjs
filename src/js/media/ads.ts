@@ -603,7 +603,6 @@ class Ads {
                         this.#skipElement.classList.add('hidden');
                     }
                 }
-
                 break;
             default:
                 break;

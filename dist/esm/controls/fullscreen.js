@@ -45,8 +45,8 @@ class Fullscreen {
         this._setFullscreenData(false);
         __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         if (IS_IPHONE) {
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
         }
         return this;
     }
@@ -77,8 +77,8 @@ class Fullscreen {
             document.removeEventListener(event, this._fullscreenChange);
         });
         if (IS_IPHONE) {
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
-            __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
+            __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
         }
         __classPrivateFieldGet(this, _Fullscreen_button, "f").removeEventListener('click', __classPrivateFieldGet(this, _Fullscreen_clickEvent, "f"));
         __classPrivateFieldGet(this, _Fullscreen_button, "f").remove();
@@ -104,7 +104,7 @@ class Fullscreen {
             document.body.classList.remove('op-fullscreen__on');
         }
         else {
-            const video = __classPrivateFieldGet(this, _Fullscreen_player, "f").getElement();
+            const video = __classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer();
             __classPrivateFieldSet(this, _Fullscreen_fullscreenWidth, window.screen.width, "f");
             __classPrivateFieldSet(this, _Fullscreen_fullscreenHeight, window.screen.height, "f");
             if (video.requestFullscreen) {

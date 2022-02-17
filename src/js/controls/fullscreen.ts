@@ -58,8 +58,8 @@ class Fullscreen implements PlayerComponent {
 
         // Since iPhone still doesn't accept the regular Fullscreen API, use the following events
         if (IS_IPHONE) {
-            this.#player.getElement().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
-            this.#player.getElement().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
+            this.#player.getContainer().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
+            this.#player.getContainer().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
         }
         return this;
     }
@@ -97,8 +97,8 @@ class Fullscreen implements PlayerComponent {
             document.removeEventListener(event, this._fullscreenChange);
         });
         if (IS_IPHONE) {
-            this.#player.getElement().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
-            this.#player.getElement().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
+            this.#player.getContainer().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
+            this.#player.getContainer().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
         }
         this.#button.removeEventListener('click', this.#clickEvent);
         this.#button.remove();
@@ -122,7 +122,7 @@ class Fullscreen implements PlayerComponent {
             }
             document.body.classList.remove('op-fullscreen__on');
         } else {
-            const video = this.#player.getElement() as FullscreenElement;
+            const video = this.#player.getContainer() as FullscreenElement;
             this.#fullscreenWidth = window.screen.width;
             this.#fullscreenHeight = window.screen.height;
 
