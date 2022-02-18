@@ -2036,9 +2036,9 @@ var Fullscreen = function () {
     fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
 
     if (IS_IPHONE) {
-      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
+      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitbeginfullscreen', this._setFullscreen, EVENT_OPTIONS);
 
-      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
+      fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().addEventListener('webkitendfullscreen', this._unsetFullscreen, EVENT_OPTIONS);
     }
 
     return this;
@@ -2089,9 +2089,9 @@ var Fullscreen = function () {
       });
 
       if (IS_IPHONE) {
-        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
+        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitbeginfullscreen', this._setFullscreen);
 
-        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
+        fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement().removeEventListener('webkitendfullscreen', this._unsetFullscreen);
       }
 
       fullscreen_classPrivateFieldGet(this, _Fullscreen_button, "f").removeEventListener('click', fullscreen_classPrivateFieldGet(this, _Fullscreen_clickEvent, "f"));
@@ -2118,20 +2118,20 @@ var Fullscreen = function () {
 
         document.body.classList.remove('op-fullscreen__on');
       } else {
-        var video = fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getContainer();
+        var video = fullscreen_classPrivateFieldGet(this, _Fullscreen_player, "f").getElement();
 
         fullscreen_classPrivateFieldSet(this, _Fullscreen_fullscreenWidth, window.screen.width, "f");
 
         fullscreen_classPrivateFieldSet(this, _Fullscreen_fullscreenHeight, window.screen.height, "f");
 
         if (video.requestFullscreen) {
-          video.requestFullscreen();
+          video.parentElement.requestFullscreen();
         } else if (video.mozRequestFullScreen) {
-          video.mozRequestFullScreen();
+          video.parentElement.mozRequestFullScreen();
         } else if (video.webkitRequestFullScreen) {
-          video.webkitRequestFullScreen();
+          video.parentElement.webkitRequestFullScreen();
         } else if (video.msRequestFullscreen) {
-          video.msRequestFullscreen();
+          video.parentElement.msRequestFullscreen();
         } else if (video.webkitEnterFullscreen) {
           video.webkitEnterFullscreen();
         } else {
