@@ -152,7 +152,10 @@ class Play implements PlayerComponent {
             element.addEventListener('click', this.#events.button, EVENT_OPTIONS);
         }
 
-        this.#player.getControls().getContainer().addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
+        this.#player
+            .getControls()
+            .getContainer()
+            .addEventListener('controlschanged', this.#events.controls.controlschanged, EVENT_OPTIONS);
 
         this.#player.getContainer().addEventListener('keydown', this._enterSpaceKeyEvent, EVENT_OPTIONS);
         this.#button.addEventListener('click', this.#events.button, EVENT_OPTIONS);
@@ -167,7 +170,10 @@ class Play implements PlayerComponent {
             this.#player.getElement().removeEventListener('click', this.#events.button);
         }
 
-        this.#player.getControls().getContainer().removeEventListener('controlschanged', this.#events.controls.controlschanged);
+        this.#player
+            .getControls()
+            .getContainer()
+            .removeEventListener('controlschanged', this.#events.controls.controlschanged);
 
         this.#player.getContainer().removeEventListener('keydown', this._enterSpaceKeyEvent);
         this.#button.removeEventListener('click', this.#events.button);

@@ -100,14 +100,20 @@ class Captions implements PlayerComponent {
                 <div class="op-settings__submenu-item" tabindex="0" role="menuitemradio" aria-checked="${
                     this.#default === 'off' ? 'true' : 'false'
                 }">
-                    <div class="op-settings__submenu-label op-subtitles__option" data-value="captions-off">${labels?.off}</div>
+                    <div class="op-settings__submenu-label op-subtitles__option" data-value="captions-off">${
+                        labels?.off
+                    }</div>
                 </div>
             </div>`;
         }
 
         // Determine if tracks are valid (have valid URLs and contain cues); if so include them in the list of available tracks.
         // Otherwise, remove the markup associated with them
-        for (let i = 0, trackItems = this.#player.getElement().querySelectorAll('track'), total = trackItems.length; i < total; i++) {
+        for (
+            let i = 0, trackItems = this.#player.getElement().querySelectorAll('track'), total = trackItems.length;
+            i < total;
+            i++
+        ) {
             const element = trackItems[i] as HTMLTrackElement;
             if (element.kind === 'subtitles' || element.kind === 'captions') {
                 if (element.default) {
@@ -133,7 +139,9 @@ class Captions implements PlayerComponent {
                                 this._prepareTrack(i, element.srclang, trackUrl, element.default || false);
 
                                 // Build only items that are successful
-                                const selector = `.op-subtitles__option[data-value="captions-${this.#mediaTrackList[i].language}"]`;
+                                const selector = `.op-subtitles__option[data-value="captions-${
+                                    this.#mediaTrackList[i].language
+                                }"]`;
                                 if (this.#menu && !this.#menu.querySelector(selector)) {
                                     const item = document.createElement('div');
                                     const label = labels?.lang ? labels.lang[this.#mediaTrackList[i].language] : null;
@@ -216,6 +224,7 @@ class Captions implements PlayerComponent {
                 }
             }
         };
+
         this.#events.button.mouseover = (): void => {
             if (!IS_IOS && !IS_ANDROID && detachMenus) {
                 const menus = this.#player.getContainer().querySelectorAll('.op-settings');
@@ -279,7 +288,8 @@ class Captions implements PlayerComponent {
                         this.#button.setAttribute('data-active-captions', language);
                     }
                     if (option.parentElement && option.parentElement.parentElement) {
-                        const captions = option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item');
+                        const captions =
+                            option.parentElement.parentElement.querySelectorAll('.op-settings__submenu-item');
                         for (let i = 0, total = captions.length; i < total; ++i) {
                             captions[i].setAttribute('aria-checked', 'false');
                         }

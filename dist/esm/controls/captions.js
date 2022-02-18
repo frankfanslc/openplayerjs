@@ -225,10 +225,16 @@ class Captions {
                 itemContainer.className = `op-controls__container op-control__${__classPrivateFieldGet(this, _Captions_controlPosition, "f")}`;
                 itemContainer.appendChild(__classPrivateFieldGet(this, _Captions_button, "f"));
                 itemContainer.appendChild(__classPrivateFieldGet(this, _Captions_menu, "f"));
-                __classPrivateFieldGet(this, _Captions_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f")).appendChild(itemContainer);
+                __classPrivateFieldGet(this, _Captions_player, "f")
+                    .getControls()
+                    .getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f"))
+                    .appendChild(itemContainer);
             }
             else {
-                __classPrivateFieldGet(this, _Captions_player, "f").getControls().getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f")).appendChild(__classPrivateFieldGet(this, _Captions_button, "f"));
+                __classPrivateFieldGet(this, _Captions_player, "f")
+                    .getControls()
+                    .getLayer(__classPrivateFieldGet(this, _Captions_controlLayer, "f"))
+                    .appendChild(__classPrivateFieldGet(this, _Captions_button, "f"));
             }
             __classPrivateFieldGet(this, _Captions_button, "f").addEventListener('click', __classPrivateFieldGet(this, _Captions_events, "f").button.click, EVENT_OPTIONS);
         }

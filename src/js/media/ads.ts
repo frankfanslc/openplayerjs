@@ -81,7 +81,13 @@ class Ads {
 
     #mediaStarted = false;
 
-    constructor(player: Player, ads: string | string[], autostart?: boolean, autostartMuted?: boolean, options?: AdsOptions) {
+    constructor(
+        player: Player,
+        ads: string | string[],
+        autostart?: boolean,
+        autostartMuted?: boolean,
+        options?: AdsOptions
+    ) {
         const defaultOpts: AdsOptions = {
             autoPlayAdBreaks: true,
             customClick: {
@@ -119,7 +125,9 @@ class Ads {
         this.#originalVolume = this.#element.volume;
         this.#volume = this.#originalVolume;
 
-        const path = this.#options?.debug ? this.#options?.sdkPath?.replace(/(\.js$)/, '_debug.js') : this.#options?.sdkPath;
+        const path = this.#options?.debug
+            ? this.#options?.sdkPath?.replace(/(\.js$)/, '_debug.js')
+            : this.#options?.sdkPath;
 
         this.load = this.load.bind(this);
         this.resizeAds = this.resizeAds.bind(this);
@@ -165,7 +173,11 @@ class Ads {
     }
 
     load(force = false): void {
-        if (typeof google === 'undefined' || !google.ima || (!force && this.loadedAd && this.#options.autoPlayAdBreaks)) {
+        if (
+            typeof google === 'undefined' ||
+            !google.ima ||
+            (!force && this.loadedAd && this.#options.autoPlayAdBreaks)
+        ) {
             return;
         }
 
@@ -193,7 +205,9 @@ class Ads {
         if (this.#options.customClick?.enabled) {
             this.#customClickContainer = document.createElement('div');
             this.#customClickContainer.className = 'op-ads__click-container';
-            this.#customClickContainer.innerHTML = `<div class="op-ads__click-label">${this.#options.customClick.label}</div>`;
+            this.#customClickContainer.innerHTML = `<div class="op-ads__click-label">${
+                this.#options.customClick.label
+            }</div>`;
             if (this.#element.parentElement) {
                 this.#element.parentElement.insertBefore(this.#customClickContainer, this.#element.nextSibling);
             }
@@ -241,10 +255,18 @@ class Ads {
         google.ima.settings.setPlayerType('openplayerjs');
         google.ima.settings.setPlayerVersion('3.0.0');
 
-        this.#displayContainer = new google.ima.AdDisplayContainer(this.#container, this.#element, this.#customClickContainer);
+        this.#displayContainer = new google.ima.AdDisplayContainer(
+            this.#container,
+            this.#element,
+            this.#customClickContainer
+        );
 
         this.#loader = new google.ima.AdsLoader(this.#displayContainer);
-        this.#loader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this._loaded, EVENT_OPTIONS);
+        this.#loader.addEventListener(
+            google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+            this._loaded,
+            EVENT_OPTIONS
+        );
 
         this.#loader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this._error, EVENT_OPTIONS);
 
@@ -368,7 +390,10 @@ class Ads {
     resizeAds(width?: number, height?: number): void {
         if (this.#manager) {
             const target = this.#element;
-            const mode = target.getAttribute('data-fullscreen') === 'true' ? google.ima.ViewMode.FULLSCREEN : google.ima.ViewMode.NORMAL;
+            const mode =
+                target.getAttribute('data-fullscreen') === 'true'
+                    ? google.ima.ViewMode.FULLSCREEN
+                    : google.ima.ViewMode.NORMAL;
 
             let formattedWidth = width;
             const percentageWidth = width ? width.toString() : '';
@@ -393,7 +418,11 @@ class Ads {
             }
             if (typeof window !== 'undefined') {
                 timeout = window.requestAnimationFrame(() => {
-                    this.#manager.resize(formattedWidth || target.offsetWidth, formattedHeight || target.offsetHeight, mode);
+                    this.#manager.resize(
+                        formattedWidth || target.offsetWidth,
+                        formattedHeight || target.offsetHeight,
+                        mode
+                    );
                 });
             }
         }
@@ -499,7 +528,10 @@ class Ads {
                 break;
             case google.ima.AdEvent.Type.STARTED:
                 if (ad.isLinear()) {
-                    if (this.#element.parentElement && !this.#element.parentElement.classList.contains('op-ads--active')) {
+                    if (
+                        this.#element.parentElement &&
+                        !this.#element.parentElement.classList.contains('op-ads--active')
+                    ) {
                         this.#element.parentElement.classList.add('op-ads--active');
                     }
 
@@ -596,7 +628,8 @@ class Ads {
                             this.#skipElement.classList.remove('disabled');
                         } else {
                             this.#skipElement.textContent =
-                                this.#options.audioSkip?.remainingLabel.replace('[[secs]]', remainingTime.toString()) || '';
+                                this.#options.audioSkip?.remainingLabel.replace('[[secs]]', remainingTime.toString()) ||
+                                '';
                             this.#skipElement.classList.add('disabled');
                         }
                     } else {
@@ -646,7 +679,8 @@ class Ads {
 
         // @see https://support.google.com/admanager/answer/4442429?hl=en
         const fatalErrorCodes = [
-            100, 101, 102, 300, 301, 302, 303, 400, 401, 402, 403, 405, 406, 407, 408, 409, 410, 500, 501, 502, 503, 900, 901, 1005,
+            100, 101, 102, 300, 301, 302, 303, 400, 401, 402, 403, 405, 406, 407, 408, 409, 410, 500, 501, 502, 503,
+            900, 901, 1005,
         ];
 
         if (Array.isArray(this.#ads) && this.#ads.length > 1 && this.#currentIndex < this.#ads.length - 1) {
@@ -690,8 +724,16 @@ class Ads {
             this.#customClickContainer.classList.add('op-ads__click-container--visible');
         }
         // Add listeners to the required events.
-        manager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, this._onContentPauseRequested, EVENT_OPTIONS);
-        manager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, this._onContentResumeRequested, EVENT_OPTIONS);
+        manager.addEventListener(
+            google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+            this._onContentPauseRequested,
+            EVENT_OPTIONS
+        );
+        manager.addEventListener(
+            google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+            this._onContentResumeRequested,
+            EVENT_OPTIONS
+        );
 
         this.#events = [
             google.ima.AdEvent.Type.ALL_ADS_COMPLETED,

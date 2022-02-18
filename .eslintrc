@@ -1,12 +1,17 @@
 {
-  "extends": [
-    "airbnb-base",
-    "plugin:@typescript-eslint/recommended",
-    "eslint:recommended",
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
     "prettier"
   ],
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "airbnb-base",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "ignorePatterns": ["types/**/*.ts", "src/css/*", "dist/**/*.js", "webpack.config.js"],
   "env": {
     "es6": true,
@@ -44,6 +49,7 @@
     "@typescript-eslint/no-unused-vars": 2,
     "prettier/prettier": 2,
     "semi": 0,
+    "newline-per-chained-call": 2,
     "@typescript-eslint/explicit-module-boundary-types": 0,
     "@typescript-eslint/no-extra-semi": 2,
     "@typescript-eslint/explicit-function-return-type": 2

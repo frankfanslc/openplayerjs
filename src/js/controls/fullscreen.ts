@@ -47,7 +47,12 @@ class Fullscreen implements PlayerComponent {
         this._setFullscreen = this._setFullscreen.bind(this);
         this._unsetFullscreen = this._unsetFullscreen.bind(this);
 
-        this.#fullscreenEvents = ['fullscreenchange', 'mozfullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'];
+        this.#fullscreenEvents = [
+            'fullscreenchange',
+            'mozfullscreenchange',
+            'webkitfullscreenchange',
+            'msfullscreenchange',
+        ];
 
         this.#fullscreenEvents.forEach((event) => {
             document.addEventListener(event, this._fullscreenChange, EVENT_OPTIONS);
